@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab4.html
+     PURPOSE:   exercises with the parser
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 4 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab4.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<BR>
+
+<H3>Examine the X Parser</H3>
+<P>
+  (10 min) Parse many different source strings as in
+  <PRE>
+    >> xcom -parseTrace -noExecute x:=1
+    >> xcom -parseTrace -bottomUp -noExecute x:=1
+    >> xcom -parseDump -noExecute 'if x<0? y:=1; :: x>0? y:=2; fi'
+    >> xcom -parseDump -noExecute 'x:=x+(0+11-222*3333/44444);'
+    >> xcom -srcDump -parseDump -noExecute x/sqrt.x
+    >> % your turn to choose the source text</PRE>
+</P>
+
+<H3>Hack Parser for E.cfg</H3>
+  <P>
+    (05 min) Recall the Cfg 
+    <A HREF="lab2.html">tasks</A> for E.cfg.  
+    There is a standalone program <TT>parseE.cfg</TT> which 
+    applies E.cfg to input texts.
+    It does not use Cfg.m or Lexer.m.
+    Examine the new parser:
+  </P>
+  <PRE>
+    >> edit parseE.m</PRE>
+  <P>
+    The rules in E.cfg are numbered 1-5.
+  </P>
+  <P>
+    (05 min) Try at least:
+  </P>
+  <PRE>
+    >> parseE('i*i')
+    >> parseE('(i)')
+  </PRE>
+  <P>
+    and perhaps some other strings you think E.cfg should describe.
+    The output will be the numbers of the rules that were applied
+    interspersed with the input characters.
+    Confirm that the shift/reduce sequence is what you expected.
+    Note that the useless parens are discarded -- so it is not quite 
+    a formal shift/reduce sequence.
+  </P>
+  <P>
+    (20 min) As before, 
+    add a phrase name <TT>S</TT> and operator <TT>+</TT> to
+    the version of E.cfg in the block comment in <TT>parseE.m.</TT>
+    You will probably renumber all the rules just to be neat.
+    Then extend <TT>parseE.cfg</TT> to parse your new language.
+    Don't forget the need to remove left recursion. Try it.
+  </P>
+  <P>
+    If you found this helpful, add <TT>-</TT> and <TT>/</TT> to the grammar
+    and do it all over again.
+  </P>
+  
+  <H3>Test the X parser</H3>
+  <P>
+  (20 min) Add a unit test to <TT>testParser.m</TT>
+  <PRE>
+    >> cd mxcom/m
+    >> addpath tests
+    >> edit testParser</PRE>
+  </P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

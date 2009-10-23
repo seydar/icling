@@ -1,0 +1,22 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    caller.x
+}\\
+{\tt\char18}{\em{} PURPOSE: minimal subprogram test for xcom
+}\\
+{\tt\char18}{\em{} METHOD:  xcom x/called.x x/caller.x
+}\\
+x\ $\leftarrow$\ 1;\\
+x\ $\leftarrow$\ called\ $\leftarrow$\ 100;\\
+{\tt\char18}{\em{} assert called returns 17
+}\\
+{\bf if}\>x\ $=$\ 100$+$17\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+\end{tabbing}
+\end{document}

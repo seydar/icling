@@ -1,0 +1,527 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0037)http://www.quantasm.com/opcode_f.html -->
+<HTML><HEAD><TITLE>80x87 Instruction Set (8087 - Pentium)</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="John Allen" name=Author>
+<META content="MSHTML 5.50.4611.1300" name=GENERATOR>
+<META content="Floating Point Instruction Set (x87 - Pentium." name=Description>
+<META content="Floating Point, opcodes, x87, 8087, assembly" name=KeyWords>
+<META content=computers name=Classification></HEAD>
+<BODY text=#000000 vLink=#551a8b aLink=#ff0000 link=#0000ee bgColor=#c0c0c0 
+background=8087_files/quanback.jpg>
+<H1>80x87 Instruction Set (x87 - Pentium) </H1>
+<P>Click <A href="http://www.quantasm.com/opcode_i.html">Integer opcodes </A>for 
+integer instructions </P>
+<P><A href="http://www.quantasm.com/opcode_f.html#end of legend">Jump 
+&nbsp;</A>to end of Legend</P>
+<H2>Legend: </H2>
+<H3>General:</H3><PRE><B> reg</B>   = floating point register, st(0), st(1) ... st(7)
+ <B>mem</B>   = memory address
+ <B>mem32</B> = memory address of 32-bit item
+ <B>mem64</B> = memory address of 64-bit item
+ <B>mem80</B> = memory address of 80-bit item
+
+</PRE>
+<H3>FPU instruction timings:</H3><PRE> <B>FX</B> = pairs with FXCH
+ <B>NP</B> = no pairing
+ Timings with a <B>hyphen</B> indicate a range of possible timings
+ Timings with a <B>slash</B> (unless otherwise noted) are latency and throughput.
+ Latency is the time between instructions dependent on the result.
+ Throughput is the pipeline throughput between non conflicting instructions.
+ <B>EA</B> = cycles to calculate the Effective Address
+</PRE>
+<H3>FPU instruction sizing:</H3>
+<P>All FPU instructions that do not access memory are two bytes in length. 
+(except FWAIT which is one byte)</P>
+<P>FPU instructions that access memory are four bytes for 16-bit addressing and 
+six bytes for 32-bit addressing.</P>
+<P><A name="end of legend"></A>(end of legend)</P>
+<H3>Instruction formats, clock cycles and Pentium® Pairing info</H3><PRE><B>F2XM1</B>   Compute 2<SUP>x</SUP>-1
+
+                  8087         287        387      486     Pentium
+                310-630      310-630    211-476  140-279   13-57   NP
+
+
+<B>FABS</B>    Absolute value
+
+                  8087         287        387      486     Pentium
+                 10-17        10-17       22        3       1      FX
+
+
+<B>FADD </B>   Floating point add
+<B>FADDP </B>  Floating point add and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fadd         70-100       70-100     23-34     8-20    3/1     FX
+    fadd  mem32  90-120+EA    90-120     24-32     8-20    3/1     FX
+    fadd  mem64  95-125+EA    95-125     29-37     8-20    3/1     FX
+    faddp        75-105       75-105     23-31     8-20    3/1     FX
+
+
+<B>FBLD</B>    Load BCD
+
+     operand      8087         287        387      486     Pentium
+     mem       (290-310)+EA  290-310    266-275   70-103   48-58   NP
+
+
+<B>FBSTP </B>  Store BCD and pop
+
+                  8087         287        387      486     Pentium
+               (520-540)+EA  520-540    512-534  172-176   148-154 NP
+
+
+<B>FCHS </B>   Change sign
+
+                  8087         287        387      486     Pentium
+                 10-17        10-17      24-25      6       1      FX
+
+
+<B>FCLEX</B>   Clear exceptions
+<B>FNCLEX</B>  Clear exceptions, no wait
+
+    variations    8087         287        387      486     Pentium
+    fclex         2-8          2-8        11        7       9      NP
+    fnclex        2-8          2-8        11        7       9      NP
+
+                The wait version may take additional cycles
+
+
+<B>FCOM</B>    Floating point compare
+<B>FCOMP </B>  Floating point compare and pop
+<B>FCOMPP</B>  Floating point compare and pop twice
+
+    variations/
+    operand      8087         287        387      486     Pentium
+    fcom reg     40-50        40-50       24        4      4/1     FX
+    fcom mem32  (60-70)+EA    60-70       26        4      4/1     FX
+    fcom mem64  (65-75)+EA    65-75       31        4      4/1     FX
+    fcomp        42-52        42-52       26        4      4/1     FX
+    fcompp       45-55        45-55       26        5      4/1     FX
+
+
+<B>FCOS</B>    Floating point cosine (387+)
+
+                  8087         287        387      486     Pentium
+                   -            -       123-772  257-354   18-124  NP
+              <B>  Additional cycles required if operand &gt; pi/4 (~3.141/4 = ~.785)
+
+FDECSTP</B>         Decrement floating point stack pointer
+
+                  8087         287        387      486     Pentium
+                  6-12         6-12       22        3       1      NP
+
+<B>FDISI</B>   Disable interrupts (8087 only, others do fnop)
+<B>FNDISI </B> Disable interrupts, no wait (8087 only, others do fnop)
+
+    variations    8087         287        387      486     Pentium
+    fdisi         2-8           2          2        3       1      NP
+    fndisi        2-8           2          2        3       1      NP
+
+                The wait version may take additional cycles
+
+<B>FDIV </B>   Floating divide
+<B>FDIVP </B>  Floating divide and pop
+
+    variations/
+    operand       8087         287        387      46     Pentiu/m
+    fdiv reg    193-203      193-203     88-91     73      39      FX
+    fdiv mem32 (215-225)+EA  215-225      89       73      39      FX
+    fdiv mem64 (220-230)+EA  220-230      94       73      39      FX
+    fdivp       197-207      197-207      91       73      39      FX
+
+
+<B>FDIVR</B>   Floating divide reversed
+<B>FDIVRP</B>  Floating divide reversed and pop
+
+   variations/
+   operand        8087         287        387      486     Pentium
+   fdivr reg    194-204      194-204     88-91     73      39      FX
+   fdivr mem32 (216-226)+EA  216-226      89       73      39      FX
+   fdivr mem64 (221-231)+EA  221-231      94       73      39      FX
+   fdivrp       198-208      198-208      91       73      39      FX
+
+
+<B>FENI</B>    Enable interrupts (8087 only, others do fnop)
+<B>FNENI</B>   Enable interrupts, nowait (8087 only, others do fnop)
+
+    variations    8087         287        387      486     Pentium
+    feni          2-8           2          2        3       1      NP
+    fneni         2-8           2          2        3       1      NP
+
+
+<B>FFREE </B>  Free register
+
+                  8087         287        387      486     Pentium
+                  9-16         9-16       18        3       1      NP
+
+
+<B>FIADD</B>   Integer add
+
+      operand     8087         287        387      486     Pentium
+      mem16    (102-137)+EA  102-137     71-85    20-35    7/4     NP
+      mem32    (108-143)+EA  108-143     57-72    19-32    7/4     NP
+
+
+<B>FICOM </B>  Integer compare
+<B>FICOMP </B> Integer compare and pop
+
+   variations/
+   operand        8087         287        387      486     Pentium
+   ficom  mem16  (72-86)+EA   72-86      71-75    16-20    8/4     NP
+   ficom  mem32  (78-91)+EA   78-91      56-63    15-17    8/4     NP
+   ficomp mem16  (74-88)+EA   74-88      71-75    16-20    8/4     NP
+   ficomp mem32  (80-93)+EA   80-93      56-63    15-17    8/4     NP
+
+
+<B>FIDIV  </B> Integer divide
+<B>FIDIVR</B>  Integer divide reversed
+
+   variations/
+   operand        8087         287        387      486     Pentium
+   fidiv  mem16  (224-238)+EA  224-238  136-140   85-89    42      NP
+   fidiv  mem32  (230-243)+EA  230-243  120-127   84-86    42      NP
+   fidivr mem16  (225-239)+EA  225-239  135-141   85-89    42      NP
+   fidivr mem32  (231-245)+EA  231-245  121-128   84-86    42      NP
+
+
+<B>FILD </B>   Load integer
+
+     operand      8087         287        387      486     Pentium
+     mem16      (46-54)+EA    46-54      61-65    13-16    3/1     NP
+     mem32      (52-60)+EA    52-60      45-52     9-12    3/1     NP
+     mem64      (60-68)+EA    60-68      56-67    10-18    3/1     NP
+
+
+<B>FIMUL </B>  Integer multiply
+
+      operand     8087         287        387      486     Pentium
+      mem16    (124-138)+EA   124-138    76-87    23-27    7/4     NP
+      mem32    (130-144)+EA   130-144    61-82    22-24    7/4     NP
+
+
+<B>FINCSTP </B>        Increment floating point stack pointer
+
+                  8087         287        387      486     Pentium
+                  6-12         6-12       21        3       1      NP
+
+
+<B>FINIT</B>   Initialize floating point processor
+<B>FNINIT</B>  Initialize floating point processor, no wait
+
+    variations    8087         287        387      486     Pentium
+    finit         2-8          2-8        33       17      16      NP
+    fninit        2-8          2-8        33       17      12      NP
+
+                The wait version may take additional cycles
+
+
+<B>FIST </B>   Store integer
+<B>FISTP</B>   Store integer and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fist  mem16  (80-90)+EA   80-90      82-95    29-34     6      NP
+    fist  mem32  (82-92)+EA   82-92      79-93    28-34     6      NP
+    fistp mem16  (82-92)+EA   82-92      82-95    29-34     6      NP
+    fistp mem32  (84-94)+EA   84-94      79-93    28-34     6      NP
+    fistp mem64  (94-105)+EA  94-105     80-97    28-34     6      NP
+
+
+<B>FISUB</B>   Integer subtract
+<B>FISUBR  </B>Integer subtract reversed
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fisub  mem16 (102-137)+EA 102-137     71-85    20-35    7/4     NP
+    fisubr mem32 (108-143)+EA 108-143     57-82    19-32    7/4     NP
+
+
+<B>FLD </B>    Floating point load
+
+    operand       8087         287        387      486     Pentium
+    reg          17-22        17-22       14        4       1      FX
+    mem32       (38-56)+EA    38-56       20        3       1      FX
+    mem64       (40-60)+EA    40-60       25        3       1      FX
+    mem80       (53-65)+EA    53-65       44        6       3      NP
+
+
+             Load floating point constants
+
+<B>FLDZ </B>   Load constant onto stack, 0.0
+<B>FLD1 </B>   Load constant onto stack, 1.0
+<B>FLDL2E </B> Load constant onto stack, logarithm base 2 (e)
+<B>FLDL2T  </B>Load constant onto stack, logarithm base 2 (10)
+<B>FLDLG2</B>  Load constant onto stack, logarithm base 10 (2)
+<B>FLDLN2 </B> Load constant onto stack, natural logarithm (2)
+<B>FLDPI</B>   Load constant onto stack, pi (3.14159...)
+
+    variations    8087         287        387      486     Pentium
+    fldz         11-17        11-17       20        4       2      NP
+    fld1         15-21        15-21       24        4       2      NP
+    fldl2e       15-21        15-21       40        8      5/3     NP
+    fldl2t       16-22        16-22       40        8      5/3     NP
+    fldlg2       18-24        18-24       41        8      5/3     NP
+    fldln2       17-23        17-23       41        8      5/3     NP
+    fldpi        16-22        16-22       40        8      5/3     NP
+
+
+<B>FLDCW</B>   Load control word
+
+      operand     8087         287        387      486     Pentium
+      mem16      (7-14)+EA     7-14       19        4       7      NP
+
+
+<B>FLDENV </B> Load environment state
+
+        operand   8087         287        387      486     Pentium
+        mem     (35-45)+EA    35-45       71      44/34    37/32-33 NP
+
+                cycles for real mode/protected mode
+
+
+<B>FMUL </B>   Floating point multiply
+<B>FMULP</B>   Floating point multiply and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fmul reg s    90-105       90-105    29-52     16      3/1     FX
+    fmul reg     130-145      130-145    46-57     16      3/1     FX
+    fmul mem32  (110-125)+EA  110-125    27-35     11      3/1     FX
+    fmul mem64  (154-168)+EA  154-168    32-57     14      3/1     FX
+    fmulp reg s   94-108       94-108    29-52     16      3/1     FX
+    fmulp reg    134-148      134-148    29-57     16      3/1     FX
+
+            s = register with 40 trailing zeros in fraction
+
+
+<B>FNOP</B>    no operation
+                  8087         287        387      486     Pentium
+
+                 10-16        10-16       12        3       1      NP
+
+
+<B>FPATAN</B>  Partial arctangent
+
+                  8087         287        387      486     Pentium
+                250-800      250-800    314-487  218-303   17-173
+
+
+<B>FPREM </B>  Partial remainder
+<B>FPREM1</B>  Partial remainder (IEEE compatible, 387+)
+
+    variations    8087         287        387      486     Pentium
+    fprem        15-190       15-190     74-155   70-138   16-64   NP
+    fprem1         -            -        95-185   72-167   20-70   NP
+
+
+<B>FPTAN </B>  Partial tangent
+
+                  8087         287        387      486     Pentium
+                 30-540       30-540    191-497  200-273   17-173  NP
+               <B>  Additional cycles required if operand &gt; pi/4 (~3.141/4 = ~.785) </B></PRE><PRE><B>FRNDINT</B>         Round to integer
+
+                  8087         287        387      486     Pentium
+                 16-50        16-50      66-80    21-30    9-20    NP
+
+
+<B>FRSTOR</B>  Restore saved state
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    frstor  mem  (197-207)+EA 197-207     308    131/120   75-95/70 NP
+    frstorw mem    -            -         308    131/120   75-95/70 NP
+    frstord mem    -            -         308    131/120   75-95/70 NP
+
+                  cycles for real mode/protected mode
+
+
+                        Save FPU State
+
+<B>FSAVE</B>   Save FPU state
+<B>FSAVEW </B> Save FPU state, 16-bit format (387+)
+<B>FSAVED</B>  Save FPU state, 32-bit format (387+)
+<B>FSAVE</B>   Save FPU state, no wait
+<B>FSAVEW </B> Save FPU state, no wait, 16-bit format (387+)
+<B>FSAVED </B> Save FPU state, no wait, 32-bit format (387+)
+
+    variations    8087         287        387      486     Pentium
+    fsave      (197-207)+EA  197-207    375-376  154/143  127-151/124 NP
+    fsavew                              375-376  154/143  127-151/124 NP
+    fsaved                              375-376  154/143  127-151/124 NP
+    fnsave     (197-207)+EA  197-207    375-376  154/143  127-151/124 NP
+    fnsavew                             375-376  154/143  127-151/124 NP
+    fnsaved                             375-376  154/143  127-151/124 NP
+
+                Cycles for real mode/protected mode
+                The wait version may take additional cycles
+
+
+<B>FSCALE</B>  Scale by factor of 2
+
+                  8087         287        387      486     Pentium
+                 32-38        32-38      67-86    30-32    20-31   NP
+
+
+<B>FSETPM </B> Set protected mode (287 only, 387+ = fnop)
+
+                  8087         287        387      486     Pentium
+                   -           2-8        12        3       1      NP
+
+
+<B>FSIN </B>           Sine (387+)
+<B>FSINCOS</B>         Sine and cosine (387+)
+
+    variations    8087         287        387      486     Pentium
+    fsin           -            -       122-771  257-354   16-126  NP
+    fsincos        -            -       194-809  292-365   17-137  NP
+ <B>  Additional cycles required if operand &gt; pi/4 (~3.141/4 = ~.785) 
+
+
+FSQRT</B>   Square root
+
+                  8087         287        387      486     Pentium
+                180-186      180-186    122-129   83-87    70      NP
+
+
+<B>FST </B>    Floating point store
+<B>FSTP  </B>  Floating point store and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fst  reg     15-22        15-22       11        3       1      NP
+    fst  mem32  (84-90)+EA    84-90       44        7       2      NP
+    fst  mem64  (96-104)+EA   96-104      45        8       2      NP
+    fstp reg     17-24        17-24       12        3       1      NP
+    fstp mem32  (86-92)+EA    86-92       44        7       2      NP
+    fstp mem64  (98-106)+EA   98-106      45        8       2      NP
+    fstp mem80  (52-58)+EA    52-58       53        6       3      NP
+
+
+<B>FSTCW </B>  Store control word
+<B>FNSTCW</B>  Store control word, no wait
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fstcw  mem   12-18        12-18       15        3       2      NP
+    fnstcw mem   12-18        12-18       15        3       2      NP
+
+                The wait version may take additional cycles
+
+
+                        Store FPU environment
+
+<B>FSTENV </B>         Store FPU environment
+<B>FSTENVW</B>         Store FPU environment, 16-bit format (387+)
+<B>FSTENVD </B>        Store FPU environment, 32-bit format (387+)
+<B>FNSTENV</B>         Store FPU environment, no wait
+<B>FNSTENVW </B>       Store FPU environment, no wait, 16-bit format (387+)
+<B>FNSTENVD </B>       Store FPU environment, no wait, 32-bit format (387+)
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fstenv   mem  (40-50)+EA    40-50     103-104   67/56    48-50   NP
+    fstenvw  mem                          103-104   67/56    48-50   NP
+    fstenvd  mem                          103-104   67/56    48-50   NP
+    fnstenv  mem  (40-50)+EA    40-50     103-104   67/56    48-50   NP
+    fnstenvw mem                          103-104   67/56    48-50   NP
+    fnstenvd mem                          103-104   67/56    48-50   NP
+
+                Cycles for real mode/protected mode
+                The wait version may take additional cycles
+
+
+
+<B>FSTSW</B>   Store status word
+<B>FNSTSW </B> Store status word, no wait
+
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fstsw  mem   12-18        12-18       15        3       2      NP
+    fstsw  ax      -          10-16       13        3       2      NP
+    fnstsw mem   12-18        12-18       15        3       2      NP
+    fnstsw ax      -          10-16       13        3       2      NP
+
+                The wait version may take additional cycles
+
+
+
+<B>FSUB </B>   Floating point subtract
+<B>FSUBP</B>   Floating point subtract and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fsub  reg     70-100      70-100     26-37     8-20    3/1     FX
+    fsub  mem32  (90-120)+EA  90-120     24-32     8-20    3/1     FX
+    fsub  mem64  (95-125)+EA  95-125     28-36     8-20    3/1     FX
+    fsubp reg     75-105      75-105     26-34     8-20    3/1     FX
+
+
+
+<B>FSUBR</B>   Floating point reverse subtract
+<B>FSUBRP</B>  Floating point reverse subtract and pop
+
+    variations/
+    operand       8087         287        387      486     Pentium
+    fsubr  reg    70-100      70-100     26-37     8-20    3/1     FX
+    fsubr  mem32 (90-120)+EA  90-120     24-32     8-20    3/1     FX
+    fsubr  mem64 (95-125)+EA  95-125     28-36     8-20    3/1     FX
+    fsubrp reg    75-105      75-105     26-34     8-20    3/1     FX
+
+
+<B>FTST</B>    Floating point test for zero
+
+                  8087         287        387      486     Pentium
+                 38-48        38-48       28        4      4/1     FX
+
+
+
+<B>FUCOM</B>   Unordered floating point compare (387+)
+<B>FUCOMP</B>  Unordered floating point compare and pop (387+)
+<B>FUCOMPP </B>Unordered floating point compare and pop twice (387+)
+
+    variations    8087         287        387      486     Pentium
+    fucom          -            -         24        4      4/1     FX
+    fucomp         -            -         26        4      4/1     FX
+    fucompp        -            -         26        5      4/1     FX
+
+
+<B>FWAIT</B>   Wait while FPU is executing
+
+                  8087         287        387      486     Pentium
+                   4            3          6       1-3     1-3     NP
+
+
+<B>FXAM</B>    Examine condition flags
+
+                  8087         287        387      486     Pentium
+                 12-23        12-23      30-38      8      21      NP
+
+
+<B>FXCH</B>    Exchange floating point registers
+
+                  8087         287        387      486     Pentium
+                 10-15        10-15       18        4      0-1     *
+
+        * FCXH is pairable in the V pipe with all FX pairable instructions
+
+<B>FXTRACT </B>        Extract exponent and significand
+
+                  8087         287        387      486     Pentium
+                 27-55        27-55      70-76    16-20    13      NP
+
+<B>FYL2X </B>          Compute Y * log<SUB>2</SUB>(x)
+<B>FYL2XP1</B>         Compute Y * log<SUB>2</SUB>(x+1)
+
+    variations    8087         287        387      486     Pentium
+    fyl2x       900-1100     900-1100   120-538  196-329   22-111  NP
+    fyl2xp1     700-1000     700-1000   257-547  171-326   22-103  NP
+
+</PRE>
+<CENTER>
+<P><A href="http://www.quantasm.com/index.html">Home Page</A>&nbsp;&nbsp;&nbsp; 
+<A href="mailto:mschmit@ix.netcom.com">e-mail to Quantasm</A> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="http://www.quantasm.com/order.html">Order 
+form</A> &nbsp;&nbsp; <A href="http://www.quantasm.com/sitemap.html">Site 
+Map</A></P></CENTER></BODY></HTML>

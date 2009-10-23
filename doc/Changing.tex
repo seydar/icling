@@ -1,0 +1,266 @@
+% File:		Changing.tex
+% Purpose:	A Short Course in Compilers/chapter 3
+% Copyright:	1989-1999 W.M. McKeeman
+% Modified:	05.04.09 -- McKeeman -- original
+
+\input bookhead
+
+\begin{document}
+
+\setcounter{chapter}{\value{ExtensionChapter}}
+\addtocounter{chapter}{-1}
+\setcounter{page}{\value{ExtensionPage}}
+
+\chapter{Extending \xcom} %----------------------------------------------
+\section{Overview of \xcom}
+
+\xcom\ is compile-and-go; it has a front-end which analyzes the user's program, a back-end which synthesizes an executable, and a runtime that supports execution.  The front end has a grammar module, a scanner, a parser and a symbol table builder.  The back end has a tree walker, code generators, an assembler and a manager for register spills.  The runtime holds \tname{c++} code that can be called from generated machine code.  Most of the compiler modules are \tname{c++} classes.  The design emphasizes conventional algorithms and ease of change over more traditional objectives such as speed or code quality.
+
+There are two independent global variants to \xcom.  The first is the target platform.  Over the years this has included the \tname{ibm}, \tname{digital}, \tname{intel} and \tname{motorola} computers.  The second is the parsing method, either top-down or bottom-up.  Some variants are implemented in the \xcom\ distribution.  The variant code itself resides in appropriately named subdirectories.  Thus the overall structure of the {\tt xcom} directory is:
+
+\begin{tt}
+\begin{tabbing}
+xx\=xx\=xx\=xxxxxxxxxxxxxxxxx\=\kill
+/xcom                     \>\>\>\>\rm main directory         \\
+\>/fe                       \>\>\>\rm analysis (front end)   \\
+\>\>/cfg                      \>\>\rm grammar processing     \\
+\>\>/scan                     \>\>\rm lex and scan           \\
+\>\>/parse                    \>\>\rm parse and ast building \\
+\>\>\>/recur                    \>\rm top down               \\
+\>\>\>/lalr                     \>\rm bottom up              \\
+\>\>/sym                      \>\>\rm symbol table           \\
+\>/be                       \>\>\>\rm synthesis (back end)   \\
+\>\>/gen                      \>\>\rm code generation        \\
+\>\>\>/x86                      \>\rm Intel x86              \\
+\>\>\>/ppc                      \>\rm Motorola power pc      \\
+\>\>\>/a64                      \>\rm Intel 64 bit           \\
+\>\>/asm                      \>\>\rm assembler/disassembler \\
+\>\>\>/x86                      \>\rm Intel x86              \\
+\>\>\>/ppc                      \>\rm Motorola power pc      \\
+\>\>\>/a64                      \>\rm Intel 64 bit           \\
+\>\>/mem                      \>\>\rm memory pool            \\
+\>\>/tex                      \>\>\rm pretty printing        \\
+\>/rt                       \>\>\>\rm runtine routines       \\
+\>/bin                      \>\>\>\rm xcom binaries          \\
+\>/x                        \>\>\>\rm X programs 
+\end{tabbing}
+\end{tt}
+
+\subsection{Testing}
+
+One can test \xcom\ one module at a time (unit tests), or as a whole.  Each unit test is run by a standalone driver.  Each driver has some output that illustrates some of the function supplied by the module.  The drivers are a good place to exercise new code and place new tests.  There are several testing targets in the Makefile.  Some of them check that error-free X programs get the expected answer.  Others check that mistakes get the expected diagnostic.  There are also many assertions insuring \xcom\ invariants are maintained.
+
+Each major module (e.g., {\tt asm.cpp}) has a {\tt \#define/\#undef} pair that controls tracing-on-the-fly.  Interchanging the lines toggles the tracing behavior.  The trace output is to {\tt stdout}; it is useful when one is deep in the details of a module.  Typically the (verbose) traces are turned on only during unit testing.
+
+Each major module also has a dumper which presents a readable form of the intermediate information.  A dump is not available until the module completes its task.  Dumping uses callbacks, passing information to the outer layer of the compiler for presentation.  Dumping is requested with \xcom\ command line flags.
+
+Diagnostics are implemented with exceptions and callbacks, leaving it to the outer layer to decide how to present the comeupance.  Runtime errors (e.g. divide by zero) are reported from the assembly code via conventional return codes.  A non-zero return code will cause an \xcom\ error to be thrown following the return.
+
+\subsection{Plug and Play Components}
+
+Technology changes all the time.  Today's best is surely going to be replaced in the near future.  The cpu-dependent files are in subdirectories named for the cpu (e.g. {\tt /x86}).  Early ancestors of this compiler ran on \tname{ibm s/360}, \tname{digital}\ \tname{vax} and \tname{alpha}.  More recently it has run on \tname{intel}\ \tname{x86}, \tname{power pc} and \tname{intel} 64-bit cpus.  The Makefile detects the underlying hardware and chooses the corresponding subdirectories.
+
+The choice is between top-down and bottom-up parsing is up to the user.  A single module, {\tt lang.cpp}, containing the source-language dependencies, has two forms.  If the bottom-up (like \tname{yacc}) form is chosen, LALR(1) tables are built and used.  Otherwise recursive methods do the parsing.  A {\tt make} variable must be set to select either the {\tt parse/recur} or {\tt parse/lalr} subdirectories.
+
+\section{Changing \tname{x} Syntax}
+
+If one is going to extend \tname{x}, it is usual to start with the grammar {\tt xcom/fe/cfg/X.cfg}.  If something is added to {\tt X.cfg}, then new symbols will be made available for use.  
+
+Do not expect too much from the grammar.  The grammar already allows some nonsense. For example
+
+{\tt x + y}
+
+\noindent
+is not implemented for logical values.  Extending the grammar will almost always add some more nonsense in addition to the desired constructs.  The undesired constructs must be screened out (cause diagnostics) later in the process, usually when they fail to produce type-correct expressions.
+
+If a bottom-up parser is to be built, the {\tt make} process may halt in directory {\tt /cfg} with diagnostics from the LALR(1) table builder.  The table builder must be accomodated via grammar changes to make further progress.  If a top-down parser is to be built, the same kind of effort will be expended on getting the recursive routines in {\tt lang.cpp} to work.
+
+\subsection{Adding Vector Syntax}
+
+Suppose one wished to add vectors to \tname{x}.  The process starts with adding the syntax for {\tt a[i]}.  A new rule has to be added:
+
+\begin{center}
+\begin{em}
+\begin{tabbing}
+xx\=xx\=\kill
+\>var                           \\
+\>\>id                          \\
+\>\>id {\tt[} expression {\tt]}
+\end{tabbing}
+\end{em}
+\end{center}
+
+\noindent
+and the uses of {\em id} in {\em factor} and {\em vars} replaced with {\em var}.
+
+If one then builds \xcom, new tables will be extracted from {\tt X.cfg} and used in analysis and synthesis.  The new terminal symbols {\tt [} and {\tt ]} will be given names {\tt lsqrSYM} and {\tt rsqrSYM} by {\tt cfg.awk}.  You will want to propogate these changes into the lexer, parser, and all the downstream parts of \xcom.  You can see the tabulated grammar data in {\tt X.macros}.
+
+\subsection{Adding Set Syntax}
+
+Suppose, on the other hand, one wish to add sets to \xcom.  This is somewhat more complicated than adding subscripts.  One might add additional rules to {\em
+factor}:
+
+\begin{center}
+\begin{em}
+\begin{tabbing}
+xx\=xx\=\kill
+factor                           \\
+\>{\tt\{} exprs {\tt\}}          \\
+\>{\tt\{} {\tt\}}                \\
+\>{\tt size} factor              \\
+\>{\tt choice} factor
+\end{tabbing}
+\end{em}
+\end{center}
+
+\noindent
+and, assuming that the {\em relation}s (e.g. {\tt <}, {\tt <=}) will be interpreted as the analogous set operations (e.g., include, include-or-equal), {\tt +} as set union, {\tt *} as set conjunction, one adds just one new {\em relation}.
+
+{\em sum {\rm in} sum}
+
+As before, new nonterminals (in this case {\tt lcurlSYM} and {\tt rcurlSYM}) will become available for use throughout the rest of \xcom.  And, as before, some syntactically allowed texts (such as set division) will be nonsense.
+
+\subsection{Adding String Syntax}
+
+Adding a new literal (e.g. \tname{c}-style string) requires editing the table generator as well as the grammar.  One first adds a name
+
+{\tt string}
+
+\noindent
+into the {\tt X.cfg} rule for {\em factor} analogous to {\tt integer} and {\tt real}.  If nothing else is done, {\tt string} will be taken as a reserved word.
+One needs, in addition, to add {\tt string} to the list in function {\tt isNotReserved} in {\tt lextables.cpp}.  This change keeps {\tt string} out of the reserved word list, and enables an extension of the lexer to handle string literals.
+
+One needs some string operators.  One can use {\tt+} for catenate, as is done in Java, and the relationals for comparisons; these are already in the grammar.
+Function such as {\tt substr} and {\tt strlen} can be added in analogy to {\tt i2r} and {\tt r2i}.
+
+\subsection{Type as Syntax}
+
+One can elaborate {\tt X.cfg} to make type-correctness a syntatic issue.  For example, there would be separate rules for
+
+{em intsum} {\tt+} {\em intterm}
+
+{em realsum} {\tt+} {\em realterm}
+
+One consequence is adding about 30 rules to {\tt X.cfg}.  Another is to force parsing decisions to depend on the knowledge of type.  There is such a grammar ({\tt Xtype.cfg}) in the \xcom\ distribution.  It is there as an example of something to avoid, rather than something to emulate.
+
+\subsection{Unit Test}
+
+The {\tt make} target {\tt cfgtest} will process {\tt X.cfg} and print the information extracted from it.
+
+\section{Changing Lex and Scan}
+
+The lexer is based on the assumption that the entire source text of an \tname{x} file is read and placed in contiguous memory.
+
+The lexer deals directly with memory image of the source text.  Anytime a new symbol is added, the lexer potentially needs to analyze a new case.  Some situations, such as adding single-character symbols, operator identifiers, and reserved words, are handled automatically by the grammar processing module.
+Such input symbols will be given new standard names and passed on to the rest of the compiler without further work by the developer.  Input code for new literals, such as strings, needs to be added.
+
+There are three parts to a token: its starting address in the input text, its length, and a code identifying the kind of token.  The lexer fills in a \tname{c} struct and reports its find via a pure virtual function.  The scanner implements the virtual function and queues up or discards the result.
+
+The scanner typically does not have to be changed.  It is a navigation layer on top of the stream of lexical information.
+
+\subsection{Unit Test}
+
+The program {\tt scandriver.cpp} contains a set of tests exercising the lexer.
+It is a good place to add new tests for extensions.
+
+\subsection{Dump}
+
+The flag {\tt-lex} on the \xcom\ command line will cause \xcom\ to dump the sequence of lexemes in a readable format after processing the whole input file.
+
+\subsection{Trace}
+
+{\tt #define/#undef} macros at the head of {\tt scan.cpp} can be interchanged and the scanner rebuilt to give a verbose on-the-fly presentation of scanning.
+
+\section{Changing Parse}
+
+The parse machinery is defined in {\tt parse.cpp}.  It rarely needs changing.
+The parser itself resides in {\tt lang.cpp}.  Its entry, method {\tt parse} implements a pure virtual function defined in {\tt parse.cpp}.  The rest of the {\tt Lang} object is private; it reports the shift/reduce sequence to the abstract tree builder via functions of that name defined in the parse machinery.
+
+There are two versions of the \tname{x}-specific code.  One, in subdirectory {\tt /recur} is recursive descent.  The other, in subdirectory {\tt /lalr} is bottom-up, driven by LALR(1) tables computed in the grammar module.
+
+In {\tt /recur}, recursive functions must be added for each new phrase name added to the \tname{x} grammar.  The technique for removing left recursion is discussed in the analysis chapter.  Function {\tt shift} is called each time a symbol is recognized and used.  Function {\tt reduce} is called each time the rhs of a grammar is rule is completed.
+
+In {\tt /lalr} the shift/reduce sequence is automatically produced if the grammar was, in fact, LALR(1).  If it was not, the build would have broken in the grammar stage.
+
+\subsection{Unit Test}
+
+The program {\tt parsedriver.cpp} contains a set of tests exercising the parser.
+It is a good place to add new tests for extensions.
+
+\subsection{Trace}
+
+{\tt #define/#undef} macros at the head of {\tt lang.cpp} can be interchanged and the parser rebuilt to give a verbose on-the-fly presentation of the recursive routines at work.
+
+
+\section{Changing Ast Builder}
+
+tree representation
+
+node building
+
+unit test
+
+ast dump
+
+\section{Changing the Symbol Table}
+
+It is reasonable to define
+vectors to always be ``big enough''.  That is, if {\tt a[i]} is assigned and there is no i-th member, then the array is quietly extended out to position {\tt i}.  Trying to use the value of a non-existent {\tt a[i]} would be reported as a runtime error.  
+
+symbol representation
+
+adding type
+
+adding shape
+
+symbol table representation
+
+unit test
+
+symbol table dump
+
+\section{Changing Ast Walkers}
+
+postorder walk
+
+values in walker locals
+
+opaque locals
+
+\section{Changing Code Generation}
+
+new primitives
+
+calling runtime
+
+unit test
+
+asm dump
+
+dis dump
+
+\section{Pretty Printing}
+
+The overloading of other \tname{ascii} characters for multiple uses is annoying, both to the author of the extension and to the eventual users of the language.
+The text {\tt A + B} does not immediately bring to mind set union.  If the user program were to be typeset, the symbol $\cup$ could be used, and so on for the rest of the mathematical operators in the set extension.  What is even more annoying is the obvious truth that by the end of compilation \xcom\ has made this distinction.  It knows.  So provision is made for \xcom\ to do the typesetting as a byproduct of compilation.
+
+Preceding a file name in the \xcom\ command line with the flag {\tt -tex} will cause \xcom\ to dump out \tname{latex} typesetting instructions.  The \xcom\ distribution renders \tname{x} according to the choices Dijkstra made in his book {\em A Discipline of Programming}.  The typesetting code can be extended, using the information in the symbol table, and the aesthetics of the language designer, to provide very pretty printing.
+
+\section{Machine Language}
+\subsection{Instructions, Registers and Faults}
+
+\section{Arithmetic Expressions}
+\subsection{Sequencing}
+\subsection{Int Register Manager}
+\subsection{Left-to-right Float Constraint}
+
+\section{Flow of Control}
+\subsection{Branches}
+\subsection{Fixups}
+
+\section{Subprograms}
+
+\section{Runtime}
+
+\end{document}
+

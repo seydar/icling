@@ -1,0 +1,92 @@
+<html>
+<head>
+<title>Draw an ellipse (musical note)</title>
+</head>
+
+<body>
+<pre>
+// FILE:     Note.java
+// PURPOSE:  musical note
+
+
+import java.awt.*;
+
+public class Note {
+    private int x, y;
+    private int dur;
+    private Ellipse e;
+    private int mast;
+    
+    
+    public
+    Note(int d, int dur) {                        // major diameter
+        this.dur = dur;                           // n  means 1/n
+        e = new Ellipse(0.7*d, 0.5*d);            // shape
+        mast = 2*d;
+    }
+    
+    public void
+    setNW(int x, int y) {                         // where
+        this.x = x;
+        this.y = y;
+    }
+        
+    private void
+    drawEighth(Graphics g) {                      // drawing
+        drawQuarter(g);
+    }
+    
+    private void
+    drawMast(Graphics g) {
+        int dx = (int)e.getMajor();
+        int dy = (int)e.getMinor()/2;
+        if (y+dy-mast &lt; dx) {
+            g.drawLine(x+dx, y+dy, x+dx, y+dy+mast);
+        } else {
+            g.drawLine(x+dx, y+dy, x+dx, y+dy-mast);
+        }
+    
+    }
+    
+    private void
+    drawQuarter(Graphics g) {
+        int dx = (int)e.getMajor();
+        int dy = (int)e.getMinor();
+        g.fillOval(x, y, dx, dy);
+        drawMast(g);
+    }
+    
+    private void
+    drawHalf(Graphics g) {
+        drawWhole(g);
+        drawMast(g);
+    }
+    
+    private void
+    drawWhole(Graphics g) {
+        int dx = (int)e.getMajor();
+        int dy = (int)e.getMinor();
+        g.drawOval(x, y, dx, dy);
+        g.drawOval(x+1, y, dx-2, dy);
+    }
+    
+    public void 
+    draw(Graphics g) {
+        switch (dur) {
+        case 1:  drawWhole(g);                    // whole note
+            break;
+        case 2:  drawHalf(g);                     // half note
+            break;
+        case 4:  drawQuarter(g);                  // quarter note
+            break;
+        case 8:  drawEighth(g);                   // eighth note
+            break;
+        default:
+            break;
+        }
+    }
+
+}
+</pre>
+</body>
+</html>

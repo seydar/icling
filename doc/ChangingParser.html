@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingParser.html
+     PURPOSE:   How to change the X parser.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Parser
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingParser.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the xcom Parser</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>In MATLAB, in the xcom directory, type (or cut from here and paste to
+the MATLAB command line)
+<PRE>
+>> help Parser.m
+>> xcom -parseTrace -parseDump x:=1
+</PRE>
+or, to run the Parser standalone
+<PRE>
+>> load cfg cfg               % prepare to run Parser standalone
+>> EOL = 10;                  % ASCII newline
+>> lx = Lexer(cfg, ['x:=1;' EOL 'y:=x']);
+>> pr = Parser(lx)
+</PRE>
+The public fields and methods are visible, so try
+<PRE>
+>> pr.dump()
+</PRE>
+
+<P>Read the general description of <A HREF="Parsing.html">parsing</A>.<P>
+
+</P>
+
+<H4>LR Parsing</H4>
+<P>
+The LR(1) parser is implemented in 30 or so lines in method LR1 of
+Parser.m.  There is no reason to change these lines.  <B>Ever</B>.  
+The LRerror method, on the other hand, can always use improvement.
+</P>
+
+<H4>Recursive Parsing</H4>
+<P>
+The recursive recognition methods in Parser.m
+reflect the IOG for <A HREF="Xiog.html">X</A>.
+If you change the CFG, then the change needs to be propagated to the IOG.
+The recursive methods need to reflect the new/changed CFG rules.
+</P>
+
+<P>
+Each recursive method calls one or more of 
+<B>accept</B>, <B>reject</B>, <B>step</B> and <B>reduce</B>.  
+Each call of <B>step</B> moves ahead in the token stream, 
+changing variable tok, and reporting the shifted token.
+A call to <B>accept</B> first checks the current token is what is expected,
+calls shift if it is, and calls reject if it is not.
+A call to <B>reject</B> issues a diagnostic and aborts the compilation.
+</P>
+<P>
+Immediately after a successful test for a token, for example
+<PRE>
+    if tok == rw.PLUS
+</PRE>
+the step method is always called to discard the current token and 
+get the next one.
+Method accept calls step on its own.
+</P>
+<P>
+Each call of <B>reduce</B> reports a reduction.
+The calls to reduce occur exactly at the place the output symbols indicate
+in the IOG.  The combined effect is to build the shift/reduce sequence.
+</P>
+
+<P>
+The only consumer of the shift/reduce sequence is the tree builder,
+and it needs no other information.
+</P>
+
+<H4>Hard Cases (the real world)</H4>
+<P>
+  One can write a CFG that is difficult to parse recursively, even if it
+  satisfies the LR(1) restrictions.  On the other hand, the recursive author
+  can cheat as necessary, basing decisions on any information that
+  is available.  The bottom-up parser needs correct tables or it fails.
+</P>
+
+<P>
+  The C if-else construct is ambiguous.
+  Recursive parsers can handle it.
+  LR(1) parsers only work for unambiguous languages, so they fail.
+  Most commercial LR parser generators contain a built-in hack
+  to handle if-else, and give usable tables without even a complaint.
+</P>
+
+<P>
+  The C <EM>declarator</EM> and <EM>abstract-declarator</EM> 
+  are very similar constructs, 
+  and are hard (but not impossible) to parse recursively.
+  They do not cause the LR(1) parser any trouble at all.
+</P>
+
+<P>
+  The C typedef mechanism cannot be parsed without applying some magic.
+  The fundamental problem is that the defined type identifier is no longer
+  syntactically an identifier, but rather becomes a type name.
+  Of course every C compiler has to solve this problem.  
+  A traditional (but structure-destroying) solution is to let the
+  symbol table send information back upstream to the lexer so that the
+  lexer can deliver a type token instead of an identifier token.
+  There are better ways to deal with typedef.
+</P>
+
+<P>
+C macros are that much harder again.  Grammars just do not do the
+job when the source text is changing on the fly.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

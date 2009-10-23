@@ -1,0 +1,157 @@
+% FILE:		    RegularExpressions.tex
+% PURPOSE:  	The definition of regular expressions
+% COPYRIGHT:  W.M.McKeeman 2007
+
+
+\input xhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Regular Expressions--
+\begin{quote}
+\raggedright
+Rationale\\
+Definitions\\
+\end{quote}
+--requires--
+\begin{quote}
+\raggedright
+Notation Supporting Grammars\\
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+
+\begin{center}
+    {\large \bf Regular Expressions} 
+\end{center}
+
+\vspace{1em}
+
+Regular expressions serve the same purpose as \cfg{s}: 
+they syntactically define strings of symbols.  
+One advantage is conciseness and ease of implementation.  
+One disadvantage is that they can describe fewer things than \cfg{s}.  
+Three issues favor a discussion of regular expressions.  
+
+The first issue is that regular expression expressiveness can be mixed 
+in with \cfg{s}.  The new grammars are called regular expression grammars
+(\reg{s}).  See the discussion on Regular Expression Grammars.
+The second issue is that \reg{s} are an essential step in building 
+recursive parsers.  See the discussion on Top-down Parsers.
+The third issue is a close relation between regular expressions 
+and finite automata.
+Finite automata, in turn, form the basis for automatic parsers.  
+
+{\bf Note:} This is {\em not} a discussion about the glob form of regular
+expressions used in command-line utilites such as
+\begin{verbatim}
+  ls *.[ch]*
+\end{verbatim}
+
+\vspace{1em}
+\noindent {\bf Definitions}
+
+A regular expression is a combination of input symbols ($V_I$) and
+meta-symbols.  
+The meta-symbols are the following meta-operators:
+\vspace{2ex}
+
+\stepcounter{table}					% simulate \table
+\newcounter{RegOps}[chapter]
+\setcounter{RegOps}{\value{table}}
+\begin{samepage}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>$()$                      \> \mbox{meta-parentheses}              \\
+\>$\circ$                   \> \mbox{regular expression `catenate'} \\
+\>$|$                       \> \mbox{regular expression `or'}       \\
+\>\&                        \> \mbox{regular expression `and'}      \\
+\>$-$                       \> \mbox{regular expression difference} \\
+\>$^*$                      \> \mbox{zero or more repetitions}      \\
+\>$^{\scriptscriptstyle+}$  \> \mbox{one or more repetitions}       \\
+\>$^?$                      \> \mbox{zero or one (optional item)}   \\
+\>$^n$                      \> \mbox{exactly $n$ repetitions)}      \\
+\>$\tw$                     \> \mbox{regular expression complement} \\
+\\
+\>Table~\thetable: Regular Expression Operators
+
+\end{tabbing}
+\end{samepage}
+
+\begin{table}
+\begin{eqnarray*}
+{\cal L}(\lambda) &\eqldef& \{\lambda\}                                 \\
+{\cal L}({\rm a}) &\eqldef& \{{\rm a}\}                                 \\
+{\cal L}((A))     &\eqldef& {\cal L}(A)                                 \\
+{\cal L}(A B)   &\eqldef& {\cal L}(A)\circ{\cal L}(B)                   \\
+{\cal L}(A|B)   &\eqldef& {\cal L}(A) \cup {\cal L}(B)                  \\
+{\cal L}(A\&B)  &\eqldef& {\cal L}(A) \cap {\cal L}(B)                  \\
+{\cal L}(A-B)&\eqldef& {\cal L}(A) - {\cal L}(B)                        \\
+{\cal L}(\mbox{\tw}A)&\eqldef& V_I^* - {\cal L}(A)		                \\
+\nonumber && \\
+{\cal L}(A^0)   &\eqldef& \{\lambda\}                                   \\
+{\cal L}(A^i)   &\eqldef& {\cal L}(A^{i-1}A)                            \\
+{\cal L}(A^k_j) &\eqldef& \bigcup_{i=j}^k {\cal L}(A^i)	                \\
+{\cal L}(A^*)   &\eqldef& {\cal L}(A^\infty_0)                          \\
+{\cal L}(A^{\scriptscriptstyle+})&\eqldef& {\cal L}(A^\infty_1)         \\
+{\cal L}(A^?)   &\eqldef& {\cal L}(A^1_0)
+\end{eqnarray*}
+\caption{Regular Expression Languages}
+\end{table}
+
+\noindent 
+When the meaning is clear from context, the catenation operator
+$a \circ b$ is often implied by the juxtaposition $ a\ b$.  
+Applied to sets $A \circ B$ means the catenation of all pairs,
+the first taken from $A$ and the second from $B$.
+
+Let a $\in V_I$ and $A$, $B$ designate regular expressions.  
+Given a regular expression $A$, the set of strings,
+${\cal L}(A)$, defined by it can be built up by repetitive application
+of the rules in Table~\thetable.  
+
+The regular expression operators $\&$, \tw and $-$ are useful for 
+describing things but are harder to implement for recognizing things,
+so they are often omitted.
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+\item What are
+${\cal L}$($\tw()$),
+${\cal L}$(a$|$b),
+${\cal L}$(a$|$a),
+${\cal L}$(a\&b),
+${\cal L}$(a\&a),
+${\cal L}$(a$^*$),
+${\cal L}$(a$\superplus$),
+${\cal L}$(a$^9$),
+${\cal L}$(a$^9_3$), and
+${\cal L}$(cr$^?$a(zy$|$t))?
+
+\item Using Letter, Digit and Any, describe the following \tname{c} 
+programming language constructs as regular expressions.
+\begin{enumerate}
+\item identifier
+\item real number literal (e.g. 0.314E+1)
+\item integer constant (e.g 123)
+\item all X reserved words  (e.g. if, fi...)
+\item X comment
+\item C comment (hard)
+\end{enumerate}
+
+\item The body of a telegram is a sequence of words.  
+It is also a sequence of lines of at most 80 characters.  
+Write a REG using $\&$, and phrase names tele, line, word, alnum and ch
+that helps define the telegram layout.
+
+\setcounter{RunningExercise}{\value{enumi}}
+
+\end{enumerate}
+
+
+\end{document}

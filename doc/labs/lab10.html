@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab10.html
+     PURPOSE:   lab directions for LR lecture
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 10 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab10.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>Understanding LR(k)</H3>
+<OL>
+  <LI> Look at Cfg tables for E.cfg (5 min)
+    <PRE>
+      >> cd mxcom/m
+      >> type E.cfg
+      >> c = Cfg(xread('E.cfg'))
+      >> c.Vi
+      >> c.Vn
+      >> c.dumpReduce()
+      >> c.dumpShift()</PRE>
+  </LI>
+  <LI>Hand-execute LR tables (20 min).<BR>  
+    Starting in state 1 for string <TT>i*i eof</TT> 
+    <PRE>
+      in state  1, see i, stack i, goto state 3  stack = i   input = *i eof
+      in state  3, see *, reduce rule 4          stack = F   input = *i eof
+      start over,                                            input = F*i eof
+      in state  1, see F, stack F, goto state 4  stack = F   input = *i eof
+      in state  4, see *, reduce rule 2          stack = T   input = *i eof
+      start over                                             input = T*i eof
+      in state  1, see T, stack T, goto state 5  stack = T   input = *i eof
+      in state  5, see *, stack *, goto state 10 stack = T*  input = i eof
+      in state 10, see i, stack i, goto state 3, stack = T*i input = eof
+      in state  3, see eof, reduce rule 4        stack = T*F input = eof
+      start over                                 stack =     input = T*F eof
+      in state 1,... you finish it</PRE>
+  </LI>
+  <LI> Starting in state 1 for string <TT>(i) eof</TT>
+    <PRE>
+      in state 1, see (, stack (, goto state 2  stack = (    input = i) eof
+      in state 2, ... you finish it
+    </PRE>
+  </LI> 
+  <LI>Starting in state 1 for (incorrect) string <TT>i**i eof</TT> 
+    <PRE>
+      in state... you finish it
+    </PRE>
+  </LI>
+</OL>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

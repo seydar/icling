@@ -1,0 +1,1264 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>StanfordSlides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-03-17">
+      <meta name="m-file" content="StanfordSlides"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1></h1>
+         <!--introduction-->
+         <p>PAGE BREAK</p>
+         <!--/introduction-->
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#2">ABSTRACT</a></li>
+               <li><a href="#4">1 Executable Grammars</a></li>
+               <li><a href="#5">1.1  IOG: the Input/Output Grammar</a></li>
+               <li><a href="#6">1.2  GEM: the Grammar Executing Machine</a></li>
+               <li><a href="#8">1.3  Running GEM</a></li>
+               <li><a href="#16">1.4 GEM Implementation</a></li>
+               <li><a href="#18">1.5  How GEM works</a></li>
+               <li><a href="#19">2 GEM Capabilities</a></li>
+               <li><a href="#20">2.1  Predefined Character-class CFGs and IOGs.</a></li>
+               <li><a href="#22">2.2  Whitespace and IOG <tt>nowhite</tt></a></li>
+               <li><a href="#26">2.2.1 Define function <tt>scan</tt> and redefine <tt>GEM</tt></a></li>
+               <li><a href="#29">2.3  IOG <tt>pretty</tt>, the antidote to <tt>nowhite</tt></a></li>
+               <li><a href="#32">2.4  IOG inversion</a></li>
+               <li><a href="#34">2.5.1  Inversion Example</a></li>
+               <li><a href="#39">3 Extending The IOGs</a></li>
+               <li><a href="#40">3.1  Multiple character input and output symbols.</a></li>
+               <li><a href="#42">3.1.1  Redefine <tt>scan</tt>, <tt>pretty</tt> and <tt>GEM</tt></a></li>
+               <li><a href="#45">3.2  Arithmetic expressions</a></li>
+               <li><a href="#47">3.2.1  Postfix</a></li>
+               <li><a href="#48">3.2.2  Prefix</a></li>
+               <li><a href="#49">3.2.3  Intel X86 code</a></li>
+               <li><a href="#51">3.3  Using Regular Expressions in IOGs</a></li>
+               <li><a href="#53">3.4 Transforming regular expressions back to IOGs</a></li>
+               <li><a href="#54">3.4.1 The expression IOG as an example using *</a></li>
+               <li><a href="#57">3.4.2  Add Kleene <tt>+</tt></a></li>
+               <li><a href="#61">4  Making GEM efficient and reliable</a></li>
+               <li><a href="#63">4.1 Examples of using gem2</a></li>
+               <li><a href="#69">4.2 Intel X86 Assembler</a></li>
+               <li><a href="#73">4.4 A calculator</a></li>
+               <li><a href="#76">4.5 When things go wrong</a></li>
+               <li><a href="#79">5 Summary</a></li>
+               <li><a href="#80">Reference</a></li>
+               <li><a href="#81">Signature</a></li>
+            </ul>
+         </div>
+         <p>PAGE BREAK</p>
+         <h2>ABSTRACT<a name="2"></a></h2>
+         <p><b>Can a tiny compiler-compiler grow into something useful?</b></p>
+         <p>by Bill McKeeman</p>
+         <p>The grammars presented here are like computer programs in that they accept input and produce output.  The output may be another
+            grammar, which can in turn be used to make yet another grammar. The question is: how far can one go?
+         </p>
+         <p>I do not know, but let us at least get started.</p>
+         <p><b>Note:</b> I have used this material only for teaching. I do not know of any practical or theoretical consequences. The material has
+            some resonance with Guy Steele's 1998 OOPSLA talk <i>Growing a Language</i>.
+         </p>
+         <p><b>Note:</b> This presentation was prepared by the MATLAB publish feature which accepts a commented MATLAB script as input.  This paragraph
+            came from a MATLAB comment. The grey-bar sections are MATLAB code.
+         </p><pre class="codeinput">format <span class="string">compact</span>  <span class="comment">% help MATLAB save screen space</span>
+</pre><p>Immediately following the each code section is the corresponding output (if any).  There was no output from the <tt>format</tt> statement above.
+         </p>
+         <p>PAGE BREAK</p>
+         <h2>1 Executable Grammars<a name="4"></a></h2>
+         <p>It is well-known that the rewriting rules of a Context-free Grammar can be mechanically applied, and that if some sequence
+            of applications results in a parse, that parse is correct.  The trick is, of course, in finding the correct sequence of applications.
+         </p>
+         <p>The <i>Grammar Executing Machine</i> (GEM) presented here can do that, with reasonable efficiency, executing its input grammar one character at a time.
+         </p>
+         <p>Topics</p>
+         <div>
+            <ul>
+               <li>Input/Output Grammar (IOG)</li>
+               <li>GEM primitives</li>
+               <li>How GEM works</li>
+               <li>Basic GEM capabilities</li>
+               <li>Extending IOGs</li>
+               <li>Efficiency and convenience</li>
+               <li>Compiling</li>
+               <li>Debugging</li>
+            </ul>
+         </div>
+         <p>PAGE BREAK</p>
+         <h2>1.1  IOG: the Input/Output Grammar<a name="5"></a></h2>
+         <div>
+            <ul>
+               <li><img src="StanfordSlides_eq34032.png" alt="${\cal G} = \langle V_I, V_O, V_N, V_G, \Pi\rangle$"></li>
+            </ul>
+         </div>
+         <p>An IOG satisfies the following constraints:</p>
+         <div>
+            <ul>
+               <li><img src="StanfordSlides_eq68935.png" alt="$V  = V_I \cup V_O \cup V_N$"></li>
+               <li><img src="StanfordSlides_eq49022.png" alt="$V_I \cap V_O = \{\}$"></li>
+               <li><img src="StanfordSlides_eq95318.png" alt="$V_I \cap V_N = \{\}$"></li>
+               <li><img src="StanfordSlides_eq09175.png" alt="$V_O \cap V_N = \{\}$"></li>
+               <li><img src="StanfordSlides_eq22859.png" alt="$V_G \subseteq V_N$"></li>
+               <li><img src="StanfordSlides_eq19891.png" alt="$\Pi \subseteq V_N\times V^*$"></li>
+            </ul>
+         </div>
+         <p>When <img src="StanfordSlides_eq51635.png" alt="$V_O$"> is empty, an IOG is a conventional CFG with terminal symbols <img src="StanfordSlides_eq73857.png" alt="$V_I$">.
+         </p>
+         <p>There are some initial restrictions</p>
+         <div>
+            <ul>
+               <li>Whitespace is not allowed between symbols.</li>
+               <li>The input, output and phrase name symbols are all single-character.</li>
+               <li>The IOG must not be left-recursive.</li>
+            </ul>
+         </div>
+         <p>PAGE BREAK</p>
+         <h2>1.2  GEM: the Grammar Executing Machine<a name="6"></a></h2>
+         <p>GEM is a Grammar Executing Machine.  It can be thought of as a function</p><pre> o = GEM(i, g)</pre><p>where <tt>i</tt> is the input text, <tt>o</tt> is the resulting output text, and <tt>g</tt> is the text of the IOG being executed.  The final argument <tt>g</tt> can be thought of as the <b>stored program</b> in a Von Neumann computer.
+         </p>
+         <p>GEM is made available for use in this talk by the following MATLAB code</p><pre class="codeinput">G   = gem();   <span class="comment">% instantiate the object</span>
+GEM = G.run;   <span class="comment">% GEM is a function</span>
+</pre><p>PAGE BREAK</p>
+         <h2>1.3  Running GEM<a name="8"></a></h2>
+         <p>The simplest possible IOG is applied to the null string</p><pre class="codeinput">fprintf(<span class="string">'res=%s'</span>, GEM(<span class="string">''</span>, <span class="string">'r=;'</span>));
+</pre><pre class="codeoutput">res=</pre><p>IOG <tt>g1</tt> shows the use of <tt>'</tt> and <tt>"</tt> to delimit members of <img src="StanfordSlides_eq73857.png" alt="$V_I$"> and <img src="StanfordSlides_eq51635.png" alt="$V_O$"> respectively.
+         </p><pre class="codeinput">g1 = <span class="string">'r=''x''"y";'</span>; fprintf(<span class="string">'%s\n'</span>, g1);
+</pre><pre class="codeoutput">r='x'"y";
+</pre><pre class="codeinput">fprintf(<span class="string">'res=%s'</span>,GEM(<span class="string">'x'</span>, g1));
+</pre><pre class="codeoutput">res=y</pre><p>IOG <tt>g2</tt> shows the use of additional rules to describe alternatives
+         </p><pre class="codeinput">g2 = <span class="string">'r=s;s=''1'';s=''2'';'</span>; fprintf(<span class="string">'%s\n'</span>, g2);
+</pre><pre class="codeoutput">r=s;s='1';s='2';
+</pre><pre class="codeinput">fprintf(<span class="string">'res=%s'</span>, GEM(<span class="string">'1'</span>, g2));
+</pre><pre class="codeoutput">res=</pre><p>PAGE BREAK</p>
+         <h2>1.4 GEM Implementation<a name="16"></a></h2>
+         <p>The (GEM) machine itself is implemented in C file iog.c.  Function <tt>iog</tt> is called from MATLAB.
+         </p>
+         <p>The following 80 or so lines of C code execute IOGs.  The compiled C code takes a few nanoseconds to execute a step.</p>
+         <p>The MEX file iog.c is an example of no-frills code that runs on the edge of catastophe.  The slighest user error can bring
+            all of MATLAB down in a rubble of bits.  It is meant to illustrate an algorithm, as contrasted to being actually used. A more
+            robust version can be found in file iog2.c.
+         </p><pre class="codeinput">dbtype <span class="string">iog.c</span> <span class="string">113:190</span>
+</pre><pre class="codeoutput">
+113   /* execute grammar */
+114   static void
+115   gem(void) {
+116     for (;;) {
+117       if (traceit) TRACE();                 /* iog(i,g,'-traceGem') */
+118       if (pss&gt;=STACKLIM) error("PARSE stack overflow");
+119       if (ess&gt;=STACKLIM) error("BACK stack overflow");
+120       switch (mode) {
+121         /* executing rules */
+122         case PARSE:
+123           switch (*p) {
+124           ALPHA                             /* call new rule */
+125             ps++; *ps = p;                    /*   save return address */
+126             p = p0; mode = SEARCH; break;     /*   search from beginning */
+127           case '\'':                        /* input */
+128             p++;                              /*   skip over 1rst ' */
+129             if (*p == *i) {i++; p++; p++;}    /*   read-match */
+130             else {mode = BACK; p--; p--;}     /*   read-mismatch */
+131             break;
+132           case '"':                         /* output */
+133             p++; o++;                         /*   skip over 1rst " */
+134             *o = *p;                          /*   move literal to output*/
+135             p++; p++; break;                  /*   skip over 2nd " */
+136           case ';':                         /* rule end (parsing) */
+137             p--;                              /*   back up over ; */
+138             es++; *es = p;                    /*   save backup pointer */
+139             if (pss &lt; 0) return;              /*   empty stack: success */
+140             p = *ps; ps--;                    /*   return from rule */
+141             p++; break;                       /*   skip over rule name */
+142           default:                          /* bad char in grammar */
+143             error("Unexpected character (PARSE)");
+144           }
+145           break;                            /* end of parse step */
+146           
+147         /* backtracking */
+148         case BACK:
+149         switch (*p) {
+150           ALPHA                             /* un-return from rule */
+151             ps++; *ps = p;                    /* save return address */
+152             p = *es; es--; break;             /* end of previous rule */
+153           case '\'':                        /* input */
+154             i--;                              /* un-get input */
+155             p--; p--; p--; break;             /* un-skip literal */
+156           case '"':                         /* output */
+157             o--;                              /* un-put output */
+158             p--; p--; p--; break;             /* un-skip literal */
+159           case '=':                         /* rule begin (backtracking) */
+160             mode = SEARCH;                    /* forward again */
+161             p++; break;                       /* skip by = */
+162           default:
+163             error("Unexpected character (BACK)");
+164           }
+165           break;                            /* end of back step */
+166           
+167         /* searching for a rule */
+168         case SEARCH:
+169           switch (*p) {
+170           ALPHA                             /* phrase name */
+171             p++; break;                       /* skip over name */
+172           case '\'': case '"':              /* input/output */
+173             p++; p++; p++; break;             /* skip over 'x' or "x" */
+174           case ';':                         /* rule coming */
+175             p++;                              /* skip over ; */
+176             if (p-p0==pN) {                   /* end of code */
+177               if (pss == 0) error("Unparsable input");
+178               p = *ps; ps--;               /* back out one rule */
+179               mode = BACK;                    /* reverse direction */
+180               p--; break;                     /* un-skip over ; */
+181             }
+182             if (*p==**ps) mode = PARSE;       /* lhs is phrase name */
+183             p++; p++; break;                  /* skip over lhs = */
+184           default:
+185             error("Unexpected character (SEARCH)");
+186           }
+187           break;
+188       }
+189     }
+190   }
+
+</pre><p>PAGE BREAK</p>
+         <h2>1.5  How GEM works<a name="18"></a></h2>
+         <p>The grammars are symmetric:</p>
+         <div>
+            <ul>
+               <li>they can be executed right-to-left</li>
+               <li>they can be executed left-to-right.</li>
+            </ul>
+         </div>
+         <p>When executed "backward," the effect is to exactly undo the work that was done going forward.</p>
+         <p>At each step during PARSE, GEM switches on the current character, interpreting it as one of:</p>
+         <div>
+            <ul>
+               <li>a recursive call, or</li>
+               <li>move ahead in the input (a shift), or</li>
+               <li>move a character to the output, or</li>
+               <li>end of a grammar rule (a reduce).</li>
+            </ul>
+         </div>
+         <p>When a recursive call is needed, the mode shifts to SEARCH which linearly passes over the IOG. Once a matching rule is found,
+            the mode returns to PARSE.
+         </p>
+         <p>Whenever the actual input fails to match the required input symbol in the IOG, the current trial parse fails and mode BACK
+            is entered.
+         </p>
+         <p>During mode BACK the IOG is un-executed backward.</p>
+         <p>If, at some point, the input is entirely used and all recursions have returned, GEM reports the output.</p>
+         <p>PAGE BREAK</p>
+         <h2>2 GEM Capabilities<a name="19"></a></h2>
+         <h2>2.1  Predefined Character-class CFGs and IOGs.<a name="20"></a></h2>
+         <p>Character classes analogous to functions <tt>isletter</tt>, <tt>isdigit</tt> and the like in C occur often
+         </p>
+         <p>Eight such classes of symbols are pre-entered so that the GEM user never needs to define them explicitly. For example, grammar
+            <tt>digitIOG</tt> defines phrase name <tt>D</tt> to pass digits. Read the first rule as "if you see a zero, emit a zero."
+         </p><pre>   D = '0' "0";
+   D = '1' "1";
+   D = '2' "2";
+   D = '3' "3";
+   D = '4' "4";
+   D = '5' "5";
+   D = '6' "6";
+   D = '7' "7";
+   D = '8' "8";
+   D = '9' "9";</pre><p>The list of pre-entered CFG and IOG character classes is</p><pre>digitCFG  (defines phrase d, accept any digit)
+upperCFG  (defines phrase l, accept any upper case letter)
+lowerCFG  (defines phrase l, accept any lower case letter)
+asciiCFG  (defines phrase a, accept any character)
+digitIOG  (defines phrase D, (above) accept and pass on any digit)
+upperIOG  (defines phrase L, accept and pass on any upper case letter)
+lowerIOG  (defines phrase L, accept and pass on any lower case letter)
+asciiIOG  (defines phrase A, accept and pass on any character)</pre><p>One or more of these grammars can be <b>appended</b> to any grammar to be input to GEM. For example, here is an example that accepts any digit and passes it to the output.
+         </p><pre class="codeinput">fprintf(<span class="string">'%s'</span>, GEM(<span class="string">'7'</span>, [<span class="string">'r=D;'</span> G.digitIOG])); <span class="comment">% MATLAB string concatenation</span>
+</pre><pre class="codeoutput">7</pre><p>PAGE BREAK</p>
+         <h2>2.2  Whitespace and IOG <tt>nowhite</tt><a name="22"></a></h2>
+         <p>People like whitespace; GEM does not.  Therefore the first useful IOG is a deblanker named <tt>nowhite</tt>.  Since GEM always does first things first, <tt>nowhite</tt> discards blanks and newlines, passes <img src="StanfordSlides_eq73857.png" alt="$V_I$"> and <img src="StanfordSlides_eq51635.png" alt="$V_O$"> entries (including literal blanks and newlines) unchanged to the output, and also as a default (last rule) passes everything
+            else to the output. Because phrase name <tt>A</tt> was used, character class grammar <tt>asciiIOG</tt> must be appended.
+         </p><pre>   g = p g;
+   g = ;
+   p = ' ';
+   p = '
+   ';
+   p = I A I;
+   p = O A O;
+   p = A;
+   I = ''' "'"
+   O = '"' """
+   asciiIOG</pre><p>PAGE BREAK</p>
+         <p>A de-whited <tt>nowhite</tt> has to be prepared by hand ahead of time; it is available as a field of <tt>G</tt>.
+         </p><pre class="codeinput">fprintf(<span class="string">'%s'</span>, G.nowhite);
+</pre><pre class="codeoutput">g=pg;g=;p=' ';p='
+';p=IAI;p=OAO;p=A;I='''"'";O='"'""";A='
+'"
+";A=' '" ";A='!'"!";A='"'""";A='#'"#";A='$'"$";A='%'"%";A='&amp;'"&amp;";A='''"'";A='('"(";A=')'")";A='*'"*";A='+'"+";A=','",";A='-'"-";A='.'".";A='/'"/";A='0'"0";A='1'"1";A='2'"2";A='3'"3";A='4'"4";A='5'"5";A='6'"6";A='7'"7";A='8'"8";A='9'"9";A=':'":";A=';'";";A='&lt;'"&lt;";A='='"=";A='&gt;'"&gt;";A='?'"?";A='@'"@";A='A'"A";A='B'"B";A='C'"C";A='D'"D";A='E'"E";A='F'"F";A='G'"G";A='H'"H";A='I'"I";A='J'"J";A='K'"K";A='L'"L";A='M'"M";A='N'"N";A='O'"O";A='P'"P";A='Q'"Q";A='R'"R";A='S'"S";A='T'"T";A='U'"U";A='V'"V";A='W'"W";A='X'"X";A='Y'"Y";A='Z'"Z";A='['"[";A='\'"\";A=']'"]";A='^'"^";A='_'"_";A='`'"`";A='a'"a";A='b'"b";A='c'"c";A='d'"d";A='e'"e";A='f'"f";A='g'"g";A='h'"h";A='i'"i";A='j'"j";A='k'"k";A='l'"l";A='m'"m";A='n'"n";A='o'"o";A='p'"p";A='q'"q";A='r'"r";A='s'"s";A='t'"t";A='u'"u";A='v'"v";A='w'"w";A='x'"x";A='y'"y";A='z'"z";A='{'"{";A='|'"|";A='}'"}";A='~'"~";</pre><p>Since the character class CFGs and IOGs are big, it pays to suppress the details when looking at grammars that use them. 
+            Here is <tt>nowhite</tt> again:
+         </p><pre class="codeinput">idx = strfind(G.nowhite, <span class="string">'A='</span>);    <span class="comment">% the start of asciiIOG</span>
+fprintf(<span class="string">'%s'</span>, G.nowhite(1:idx-1)); <span class="comment">% don't print asciiIOG,</span>
+fprintf(<span class="string">'asciiIOG\n'</span>);             <span class="comment">% just print it's name instead</span>
+</pre><pre class="codeoutput">g=pg;g=;p=' ';p='
+';p=IAI;p=OAO;p=A;I='''"'";O='"'""";asciiIOG
+</pre><p>PAGE BREAK</p>
+         <h2>2.2.1 Define function <tt>scan</tt> and redefine <tt>GEM</tt><a name="26"></a></h2>
+         <p>Define a MATLAB function to run <tt>nowhite</tt> and at the same time we can redefine GEM to automatically scan its second parameter (the grammar).
+         </p><pre class="codeinput">scan = @(txt)G.run(txt, G.nowhite);  <span class="comment">% (Read the @ as lambda.)</span>
+GEM  = @(txt,c)G.run(txt, scan(c));
+</pre><p>Test scan:</p><pre class="codeinput">scan(<span class="string">'x Y z'</span>)
+</pre><pre class="codeoutput">ans =
+xYz
+</pre><p>PAGE BREAK</p>
+         <h2>2.3  IOG <tt>pretty</tt>, the antidote to <tt>nowhite</tt><a name="29"></a></h2>
+         <p>Returning <tt>nowhite</tt> to human-readable form can be accomplished by IOG <tt>pretty</tt>, which puts the minimal amount of blanks and newlines back. IOG <tt>pretty</tt> is an example of its own output (as before, the character class definitions <tt>lowerIOG</tt>, <tt>upperIOG</tt> and <tt>asciiIOG</tt> are supressed in these slides).
+         </p>
+         <p>Note that the rule for <tt>r</tt> precisely describes itself.
+         </p><pre class="codeinput">idx = strfind(G.pretty, <span class="string">'L='</span>);  fprintf(<span class="string">'%s'</span>, G.pretty(1:idx-1));
+fprintf(<span class="string">'lowerIOG upperIOG asciiIOG\n'</span>);
+</pre><pre class="codeoutput">g = r g;
+g =;
+r = L '=' " " "=" f ';' ";" "
+";
+f = " " p f;
+f =;
+p = I A I;
+p = O A O;
+p = L;
+I = ''' "'";
+O = '"' """;
+lowerIOG upperIOG asciiIOG
+</pre><p>IOG <tt>pretty</tt> also serves as a <b>syntax checker</b> for GEM input -- non-grammars will cause a run-time error
+         </p>
+         <p>PAGE BREAK</p>
+         <h2>2.4  IOG inversion<a name="32"></a></h2>
+         <p>Systematically interchanging the input and output delimiters (<tt>'</tt> and <tt>"</tt>) turns a <b>compiler</b> into <b>decompiler</b>. That is, the inverted IOG then accepts the original output and recreates the input. An inverted inverter is still an inverter.
+         </p><pre class="codeinput">idx = strfind(G.invert, <span class="string">'A='</span>); fprintf(<span class="string">'%s'</span>, G.invert(1:idx-1)); fprintf(<span class="string">'asciiIOG\n'</span>);
+</pre><pre class="codeoutput">g = p g;
+g = ;
+p = ''' """ A ''' """;
+p = '"' "'" A '"' "'";
+p = A;
+asciiIOG
+</pre><p>PAGE BREAK</p>
+         <h2>2.5.1  Inversion Example<a name="34"></a></h2>
+         <p>Right-associative sum and difference expressions can be expressed naturally in a right-recursive IOG.  The output of the IOG
+            <tt>sum</tt> is the left-to-right sequence of rule applications.
+         </p><pre class="codeinput">fprintf(<span class="string">'%s\n'</span>, G.sum);
+</pre><pre class="codeoutput">g = e         "0";
+e = t '+' e   "1";
+e = t '-' e   "2";
+e = t         "3";
+t = 'x'       "4";
+
+</pre><pre>   string    rule to be applied
+   x+x-x     4
+   t+x-x     4
+   t+t-x     4
+   t+t-t     3
+   t+t-e     2
+   t+e       1
+   e         0
+   g         QUIT</pre><pre class="codeinput">exampleparse = GEM(<span class="string">'x+x-x'</span>, G.sum) <span class="comment">% apply sum to 'x+x-x'</span>
+</pre><pre class="codeoutput">exampleparse =
+4443210
+</pre><pre class="codeinput">invertedsum = GEM(scan(G.sum), G.invert); <span class="comment">% apply invert to sum</span>
+fprintf(<span class="string">'%s'</span>, G.run(invertedsum, scan(G.pretty)));
+</pre><pre class="codeoutput">g = e '0';
+e = t "+" e '1';
+e = t "-" e '2';
+e = t '3';
+t = "x" '4';
+</pre><pre class="codeinput">fprintf(<span class="string">'%s\n'</span>, GEM(exampleparse, invertedsum)); <span class="comment">% apply inverted sum to 4443210</span>
+</pre><pre class="codeoutput">x+x-x
+</pre><p>PAGE BREAK</p>
+         <h2>3 Extending The IOGs<a name="39"></a></h2>
+         <h2>3.1  Multiple character input and output symbols.<a name="40"></a></h2>
+         <p>One can extend <tt>nowhite</tt> to accept multiple-character input and output symbols. Here is the new version, called <tt>nowhite2</tt>.
+         </p><pre class="codeinput">gstr = G.run(G.nowhite2, scan(G.pretty2));
+idx = strfind(gstr, <span class="string">'A ='</span>); fprintf(<span class="string">'%s'</span>, gstr(1:idx-1)); fprintf(<span class="string">'asciiIOG\n'</span>);
+</pre><pre class="codeoutput">g = p g;
+g =;
+p = ' ';
+p = '
+';
+p = I I I;
+p = O O O;
+p = ''' r;
+p = '"' s;
+p = A;
+r = ''';
+r = "'" A "'" r;
+s = '"';
+s = """ A """ s;
+I = ''' "'";
+O = '"' """;
+asciiIOG
+</pre><p>PAGE BREAK</p>
+         <h2>3.1.1  Redefine <tt>scan</tt>, <tt>pretty</tt> and <tt>GEM</tt><a name="42"></a></h2>
+         <p>Redefine and run the upgraded versions of the functions.</p><pre class="codeinput">scan   = @(txt)G.run(txt, G.nowhite2);
+GEM    = @(txt,c)G.run(txt, scan(c));
+scan(<span class="string">'r="Hello World";'</span>)    <span class="comment">% test enhanced scan</span>
+</pre><pre class="codeoutput">ans =
+r="H""e""l""l""o"" ""W""o""r""l""d";
+</pre><pre class="codeinput">GEM(<span class="string">''</span>, <span class="string">'r="Hello World";'</span>) <span class="comment">% use enhanced scan</span>
+</pre><pre class="codeoutput">ans =
+Hello World
+</pre><p>If you want to do a thought-problem, figure out what the new scan will do with an empty input or output symbol, e.g.</p><pre>  scan('r=ab""c')</pre><p>PAGE BREAK</p>
+         <h2>3.2  Arithmetic expressions<a name="45"></a></h2>
+         <p><i>Left-associative</i> arithmetic expressions can be described with a trick much like that used to write parsers in functional languages such as
+            ML. In this case the output is PFN (Polish postfix).
+         </p><pre class="codeinput">idx = strfind(G.postfix, <span class="string">'L='</span>);  <span class="comment">% start of expr lowerIOG</span>
+fprintf(<span class="string">'%s'</span>, G.postfix(1:idx-1));
+fprintf(<span class="string">'lowerIOG\n'</span>); fprintf(<span class="string">'digitIOG\n'</span>);
+</pre><pre class="codeoutput">g = e;
+e = t r;
+r = '+' t "+" r;
+r = '-' t "-" r;
+r = ;
+t = f s;
+s = '*' f "*" s;
+s = '/' f "/" s;
+s = ;
+f = L;
+f = D;
+f = '(' e ')';
+lowerIOG
+digitIOG
+</pre><p>PAGE BREAK</p>
+         <h2>3.2.1  Postfix<a name="47"></a></h2>
+         <p>Applying <tt>postfix</tt> to an arithmetic expression yields the postfix PFN.
+         </p><pre class="codeinput">fprintf(<span class="string">'%s\n'</span>, GEM(<span class="string">'x*(y+3+4)-x/7'</span>, G.postfix));
+</pre><pre class="codeoutput">xy3+4+*x7/-
+</pre><h2>3.2.2  Prefix<a name="48"></a></h2>
+         <p>Another IOG (not shown) produces prefix PFN.</p><pre class="codeinput">fprintf(<span class="string">'%s\n'</span>, GEM(<span class="string">'x*(y+3+4)-x/7'</span>, G.prefix));
+</pre><pre class="codeoutput">-*x+y+34/x7
+</pre><h2>3.2.3  Intel X86 code<a name="49"></a></h2>
+         <p>In case the postfix PFN example did not look much like a compiler, a small change to the output vocabulary (using multicharacter
+            symbols) results in Intel X86 assembly code:
+         </p><pre class="codeinput">fprintf(<span class="string">'%s'</span>, GEM(<span class="string">'x*(y+3+4)-x/7'</span>, G.x86));
+</pre><pre class="codeoutput">fld x
+fld y
+fld =3
+fadd
+fld =4
+fadd
+fmul
+fld x
+fld =7
+fdiv
+fsub
+</pre><p>PAGE BREAK</p>
+         <h2>3.3  Using Regular Expressions in IOGs<a name="51"></a></h2>
+         <p>Here is the expression IOG using Kleene *.  Because of what is coming, one must use only lower-case letters, and not <tt>d</tt>, for the rule names.
+         </p><pre class="codeinput">expr = G.run(scan(G.expr),scan(G.pretty2));
+idx = strfind(expr, <span class="string">'D ='</span>); fprintf(<span class="string">'%s'</span>, expr(1:idx-1)); fprintf(<span class="string">'digitIOG\n'</span>);
+</pre><pre class="codeoutput">g = e;
+e = t r*;
+r = '+' t "+";
+r = '-' t "-";
+t = f s*;
+s = '*' f "*";
+s = '/' f "/";
+f = D;
+f = '(' e ')';
+digitIOG
+</pre><p>PAGE BREAK</p>
+         <h2>3.4 Transforming regular expressions back to IOGs<a name="53"></a></h2>
+         <p>GEM knows nothing about the Kleene star, so what must be done to make progress is to transform regular expression grammars
+            back to the original IOG form, as was earlier done with multicharacter input and output symbols.  The trick is to replace
+            each
+         </p><pre> r*</pre><p>with a new symbol (say R) and add new rules</p><pre> R = rR;  R =;</pre><p>This trick is applied in two steps: the resulting IOGs are concatenated to make a grammar acceptable to GEM.</p>
+         <p>The new rules are created by IOG <tt>nostar1</tt> which <i>throws away the grammar</i> and makes a few new rules.  <tt>nostar1</tt> contains 26 rules of the form
+         </p><pre> s = 'a*' "A=aA;A=;";
+ s = 'b*' "B=bB;B=;";
+ ...
+ s = 'z*' "Z=zZ;Z=;";</pre><p>The <tt>r*</tt> items are replaced <i>in the grammar</i> by IOG <tt>nostar2</tt>, a version of <tt>pretty</tt> containing 26 rules of the form
+         </p><pre> s = 'a*' "A";
+ s = 'b*' "B";
+ ...
+ s = 'z*' "Z";</pre><p>PAGE BREAK</p>
+         <h2>3.4.1 The expression IOG as an example using *<a name="54"></a></h2><pre class="codeinput">newrules   = GEM(scan(G.expr), G.nostar1);
+newgrammar = GEM(scan(G.expr), G.nostar2);
+postfix    = [newgrammar newrules];
+fprintf(<span class="string">'%s\n'</span>, G.run(postfix, scan(G.pretty2)));
+</pre><pre class="codeoutput">g = e;
+e = t R;
+r = '+' t "+";
+r = '-' t "-";
+t = f S;
+s = '*' f "*";
+s = '/' f "/";
+f = D;
+f = '(' e ')';
+D = '0' "0";
+D = '1' "1";
+D = '2' "2";
+D = '3' "3";
+D = '4' "4";
+D = '5' "5";
+D = '6' "6";
+D = '7' "7";
+D = '8' "8";
+D = '9' "9";
+R = r R;
+R =;
+S = s S;
+S =;
+
+</pre><p>Applying the newly generated IOG gives postfix</p><pre class="codeinput">fprintf(<span class="string">'%s\n'</span>, GEM(<span class="string">'2*(6+3+4)-2/7'</span>, postfix));
+</pre><pre class="codeoutput">263+4+*27/-
+</pre><p>PAGE BREAK</p>
+         <h2>3.4.2  Add Kleene <tt>+</tt><a name="57"></a></h2>
+         <p>Adding Kleene operator <tt>+</tt> is accomplished by translating <tt>r+</tt> into <tt>rr*</tt>, then use <tt>nostar1</tt> and <tt>nostar2</tt> to eliminate the <tt>*</tt>. The IOG <tt>noplus</tt> is a version of <tt>pretty</tt> with 26 rules of the form
+         </p><pre> s = 'a+' "aa*';
+ s = 'b+' "bb*';
+ ...
+ s = 'z+' "zz*';</pre><pre class="codeinput">plusexample = <span class="string">'r=a+b+;a=''1''"O";b=''2''"T";'</span>; fprintf(GEM(plusexample,G.pretty2));
+</pre><pre class="codeoutput">r = a+ b+;
+a = '1' "O";
+b = '2' "T";
+</pre><pre class="codeinput">plusres = GEM(plusexample, G.noplus); fprintf(GEM(plusres,G.pretty2));
+</pre><pre class="codeoutput">r = a a* b b*;
+a = '1' "O";
+b = '2' "T";
+</pre><pre class="codeinput">plusout = GEM(<span class="string">'11122'</span>, [GEM(plusres,G.nostar2) GEM(plusres,G.nostar1)])
+</pre><pre class="codeoutput">plusout =
+OOOTT
+</pre><p>PAGE BREAK</p>
+         <h2>4  Making GEM efficient and reliable<a name="61"></a></h2>
+         <p>It is feasible to hack all sorts of enhancements into GEM without changing its nature.</p>
+         <div>
+            <ul>
+               <li>Tail recursion can be flattened.</li>
+               <li>The SEARCH can be precomputed (LL(1)-like capability).</li>
+               <li>Predefined character classes can be implemented inside <tt>iog.c</tt>.
+               </li>
+               <li>Internal consistency checks can be added.</li>
+            </ul>
+         </div>
+         <p>Program <tt>gem2</tt> provides a more efficient and reliable alternative. It has exactly the capabilities of <tt>gem</tt> except the character classes act more like builtin functions and less like macro expansions and it has more internal checks.
+         </p>
+         <p>The call to G.run is as before, except that the names of character class grammars can be added as additional parameters. 
+            For instance
+         </p><pre> G.run(i, g, 'A')</pre><p>makes the new <tt>run</tt> act like <tt>asciiIOG</tt> was appended to <tt>g</tt>.
+         </p>
+         <p>The third parameter can contain any of 'TdluaDLUA' standing for Trace and the appended character classes digitCFG.... asciiIOG.</p>
+         <p>PAGE BREAK</p>
+         <h2>4.1 Examples of using gem2<a name="63"></a></h2>
+         <p>A new version of <tt>pretty</tt> puts in <i>or</i> takes out whitespace to make a standard readable version of an IOG.
+         </p><pre class="codeinput">G=gem2();
+pretty=@(txt)G.run(txt, G.pretty, <span class="string">'LUA'</span>) ;
+prettypretty = pretty(G.pretty0)
+</pre><pre class="codeoutput">prettypretty =
+g = b* r*;
+r = L b* '=' " =" f* b* ';' b* ";
+";
+f = b* " " p;
+p = I I I;
+p = I i "'";
+p = O O O;
+p = O o """;
+p = L '*' "*";
+p = L '+' "+";
+p = L;
+i = ''';
+i = A i;
+o = '"';
+o = A o;
+I = ''' "'";
+O = '"' """;
+b = ' ';
+b = '
+';
+
+</pre><p>PAGE BREAK</p>
+         <p>The name G.GEM is used to implement some common uses of G.run.</p><pre class="codeinput">postfix = G.GEM(<span class="string">'1/y*(3+z)+2*x'</span>, <span class="string">'postfix'</span>) <span class="comment">% using Kleene *</span>
+</pre><pre class="codeoutput">postfix =
+1y/3z+*2x*+
+</pre><pre class="codeinput">prefix  = G.GEM(<span class="string">'1/y*(3+z)+2*x'</span>, <span class="string">'prefix'</span>)
+</pre><pre class="codeoutput">prefix =
++/1*y+3z*2x
+</pre><pre class="codeinput">sumagain = G.GEM(G.GEM(G.GEM(G.sum, <span class="string">'invert'</span>), <span class="string">'invert'</span>), <span class="string">'pretty'</span>)
+</pre><pre class="codeoutput">sumagain =
+g = e "0";
+e = t '+' e "1";
+e = t '-' e "2";
+e = t "3";
+t = 'x' "4";
+
+</pre><p>PAGE BREAK</p>
+         <h2>4.2 Intel X86 Assembler<a name="69"></a></h2>
+         <p>All compilers eventually have to connect to the underlying hardware. The first step here is an assembler that lays out the
+            bits exactly as required for execution as a subroutine on last year's Intel hardware.
+         </p>
+         <p>Each subroutine starts with a prolog followed by its own computation followed by an epilog.  Just executing the prolog followed
+            by the epilog is a no-op.
+         </p><pre class="codeinput">EOL = 10;      <span class="comment">% newline</span>
+prolog = [                     <span class="keyword">...</span>
+  <span class="string">'pushR EBP'</span>              EOL <span class="keyword">...</span><span class="comment"> push the base pointer on the stack</span>
+  <span class="string">'movRR EBP ESP'</span>          EOL <span class="keyword">...</span><span class="comment"> replace the base with the stack pointer</span>
+  <span class="string">'pushA'</span>                  EOL <span class="keyword">...</span><span class="comment"> save all the general registers</span>
+  ];
+epilog = [                     <span class="keyword">...</span>
+  <span class="string">'popA'</span>                   EOL <span class="keyword">...</span><span class="comment"> restore the general registers</span>
+  <span class="string">'xor EAX EAX'</span>            EOL <span class="keyword">...</span><span class="comment"> zero return code means success</span>
+  <span class="string">'leave'</span>                  EOL <span class="keyword">...</span><span class="comment"> restore stack</span>
+  <span class="string">'ret'</span>                    EOL <span class="keyword">...</span><span class="comment"> restore program counter</span>
+  ];
+
+assembled = G.run([prolog epilog], G.scan(G.asm))
+</pre><pre class="codeoutput">assembled =
+5589E5606133C0C9C3
+</pre><p>And then we can run the bits on an X86 (my laptop).  Return code zero is computed by the xor and signifies successful completion.</p><pre class="codeinput">fprintf(<span class="string">'rc=%d'</span>,G.exe(assembled));
+</pre><pre class="codeoutput">rc=0</pre><p>Using inversion, we can disassemble the bits to recover the assembler input.</p><pre class="codeinput">invertedbits = G.run(assembled,G.GEM(G.scan(G.asm),<span class="string">'invert'</span>))
+</pre><pre class="codeoutput">invertedbits =
+pushR EBP
+movRR EBP ESP
+pushA
+popA
+xor EAX EAX
+leave
+ret
+
+</pre><p>PAGE BREAK</p>
+         <h2>4.4 A calculator<a name="73"></a></h2>
+         <p>Moving to a higher level, one can compile and run a little 4-register calculator language.  As usual, the sequence of calculations
+            is compiled into Intel X86 binary, run, and also decompiled.
+         </p><pre class="codeinput">make31 = <span class="string">'b=9;a=3;c=4;a*=b;a+=c;'</span>;
+compiled = G.run(make31, G.scan(G.calc), <span class="string">'D'</span>); fprintf(<span class="string">'compiled = %s\n'</span>, compiled);
+executed = G.exe(compiled); fprintf(<span class="string">'executed = %d\n'</span>,executed);
+invertedcalc = G.GEM(G.scan(G.calc),<span class="string">'invert'</span>);
+decompiled=G.run(compiled, invertedcalc, <span class="string">'D'</span>); fprintf(<span class="string">'decompiled = %s'</span>,decompiled);
+</pre><pre class="codeoutput">compiled = 554889E5B909000000B803000000BA040000000FAFC101D0C9C3
+executed = 31
+decompiled = b=9;a=3;c=4;a*=b;a+=c;</pre><p>Unix function atoi</p><pre class="codeinput">intval  = G.exe(G.GEM(<span class="string">'376'</span>, <span class="string">'atoi'</span>)); fprintf(<span class="string">'intval=%d'</span>, intval);
+</pre><pre class="codeoutput">intval=376</pre><p>PAGE BREAK</p>
+         <h2>4.5 When things go wrong<a name="76"></a></h2>
+         <p>Given a bad IOG, or bad text input, GEM will fail.  What GEM will not do is give an acceptable diagnostic (it usually backtracks
+            clear out of the input text before giving up).
+         </p>
+         <p>When GEM fails, the highwater mark on the parse stack or backup stack usually gives a hint of whatever went wrong.  At this
+            point one turns on the trace and either fixes one of the inputs or starts putting print statements in file iog.c or iog2.c.
+             Here is the run of a simple grammar with the trace turned on.
+         </p><pre class="codeinput">toy=<span class="string">'r=a;r=b;a=''x''"1";b=''y''"2";'</span>;
+G.GEM(toy,<span class="string">'pretty'</span>)
+</pre><pre class="codeoutput">ans =
+r = a;
+r = b;
+a = 'x' "1";
+b = 'y' "2";
+
+</pre><pre class="codeinput">G.run(<span class="string">'x'</span>,toy,<span class="string">'T'</span>);
+</pre><pre class="codeoutput">SEARCH  stk:0 **ps:r  bak:-1 p: 0 *p:;  i: 0 *i:x  o:-1 *o:#
+ PARSE  stk:0 **ps:r  bak:-1 p: 3 *p:a  i: 0 *i:x  o:-1 *o:#
+SEARCH  stk:1 **ps:a  bak:-1 p: 0 *p:;  i: 0 *i:x  o:-1 *o:#
+SEARCH  stk:1 **ps:a  bak:-1 p: 3 *p:a  i: 0 *i:x  o:-1 *o:#
+SEARCH  stk:1 **ps:a  bak:-1 p: 4 *p:;  i: 0 *i:x  o:-1 *o:#
+SEARCH  stk:1 **ps:a  bak:-1 p: 7 *p:b  i: 0 *i:x  o:-1 *o:#
+SEARCH  stk:1 **ps:a  bak:-1 p: 8 *p:;  i: 0 *i:x  o:-1 *o:#
+ PARSE  stk:1 **ps:a  bak:-1 p:11 *p:'  i: 0 *i:x  o:-1 *o:#
+ PARSE  stk:1 **ps:a  bak:-1 p:14 *p:"  i: 1 *i:#  o:-1 *o:#
+ PARSE  stk:1 **ps:a  bak:-1 p:17 *p:;  i: 1 *i:#  o: 0 *o:1
+ PARSE  stk:0 **ps:r  bak:0 p: 4 *p:;  i: 1 *i:#  o: 0 *o:1
+</pre><p>PAGE BREAK</p>
+         <h2>5 Summary<a name="79"></a></h2>
+         <p><b>The input/output grammar was defined and shown to have some useful properties; invertible, directly executable, extendible,
+               compilable. How far it can go is an open question.</b></p>
+         <h2>Reference<a name="80"></a></h2>
+         <p><a href="http://www.mathworks.com/matlabcentral/fileexchange/20149">http://www.mathworks.com/matlabcentral/fileexchange/20149</a></p>
+         <h2>Signature<a name="81"></a></h2>
+         <p>Presented to the Computer Science Colloquium, Stanford, March 4, 2009</p>
+         <p><img vspace="5" hspace="5" src="../../images/signature.jpg" alt=""> </p>
+         <p><i>Bill McKeeman</i>, MathWorks Fellow
+         </p>
+         <p>PAGE BREAK</p>
+         <p class="footer"><br>
+            Published with MATLAB&reg; 7.7<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%%
+% PAGE BREAK
+%%
+% PAGE BREAK
+%% ABSTRACT
+% *Can a tiny compiler-compiler grow into something useful?*
+%
+% by Bill McKeeman
+% 
+% The grammars presented here are like computer programs in that they
+% accept input and produce output.  The output may be another grammar,
+% which can in turn be used to make yet another grammar. The question is:
+% how far can one go?
+%
+% I do not know, but let us at least get started.
+%
+% *Note:* I have used this material only for teaching. I do not know of any
+% practical or theoretical consequences. The material has some resonance
+% with Guy Steele's 1998 OOPSLA talk _Growing a Language_.  
+%
+% *Note:* This presentation was prepared by the MATLAB publish feature
+% which accepts a commented MATLAB script as input.  This paragraph came
+% from a MATLAB comment. The grey-bar sections are MATLAB code.  
+format compact  % help MATLAB save screen space
+%%
+% Immediately following the each code section is the corresponding output
+% (if any).  There was no output from the |format| statement above.
+%
+% PAGE BREAK
+%% 1 Executable Grammars
+% It is well-known that the rewriting rules of a Context-free Grammar can
+% be mechanically applied, and that if some sequence of applications
+% results in a parse, that parse is correct.  The trick is, of course, in
+% finding the correct sequence of applications. 
+%
+% The _Grammar Executing Machine_ (GEM) presented here can do that, with
+% reasonable efficiency, executing its input grammar one character at a
+% time.
+%
+% Topics
+%
+% * Input/Output Grammar (IOG)
+% * GEM primitives
+% * How GEM works
+% * Basic GEM capabilities
+% * Extending IOGs
+% * Efficiency and convenience
+% * Compiling
+% * Debugging
+%
+% PAGE BREAK
+%% 1.1  IOG: the Input/Output Grammar
+%
+% * ${\cal G} = \langle V_I, V_O, V_N, V_G, \Pi\rangle$
+%
+% An IOG satisfies the following constraints:
+%
+% * $V  = V_I \cup V_O \cup V_N$  
+% * $V_I \cap V_O = \{\}$
+% * $V_I \cap V_N = \{\}$
+% * $V_O \cap V_N = \{\}$
+% * $V_G \subseteq V_N$
+% * $\Pi \subseteq V_N\times V^*$
+%
+% When $V_O$ is empty, an IOG is a conventional CFG with terminal symbols 
+% $V_I$.
+%
+% There are some initial restrictions 
+%
+% * Whitespace is not allowed between symbols.
+% * The input, output and phrase name symbols are all single-character.
+% * The IOG must not be left-recursive.  
+%
+% PAGE BREAK
+%% 1.2  GEM: the Grammar Executing Machine
+% GEM is a Grammar Executing Machine.  It can be thought of as a function 
+%
+%   o = GEM(i, g)
+%
+% where |i| is the input text, |o| is the resulting output text, and |g|
+% is the text of the IOG being executed.  The final argument |g| can be 
+% thought of as the *stored program* in a Von Neumann computer.
+%
+% GEM is made available for use in this talk by the following MATLAB code
+G   = gem();   % instantiate the object
+GEM = G.run;   % GEM is a function
+%%
+% PAGE BREAK
+%% 1.3  Running GEM
+% The simplest possible IOG is applied to the null string
+fprintf('res=%s', GEM('', 'r=;'));
+%%
+% IOG |g1| shows the use of |'| and |"| to delimit members of $V_I$ and
+% $V_O$ respectively.
+%%
+g1 = 'r=''x''"y";'; fprintf('%s\n', g1); 
+%%
+fprintf('res=%s',GEM('x', g1));
+%%
+% IOG |g2| shows the use of additional rules to describe alternatives
+%%
+g2 = 'r=s;s=''1'';s=''2'';'; fprintf('%s\n', g2); 
+%%
+fprintf('res=%s', GEM('1', g2));
+%%
+% PAGE BREAK
+%% 1.4 GEM Implementation
+% The (GEM) machine itself is implemented in C file iog.c.  Function |iog|
+% is called from MATLAB. 
+%
+% The following 80 or so lines of C code execute IOGs.  The compiled C code
+% takes a few nanoseconds to execute a step.
+%
+% The MEX file iog.c is an example of no-frills code that runs on the edge 
+% of catastophe.  The slighest user error can bring all of MATLAB down in
+% a rubble of bits.  It is meant to illustrate an algorithm, as contrasted
+% to being actually used.
+% A more robust version can be found in file iog2.c.
+dbtype iog.c 113:190
+%%
+% PAGE BREAK
+%% 1.5  How GEM works
+% The grammars are symmetric:
+%
+% * they can be executed right-to-left
+% * they can be executed left-to-right. 
+%
+% When executed "backward," the effect is to exactly undo
+% the work that was done going forward. 
+%
+% At each step during PARSE, GEM switches on the current character,
+% interpreting it as one of: 
+%
+% * a recursive call, or
+% * move ahead in the input (a shift), or 
+% * move a character to the output, or
+% * end of a grammar rule (a reduce).
+%
+% When a recursive call is needed, the mode shifts to SEARCH which linearly
+% passes over the IOG. Once a matching rule is found, the mode returns to
+% PARSE.  
+% 
+% Whenever the actual input fails to match the required input symbol in the
+% IOG, the current trial parse fails and mode BACK is entered.
+% 
+% During mode BACK the IOG is un-executed backward.
+%
+% If, at some point, the input is entirely used and all recursions have
+% returned, GEM reports the output.
+%
+% PAGE BREAK
+%% 2 GEM Capabilities
+%% 2.1  Predefined Character-class CFGs and IOGs.
+% Character classes analogous to functions |isletter|, |isdigit| and the
+% like in C occur often
+%
+% Eight such classes of symbols are pre-entered so that the GEM user never
+% needs to define them explicitly. For example, grammar |digitIOG| defines
+% phrase name |D| to pass digits. Read the first rule as "if you see a
+% zero, emit a zero."
+%
+%     D = '0' "0";
+%     D = '1' "1";
+%     D = '2' "2";
+%     D = '3' "3";
+%     D = '4' "4";
+%     D = '5' "5";
+%     D = '6' "6";
+%     D = '7' "7";
+%     D = '8' "8";
+%     D = '9' "9";
+%
+% The list of pre-entered CFG and IOG character classes is
+%
+%  digitCFG  (defines phrase d, accept any digit)
+%  upperCFG  (defines phrase l, accept any upper case letter)
+%  lowerCFG  (defines phrase l, accept any lower case letter)
+%  asciiCFG  (defines phrase a, accept any character)
+%  digitIOG  (defines phrase D, (above) accept and pass on any digit)
+%  upperIOG  (defines phrase L, accept and pass on any upper case letter)
+%  lowerIOG  (defines phrase L, accept and pass on any lower case letter)
+%  asciiIOG  (defines phrase A, accept and pass on any character)
+%
+% One or more of these grammars can be *appended* to any grammar to be
+% input to GEM. For example, here is an example that accepts any digit and
+% passes it to the output.
+fprintf('%s', GEM('7', ['r=D;' G.digitIOG])); % MATLAB string concatenation
+%%
+%
+% PAGE BREAK
+%% 2.2  Whitespace and IOG |nowhite|
+% People like whitespace; GEM does not.  Therefore the first useful IOG is
+% a deblanker named |nowhite|.  Since GEM always does first things first, 
+% |nowhite| discards blanks and newlines, passes $V_I$ and $V_O$ entries
+% (including literal blanks and newlines) unchanged to the output, and also
+% as a default (last rule) passes everything else to the output. Because
+% phrase name |A| was used, character class grammar |asciiIOG| must be
+% appended.
+%
+%     g = p g;
+%     g = ;
+%     p = ' '; 
+%     p = '  
+%     ';  
+%     p = I A I; 
+%     p = O A O; 
+%     p = A;
+%     I = ''' "'"
+%     O = '"' """
+%     asciiIOG
+%
+% PAGE BREAK
+%%
+% A de-whited |nowhite| has to be prepared by hand ahead of time;
+% it is available as a field of |G|.
+fprintf('%s', G.nowhite);
+%%
+% Since the character class CFGs and IOGs are big, it pays to suppress the
+% details when looking at grammars that use them.  Here is |nowhite| again:
+idx = strfind(G.nowhite, 'A=');    % the start of asciiIOG
+fprintf('%s', G.nowhite(1:idx-1)); % don't print asciiIOG,
+fprintf('asciiIOG\n');             % just print it's name instead
+%%
+%
+% PAGE BREAK
+%% 2.2.1 Define function |scan| and redefine |GEM|
+% Define a MATLAB function to run |nowhite| and at the same time we can
+% redefine GEM to automatically scan its second parameter (the grammar). 
+scan = @(txt)G.run(txt, G.nowhite);  % (Read the @ as lambda.)
+GEM  = @(txt,c)G.run(txt, scan(c));
+%%
+% Test scan:
+scan('x Y z')
+%%
+%
+% PAGE BREAK
+%% 2.3  IOG |pretty|, the antidote to |nowhite|
+% Returning |nowhite| to human-readable form can be accomplished by IOG
+% |pretty|, which puts the minimal amount of blanks and newlines back. IOG
+% |pretty| is an example of its own output (as before, the character class
+% definitions |lowerIOG|, |upperIOG| and |asciiIOG| are supressed in these
+% slides).
+%
+% Note that the rule for |r| precisely describes itself.
+idx = strfind(G.pretty, 'L=');  fprintf('%s', G.pretty(1:idx-1));
+fprintf('lowerIOG upperIOG asciiIOG\n');
+%%
+% IOG |pretty| also serves as a *syntax checker* for GEM input REPLACE_WITH_DASH_DASH
+% non-grammars will cause a run-time error
+%%
+% PAGE BREAK
+%% 2.4  IOG inversion
+% Systematically interchanging the input and output delimiters (|'| and
+% |"|) turns a *compiler* into *decompiler*. That is, the inverted IOG then
+% accepts the original output and recreates the input. An inverted inverter
+% is still an inverter.
+idx = strfind(G.invert, 'A='); fprintf('%s', G.invert(1:idx-1)); fprintf('asciiIOG\n');
+%%
+%
+% PAGE BREAK
+%% 2.5.1  Inversion Example
+% Right-associative sum and difference expressions can be expressed
+% naturally in a right-recursive IOG.  The output of the IOG |sum| is the
+% left-to-right sequence of rule applications. 
+fprintf('%s\n', G.sum);
+%%
+%
+%     string    rule to be applied
+%     x+x-x     4
+%     t+x-x     4
+%     t+t-x     4
+%     t+t-t     3
+%     t+t-e     2
+%     t+e       1
+%     e         0
+%     g         QUIT
+%
+exampleparse = GEM('x+x-x', G.sum) % apply sum to 'x+x-x'
+%%
+invertedsum = GEM(scan(G.sum), G.invert); % apply invert to sum
+fprintf('%s', G.run(invertedsum, scan(G.pretty)));
+%%
+fprintf('%s\n', GEM(exampleparse, invertedsum)); % apply inverted sum to 4443210
+%%
+%
+% PAGE BREAK
+%% 3 Extending The IOGs
+%% 3.1  Multiple character input and output symbols.
+% One can extend |nowhite| to accept multiple-character input and output
+% symbols. Here is the new version, called |nowhite2|.
+gstr = G.run(G.nowhite2, scan(G.pretty2));
+idx = strfind(gstr, 'A ='); fprintf('%s', gstr(1:idx-1)); fprintf('asciiIOG\n');
+%%
+%
+% PAGE BREAK
+%% 3.1.1  Redefine |scan|, |pretty| and |GEM|
+% Redefine and run the upgraded versions of the functions.
+scan   = @(txt)G.run(txt, G.nowhite2);
+GEM    = @(txt,c)G.run(txt, scan(c));
+scan('r="Hello World";')    % test enhanced scan
+%%
+GEM('', 'r="Hello World";') % use enhanced scan
+%%
+% If you want to do a thought-problem, figure out what the new scan will
+% do with an empty input or output symbol, e.g. 
+%
+%    scan('r=ab""c')
+%
+% PAGE BREAK
+%% 3.2  Arithmetic expressions
+% _Left-associative_ arithmetic expressions can be described with a trick
+% much like that used to write parsers in functional languages such as ML.
+% In this case the output is PFN (Polish postfix).
+idx = strfind(G.postfix, 'L=');  % start of expr lowerIOG
+fprintf('%s', G.postfix(1:idx-1));
+fprintf('lowerIOG\n'); fprintf('digitIOG\n');
+%%
+%
+% PAGE BREAK
+%% 3.2.1  Postfix
+% Applying |postfix| to an arithmetic expression yields the postfix PFN.
+fprintf('%s\n', GEM('x*(y+3+4)-x/7', G.postfix));
+%% 3.2.2  Prefix
+% Another IOG (not shown) produces prefix PFN.
+fprintf('%s\n', GEM('x*(y+3+4)-x/7', G.prefix));
+%% 3.2.3  Intel X86 code
+% In case the postfix PFN example did not look much like a compiler,
+% a small change to the output vocabulary (using multicharacter symbols)
+% results in Intel X86 assembly code:
+fprintf('%s', GEM('x*(y+3+4)-x/7', G.x86));
+%%
+%
+% PAGE BREAK
+%% 3.3  Using Regular Expressions in IOGs
+% 
+% Here is the expression IOG using Kleene *.  Because of what is coming,
+% one must use only lower-case letters, and not |d|, for the rule names.
+expr = G.run(scan(G.expr),scan(G.pretty2));
+idx = strfind(expr, 'D ='); fprintf('%s', expr(1:idx-1)); fprintf('digitIOG\n');
+%%
+% PAGE BREAK
+%% 3.4 Transforming regular expressions back to IOGs
+% GEM knows nothing about the Kleene star, so what must be done to make
+% progress is to transform regular expression grammars back to the original
+% IOG form, as was earlier done with multicharacter input and output
+% symbols.  The trick is to replace each
+%
+%   r*
+%
+% with a new symbol (say R) and add new rules
+%
+%   R = rR;  R =;
+%
+% This trick is applied in two steps: the resulting IOGs are concatenated
+% to make a grammar acceptable to GEM.  
+%
+% The new rules are created by IOG |nostar1| which _throws away the
+% grammar_ and makes a few new rules.  |nostar1| contains 26 rules of the
+% form
+%
+%   s = 'a*' "A=aA;A=;";
+%   s = 'b*' "B=bB;B=;";
+%   ...
+%   s = 'z*' "Z=zZ;Z=;";
+%
+% The |r*| items are replaced _in the grammar_ by IOG |nostar2|, a version
+% of |pretty| containing 26 rules of the form
+%
+%   s = 'a*' "A";
+%   s = 'b*' "B";
+%   ...
+%   s = 'z*' "Z";
+%
+% PAGE BREAK
+%% 3.4.1 The expression IOG as an example using *
+newrules   = GEM(scan(G.expr), G.nostar1);
+newgrammar = GEM(scan(G.expr), G.nostar2);
+postfix    = [newgrammar newrules]; 
+fprintf('%s\n', G.run(postfix, scan(G.pretty2)));
+%% 
+% Applying the newly generated IOG gives postfix
+fprintf('%s\n', GEM('2*(6+3+4)-2/7', postfix));
+%%
+% PAGE BREAK
+%% 3.4.2  Add Kleene |+|
+% Adding Kleene operator |+| is accomplished by translating |r+| into
+% |rr*|, then use |nostar1| and |nostar2| to eliminate the |*|. The IOG
+% |noplus| is a version of |pretty| with 26 rules of the form
+%
+%   s = 'a+' "aa*';
+%   s = 'b+' "bb*';
+%   ...
+%   s = 'z+' "zz*';
+% 
+plusexample = 'r=a+b+;a=''1''"O";b=''2''"T";'; fprintf(GEM(plusexample,G.pretty2));
+%%
+plusres = GEM(plusexample, G.noplus); fprintf(GEM(plusres,G.pretty2));
+%%
+plusout = GEM('11122', [GEM(plusres,G.nostar2) GEM(plusres,G.nostar1)])
+%%
+% PAGE BREAK
+%% 4  Making GEM efficient and reliable
+% It is feasible to hack all sorts of enhancements into GEM without
+% changing its nature. 
+%
+% * Tail recursion can be flattened. 
+% * The SEARCH can be precomputed (LL(1)-like capability).  
+% * Predefined character classes can be implemented inside |iog.c|.
+% * Internal consistency checks can be added.
+%
+% Program |gem2| provides a more efficient and reliable alternative. It has
+% exactly the capabilities of |gem| except the character classes act more
+% like builtin functions and less like macro expansions and it has more
+% internal checks.  
+%
+% The call to G.run is as before, except that the names of character class
+% grammars can be added as additional parameters.  For instance
+%
+%   G.run(i, g, 'A')
+%
+% makes the new |run| act like |asciiIOG| was appended to |g|.
+%
+% The third parameter can contain any of 'TdluaDLUA' standing for Trace and
+% the appended character classes digitCFG.... asciiIOG.
+%%
+% PAGE BREAK
+%% 4.1 Examples of using gem2
+% A new version of |pretty| puts in _or_ takes out whitespace to make a
+% standard readable version of an IOG.
+G=gem2();
+pretty=@(txt)G.run(txt, G.pretty, 'LUA') ;
+prettypretty = pretty(G.pretty0)
+%%
+% PAGE BREAK
+%%
+% The name G.GEM is used to implement some common uses of G.run.
+postfix = G.GEM('1/y*(3+z)+2*x', 'postfix') % using Kleene *
+%%
+prefix  = G.GEM('1/y*(3+z)+2*x', 'prefix')
+%%
+sumagain = G.GEM(G.GEM(G.GEM(G.sum, 'invert'), 'invert'), 'pretty')
+%%
+% PAGE BREAK
+%% 4.2 Intel X86 Assembler
+% All compilers eventually have to connect to the underlying hardware.
+% The first step here is an assembler that lays out the bits exactly as
+% required for execution as a subroutine on last year's Intel hardware.  
+%
+% Each subroutine starts with a prolog followed by its own computation
+% followed by an epilog.  Just executing the prolog followed by the 
+% epilog is a no-op.
+EOL = 10;      % newline
+prolog = [                     ...
+  'pushR EBP'              EOL ... push the base pointer on the stack
+  'movRR EBP ESP'          EOL ... replace the base with the stack pointer
+  'pushA'                  EOL ... save all the general registers
+  ];
+epilog = [                     ...
+  'popA'                   EOL ... restore the general registers
+  'xor EAX EAX'            EOL ... zero return code means success
+  'leave'                  EOL ... restore stack
+  'ret'                    EOL ... restore program counter
+  ];
+
+assembled = G.run([prolog epilog], G.scan(G.asm))
+%%
+% And then we can run the bits on an X86 (my laptop).  Return code zero
+% is computed by the xor and signifies successful completion.
+fprintf('rc=%d',G.exe(assembled));
+%%
+% Using inversion, we can disassemble the bits to recover the assembler input.
+invertedbits = G.run(assembled,G.GEM(G.scan(G.asm),'invert'))
+%%
+% PAGE BREAK
+%% 4.4 A calculator
+% Moving to a higher level, one can compile and run a little 4-register
+% calculator language.  As usual, the sequence of calculations is compiled 
+% into Intel X86 binary, run, and also decompiled.
+make31 = 'b=9;a=3;c=4;a*=b;a+=c;';
+compiled = G.run(make31, G.scan(G.calc), 'D'); fprintf('compiled = %s\n', compiled);
+executed = G.exe(compiled); fprintf('executed = %d\n',executed);
+invertedcalc = G.GEM(G.scan(G.calc),'invert');
+decompiled=G.run(compiled, invertedcalc, 'D'); fprintf('decompiled = %s',decompiled);
+%%
+% Unix function atoi
+intval  = G.exe(G.GEM('376', 'atoi')); fprintf('intval=%d', intval);
+%%
+% PAGE BREAK
+%% 4.5 When things go wrong
+% Given a bad IOG, or bad text input, GEM will fail.  What GEM will not do
+% is give an acceptable diagnostic (it usually backtracks clear out of the
+% input text before giving up).
+%
+% When GEM fails, the highwater mark on the parse stack or backup stack
+% usually gives a hint of whatever went wrong.  At this point one turns on
+% the trace and either fixes one of the inputs or starts putting print
+% statements in file iog.c or iog2.c.  Here is the run of a simple grammar
+% with the trace turned on.
+toy='r=a;r=b;a=''x''"1";b=''y''"2";';
+G.GEM(toy,'pretty')
+%%
+G.run('x',toy,'T');
+%%
+% PAGE BREAK
+%% 5 Summary
+% *The input/output grammar was defined and shown to have some useful
+% properties; invertible, directly executable, extendible, compilable.  
+% How far it can go is an open question.*
+%% Reference
+% http://www.mathworks.com/matlabcentral/fileexchange/20149
+%% Signature
+% Presented to the Computer Science Colloquium, Stanford, March 4, 2009
+%
+% <<../../images/signature.jpg>>
+%
+% _Bill McKeeman_, MathWorks Fellow
+%
+% PAGE BREAK
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      CommandLine.html
+     PURPOSE:   the arguments and flags for xcom
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.10.14 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+A Short Course in Compilers  -- xcom Command Line
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> CommandLine.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+
+<H3>xcom Command Line</H3>
+
+<H4>Preliminary</H4>
+<P>
+To run a program, call xcom from the MATLAB command line.  Example:
+<BIG>
+  <PRE>
+    >> xcom 'x:=139-11*2'
+    x := 117
+  </PRE>
+</BIG>
+gives the result shown.  The quotes are not needed unless there is
+a MATLAB-significant character such as blank or semicolon in the input.
+</P>
+<P>
+From within the mxcom main directory
+<BIG>
+  <PRE>
+    >> xcom x/pi.x
+    integer input: nterms=100
+    pi := 3.136593
+    delta := 0.010000
+  </PRE>
+</BIG>
+
+compiles and runs the program pi.x.  The program requests input.
+You enter 100 (say) and the program then runs to completion and
+reports its results as noted above.
+</P>
+<P>
+You can call the same program as a subprogram.  
+The caller will provide the input (in this case 100).
+<BIG>
+  <PRE>
+    >> xcom x/pi.x -srcDump x/callpi.x
+    begin source code ----
+    ` FILE:    callpi.x
+    ` PURPOSE: compute pi to n terms
+    ` METHOD:  4*(1 - 1/3 + 1/5 - 1/7 + 1/9...)
+    `          Number of terms is input
+    
+    pi100, eps := pi := 100;
+    
+    end   source code ----
+    pi100 := 3.136593
+    eps := 0.010000
+  </PRE>
+</BIG>
+In this case xcom compiles the two programs, 
+dumps the source for the second one,
+then runs the last program in the argument list.  
+That program in turn calls the first program to compute pi 
+(again using 100 terms of the alternating harmonic series).  
+</P>
+
+<h4>The xcom arguments: X files, X text and flags</H4>
+<P>
+  The main call to xcom takes a list of arguments.
+  As command dual (usual call) the arguments are blank-separated
+  as shown in the example above.
+  (<B>Note:</B> arguments cannot contain characters that will catch the
+  attention of MATLAB, such as blank or semicolon.  
+  An xcom argument can be wrapped in quote-marks if necessary, 
+  preventing MATLAB from interpreting the contents.)
+</P>
+<P>
+If the argument is a valid X file name, the file will be read and
+the contained text taken as input.
+If the argument starts with a '-', it will be taken as a flag.
+Otherwise, the argument will be taken as X source text.
+Flags are either global or effect only the following argument.
+</P>
+
+<H4>xcom help</H4>
+<P>
+From MATLAB, in the mxcom directory, try
+  <BIG>
+    <PRE>
+      >> help xcom
+    </PRE>
+  </BIG>
+You will see a lot of information, 
+including the set of possible flags in the help output.
+Most of the M files in the mxcom directory also have help.
+For example, try
+  <BIG>
+    <PRE>
+      >> help Cfg
+    </PRE>
+  </BIG>
+</P>
+
+<H4>Errors</H4>
+<P>
+  When something goes wrong, xcom uses the MATLAB error function
+  to report the trouble.  
+  The assumption is that the user is only interested in what is wrong
+  with the X program.
+  xcom therefore supresses the normal MATLAB stack dump.
+  But, if you are trying to debug your version of xcom, 
+  the MATLAB stack carries essential information.
+  In this case pass the flag
+  <BIG>
+    <PRE>
+      -matlabStack
+    </PRE>
+  </BIG>
+  to xcom and see it all.
+</P>
+
+<H4>Loops</H4>
+<P>
+  If you are so unfortunate as to write an X program with an infinite
+  loop, there is no recovery.  CTRL-C is ignored.  Kill MATLAB.  Start over.  
+  You might want to run under emulation to isolate the error.
+  CTRL-C does work in this case.
+</P>
+
+<H4>Dumps and Traces</H4>
+<P>
+In general, most xcom modules have a 
+trace facility and/or dump facility.
+A <B>dump</B> is a formatted output of the 
+final internal state of an object.
+A <B>trace</B> is a formatted output of the results 
+as they are computed.
+You can try the flags in the help list one or more at a time.  For example
+<BIG>
+  <PRE> 
+    >> xcom -noExecute -symDump x/pi.x
+    Symbols ---------- start dump ------------
+       1: pi: ty=fn use=
+       2: p2: ty=real use=left|right
+       3: i: ty=integer use=left|right
+       4: nterms: ty=integer use=right
+       5: t: ty=real use=left|right
+       6: p1: ty=real use=left|right
+       7: res: ty=real use=left
+       8: delta: ty=real use=left
+    Symbols ---------- end   dump ------------
+  </PRE>
+</BIG>
+will dump the symbol table for pi.x and not execute the program.
+</P>
+
+<A NAME="tests"></A>
+<H4>Unit Tests, Trials and Times</H4>
+<P>
+In the mxcom directory
+<BIG>
+  <PRE>
+    >> addpath tests trials times
+  </PRE>
+</BIG>
+Each of these directories contains tests implemented in M.
+Try each of
+<BIG>
+  <PRE>
+    >> testAll()
+    >> tryAll()
+    >> timeAll()
+  </PRE>
+</BIG>
+Eventually these tests consume about 1/2 of the development work:
+you are encoueraged to add a feature, add a trial, add a test, and 
+(perhaps) time the feature.
+</P>
+
+<H4>Interactive Execution</H4>
+<P>
+Since xcom eventually makes machine code and executes it,
+the xcom developer needs a way to "watch it run".  Try
+<BIG>
+  <PRE>
+    >> xcom -interactive -asmTrace 'x,y:=13.0+17.1,100+101'
+  </PRE>
+</BIG>
+What you will see is the assembly language translation
+followed by the start of an instruction-by-instruction trace.
+For each prompt
+<BIG>
+  <PRE>
+    step=
+  </PRE>
+</BIG>
+reply with an ENTER (or 1 followed by ENTER) to see the result
+after every instruction.  
+You can actually give the prompt any MATLAB integer value.
+A step value larger than 1 steps
+forward, skipping over some output.
+A negative value steps back.
+  <B>Note:</B>The emulation does not implement the X function call, so 
+  as a practical matter, it can only be used on one dot-x file.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

@@ -1,0 +1,89 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-20.html</p>
+
+         <h2>3.4 Transforming regular expressions back to IOGs<a name="53"></a></h2>
+         <p>GEM knows nothing about the Kleene star, so what must be done to make progress is to transform regular expression grammars
+            back to the original IOG form, as was earlier done with multicharacter input and output symbols.  The trick is to replace
+            each
+         </p><pre> r*</pre><p>with a new symbol (say R) and add new rules</p><pre> R = rR;  R =;</pre><p>This trick is applied in two steps: the resulting IOGs are concatenated to make a grammar acceptable to GEM.</p>
+         <p>The new rules are created by IOG <tt>nostar1</tt> which <i>throws away the grammar</i> and makes a few new rules.  <tt>nostar1</tt> contains 26 rules of the form
+         </p><pre> s = 'a*' "A=aA;A=;";
+ s = 'b*' "B=bB;B=;";
+ ...
+ s = 'z*' "Z=zZ;Z=;";</pre><p>The <tt>r*</tt> items are replaced <i>in the grammar</i> by IOG <tt>nostar2</tt>, a version of <tt>pretty</tt> containing 26 rules of the form
+         </p><pre> s = 'a*' "A";
+ s = 'b*' "B";
+ ...
+ s = 'z*' "Z";</pre><table border=1><tr><td><a href="StanfordSlides-19.html">PREV</a></td><td><a href="StanfordSlides-21.html">NEXT</a></td></tr></table>
+</body></html>

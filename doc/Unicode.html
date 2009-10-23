@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      unicode.html
+     PURPOSE:   Overview of the Unicode
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.05.07 - taken from CS48 lecture 16
+-->
+
+<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<HEAD>
+<TITLE>
+  Unicode
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> unicode.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008
+</SMALL>
+</P>
+
+
+<H3>Unicode</H3>
+
+<P>
+  <A HREF="http://en.wikipedia.org/wiki/Unicode">Unicode</A>, 
+  or ISO 10464, is ASCII on steroids.  
+  The objective is to be able represent, especially on the WWW, 
+  all of the characters in use, or ever having been used.
+    <A HREF="http://www.fileformat.info/info/unicode/block/cjk_compatibility_ideographs/images.htm">
+    CJK</A>,
+  <A HREF="http://unicode.org/charts/PDF/U13A0.pdf">Cherokee</A>, 
+  <A HREF="http://unicode.org/charts/PDF/U12000.pdf">Cuneiform</A>,
+  <A HREF="http://www.fileformat.info/info/unicode/block/mathematical_operators/images.htm">
+  Mathematics</A>,
+  <A HREF="http://unicode.org/charts/PDF/U1D100.pdf">
+  Music</A>... and so on.
+</P>
+<P>
+  To get all the worlds languages into computers, 
+  127 bit patterns are not enough.
+  The Han (or CJK) languages by themselves take more than 50K patterns.  
+  So there are three additional coding schemes, 
+  one with 8 bit codes (UTF-8) 
+  one with 16 bit codes (UTF-16) 
+  and one with 32 bit codes (UTF-32).  
+  UTF-8 and UTF-16 are variable length encodings.
+  Each of the schemes can represent almost 
+  2<SUP>32</SUP> unique characters.
+  Unicode has directional control (Hebrew is right-to-left, for example),
+  a collating sequence, a class for alphabetic letters (there
+  are a lot of them), and many other representational features.
+</P>
+<P>
+  This is a <B>big deal</B>.
+  National governments negotiate over who gets what blocks of characters.  
+  Unicode is the basis for browsers, Matlab, Java and XML among others.
+<P>
+
+<P>
+  ISO 10464 defines the characters (called codepoints).
+  One can see the <A HREF="http://www.atm.ox.ac.uk/user/iwi/charmap.html">
+  glyphs</A> on various public websites.
+  You can see some of the variety of characters in this Unicode 
+  <A HREF="http://xahlee.org/Periodic_dosage_dir/t1/20040505_unicode.html">
+  fan page</A>.
+</P>
+
+<P>
+  Ken Thompson and Rob Pike proposed a trick to make ASCII
+  a proper subset of Unicode.  It was accepted by ISO at UTF-8.  
+  Integer values 1-127 are reservered for ASCII and 
+  the rest of the codepoints are represented with more than one 8-bit byte.  
+  Here is the scheme (UTF-8):
+</P>
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+
+<PRE>
+  0bbbbbbb                                               7-bit ASCII
+  110bbbbb 10bbbbbb                                      5+6         = 11 bits
+  1110bbbb 10bbbbbb 10bbbbbb                             4+6+6       = 16 bits
+  11110bbb 10bbbbbb 10bbbbbb 10bbbbbb                    3+6+6+6     = 21 bits
+  111110bb 10bbbbbb 10bbbbbb 10bbbbbb 10bbbbbb           2+6+6+6+6   = 26 bits
+  111111bb 10bbbbbb 10bbbbbb 10bbbbbb 10bbbbbb 10bbbbbb  2+6+6+6+6+6 = 32 bits
+</PRE>
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P>
+  This scheme provides some ability to resynch if there is a transmission
+  error because internal bytes have the unique prefix 10 and can
+  be skipped for awhile until a new character starts.  The agreement is
+  to use the shortest code possible for each character.  Code 0 is
+  reserved for end-of-string as in C.
+</P>
+<P>
+  See the 
+  <A HREF=HTTP://www.unicode.org>Unicode home page</A> for details.
+  See the
+  <A HREF="http://www-306.ibm.com/software/globalization/icu/index.jsp">
+  IBM ICU</A> for software to support Unicode.
+</P>
+
+<HR>
+
+
+Created: <I>Wednesday, May 16, 2001</I><BR>
+Last modified: <I>
+Wed May 7 10:33:31 EDT 2008
+</I><BR>
+
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

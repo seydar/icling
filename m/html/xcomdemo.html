@@ -1,0 +1,262 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>A Compiler Written in MATLAB</title>
+      <meta name="generator" content="MATLAB 7.8">
+      <meta name="date" content="2008-09-24">
+      <meta name="m-file" content="xcomdemo"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>A Compiler Written in MATLAB</h1>
+         <!--introduction-->
+         <div>
+            <ul>
+               <li>There is a compiler named xcom.</li>
+               <li>There is a traditional compiler theory course based on xcom.</li>
+               <li>The latest version is on the MATLAB File Exchange (# 20419).</li>
+            </ul>
+         </div>
+         <!--/introduction-->
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Getting Started</a></li>
+               <li><a href="#2">Running xcom</a></li>
+               <li><a href="#4">xcom Flags</a></li>
+            </ul>
+         </div>
+         <h2>Getting Started<a name="1"></a></h2>
+         <p>The file README.html in the mxcom directory gives a structured introduction to the compiler and course.</p>
+         <h2>Running xcom<a name="2"></a></h2>
+         <p>Once you have the FX version unpacked into a directory you can compile and run a simple program in the X language:</p><pre class="codeinput">xcom <span class="string">y:=1</span>
+</pre><pre class="codeoutput">y := 1
+</pre><p>The meaning of the X program 'y:=1' is 'assign integer 1 to variable y. Since the assignment is wasted (variable y is not
+            subsequently used), xcom reports the final value of y as output.  The remaining details of the little language X are given
+            in the X reference manual in the downloaded compiler+course.  X is intended as a minimal base language to which the compiler
+            writing student will add whatever constructs are of interest.
+         </p>
+         <h2>xcom Flags<a name="4"></a></h2>
+         <p>The compiler comes with a comprehensive set of flags, mostly designed to produce intermediate output of the inner workings
+            of xcom.  For instance, the Intel X86 machine language for a program can be dumped as follows
+         </p><pre class="codeinput">xcom <span class="string">-asmTrace</span> <span class="string">y:=1</span>
+</pre><pre class="codeoutput">Asmx86:    1 pushR EBP     # save x86 frame pointer
+Asmx86:    2 movRR EBP,ESP # new x86 frame
+Asmx86:    4 movRP ESI, 8  # point at new X frame
+Asmx86:    7 pushA         # callee save
+Asmx86:    8 movRC EAX,=1 (0x1) 
+Asmx86:   13 movMR  0,EAX (y)
+Asmx86:   19 popA  # callee restore
+Asmx86:   20 xorRR EAX,EAX # no run error
+Asmx86:   22 leave # restore previous x86 stack frame
+Asmx86:   23 ret   # restore previous EIP
+x86 code dump, 23 bytes code=0x1d95e910
+5589e58b750860b8010000008986000000006133c0c9c3
+rc = 0, run time = 4.02286e-005 sec
+frame dump, 2 word(s)
+0x00000001 0x00000000 
+y := 1
+</pre><p>What you see is almost all prolog and epilog code (standard for any X program).  At byte 8 you can see the integer constant
+            1 being loaded into x86 register EAX, and at byte 13 you can see the move that puts the answer at offset 0 in the frame (where
+            variable y is located).  Information about the flags can be see via the command
+         </p><pre class="codeinput">help <span class="string">xcom</span>
+</pre><pre class="codeoutput">  FILE:     xcom.m
+  PURPOSE:  compile and go for X
+ 
+  USAGE: XCOM 'x:=1'
+    Compile and go for the X program in string 'x:=1'.
+ 
+  USAGE: XCOM('x/src.x')
+    Compile and go for the X program in file x/src.x.
+ 
+  USAGE: XCOM(flagsN, srcN, ... flags2, src2, flags1, src1)
+    Compile and go; src1 is the main program.
+ 
+  FLAGS:
+           global flags
+   -noExecute      do not execute compiled program
+   -xcomTrace      trace xcom (main program)
+   -xcomTime       time xcom compiler 
+   -frameDump      dump main X frame after execution 
+   -matlabStack    dump MATLAB stack on error
+   -interactive    interpret compiled subprograms (interactive)
+   -emulate        interpret compiled subprograms (nonstop no output)
+   -exeTrace       interpret compiled subprograms (nonstop w/output)
+   -noAST          use syntax tree instead of AST
+           per-file flags
+   -srcDump        dump the source for this file
+   -lexDump        dump the lexemes
+   -parseDump      dump the shift/reduce sequence
+   -treeDump       dump the syntax tree
+   -symDump        dump the symbol table
+   -asmDump        dump the hex assembly code
+   -texDump        dump LaTex version
+   -pdfDump        dump pretty printed version
+ 
+   -parseTrace     trace the parser
+   -treeTrace      trace the syntax tree construction
+   -symTrace       trace the symbol table construction
+   -genTrace       trace the generator actions
+   -emitTrace      trace the emitter actions
+   -asmTrace       trace the assembly code construction
+   -asmHex         trace the assembly code at byte level
+ 
+   -bottomUp       use LR1 tables instead of recursive parser
+ 
+  EXAMPLES:
+   xcom x:=1
+   xcom x/smoke.x
+   xcom('-symDump', 'x/called.x', '-asmTrace', 'x/caller.x')
+ 
+  OVERVIEW: 
+    XCOM is a compile-and-go implementation of the X language.  
+    If there is no implementation for the underlying hardware,
+    the 'go' step will be INtel x86 emulation (slow).
+    
+    The form of the language is given in file X.cfg.  
+    It is patterned after Dijkstra's language in 
+    {\em A Discipline of Programming}.  
+ 
+    The meaning of the language is largely conventional.  
+    There are three types (logical, integer and real).  
+    They map into true/false, 32 bit ints and IEEE 32bit floating point.  
+    The type of constants is manifest in their form.
+ 
+    The arguments to XCOM are strings.  
+    If an argument is valid path name to an X source file (dot-x), 
+    the file will be read; if the argument is a valid flag,
+    it will be used to direct the next compilation; 
+    otherwise the argument itself is taken as X source.  
+  
+    If xcom has more than one source input, 
+    the last one is taken as the main program; the rest are subprograms. 
+ 
+    The X language is strongly typed.  
+    The type of variables is inferred from use.  
+    It is possible to write an X program where the type cannot be inferred;
+    XCOM will report an error.
+ 
+    The final value of variables used only on the left of assignments in
+    the main program will be reported as output.  
+    The value of variables never used on the left in the main program 
+    will require input prior to execution.
+ 
+    X programs may call each other.  The subprogram inputs and outputs map 
+    in order into arguments and returned values.  
+    X programs can call C and/or M functions.
+ 
+    The design focus for xcom is ease of understanding and extensibility.
+ 
+
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.8<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% A Compiler Written in MATLAB
+% * There is a compiler named xcom.
+% * There is a traditional compiler theory course based on xcom.
+% * The latest version is on the MATLAB File Exchange (# 20419).
+
+%% Getting Started
+% The file README.html in the mxcom directory gives a structured
+% introduction to the compiler and course.
+
+%% Running xcom
+% Once you have the FX version unpacked into a directory
+% you can compile and run a simple program in the X language:
+
+xcom y:=1
+
+%%
+% The meaning of the X program 'y:=1' is 'assign integer 1 to variable y.
+% Since the assignment is wasted (variable y is not subsequently used),
+% xcom reports the final value of y as output.  The remaining details of
+% the little language X are given in the X reference manual in the
+% downloaded compiler+course.  X is intended as a minimal base language to
+% which the compiler writing student will add whatever constructs are of
+% interest.
+
+%% xcom Flags
+% The compiler comes with a comprehensive set of flags, mostly designed to
+% produce intermediate output of the inner workings of xcom.  For instance,
+% the Intel X86 machine language for a program can be dumped as follows
+
+xcom -asmTrace y:=1
+
+%%
+% What you see is almost all prolog and epilog code
+% (standard for any X program).  At byte 8 you can see the integer constant
+% 1 being loaded into x86 register EAX, and at byte 13 you can see the move
+% that puts the answer at offset 0 in the frame (where variable y is
+% located).  Information about the flags can be see via the command
+
+help xcom
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

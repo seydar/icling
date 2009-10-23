@@ -1,0 +1,28 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    pi.x}\\
+{\tt\char18}{\em{} PURPOSE: compute pi to n terms}\\
+{\tt\char18}{\em{} METHOD:  4*(1 - 1/3 + 1/5 - 1/7 + 1/9...)}\\
+{\tt\char18}{\em{}          Number of terms is input}\\
+{\tt\char18}{\em{}          It takes a LOT of terms to get any accuracy at all}\\
+p2\ $\leftarrow$\ 0.0;\\
+i\ $\leftarrow$\ 1;\\
+{\bf do}\>i\ $<$\ 4$\times$nterms\ $\Rightarrow$
+\>\>{\tt\char18}{\em{} too high}\\
+\>t\ $\leftarrow$\ 1.0$/${\bf i2r}(i);\\
+\>p1\ $\leftarrow$\ p2$+$t;\\
+\>i\ $\leftarrow$\ i$+$2;\\
+\>t\ $\leftarrow$\ 1.0$/${\bf i2r}(i);\\
+\>p2\ $\leftarrow$\ p1$-$t;\>\>{\tt\char18}{\em{} too low}\\
+\>i\ $\leftarrow$\ i$+$2;\\
+{\bf od};
+\\
+pi\ $\leftarrow$\ 4.0$\times$p2;\>\>\>{\tt\char18}{\em{} best result}\\
+delta\ $\leftarrow$\ 1.0$/${\bf i2r}(nterms);\>\>\>{\tt\char18}{\em{} previous increment}\\
+\end{tabbing}
+\end{document}

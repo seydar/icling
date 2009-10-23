@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:    LexCfg.html
+     PURPOSE: Lex.cfg in a form that does not confuse the browser
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.11.11 - original
+                Who -- When -- What
+-->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- CFG for X Lexicon
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<BODY>
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> LexCfg.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007
+</SMALL>
+
+<H4>A Lexical CFG</H4>
+
+</P>
+Not including the definitions of letter, digit, notEOL and EOL,
+here is a grammar for the X lexicon. 
+The advantage of the description is precise description of
+where white space is required, how d3 will be interpreted, etc.
+</P>
+<P>
+Typically the precision here is already present in the lexing
+code that is produced by hand, so this description serves little purpose
+for xcom.
+It can be important for a language with a much more complicated and 
+error prone lexical structure.
+
+</P>
+<P>
+There similar descriptions used as input to lexer generators (such as 
+<A HREF="http://en.wikipedia.org/wiki/Lex_programming_tool">lex</A>).
+</P>
+<PRE>
+program
+  tokens eof
+tokens
+
+  endInWhitespace
+  endInId
+  endInInteger
+  endInReal
+  endInOperator
+  endInSeparator
+endInWhiteSpace
+  endInId WhiteSpace
+  endInInteger WhiteSpace
+  endInReal WhitSpace
+  endInOperator WhiteSpace
+  endInSeparator WhiteSpace
+endInId
+  endInWhitespace id
+  endInInteger id
+  endInReal id
+  endInOperator id
+  endInSeparator id
+endInInteger
+  endInWhitespace integer
+  endInOperator integer
+  endInSeparator integer
+endInReal
+  endInWhitespace real
+  endInOperator real
+  endInSeparator real
+endInOperator
+  endInWhitespace Operator
+  endInId Operator
+  endInInteger Operator
+  endInReal Operator
+  endInSeparator Operator
+endInSeparator
+  endInWhitespace Separator
+  endInId Separator
+  endInInteger Separator
+  endInReal Separator
+  endInOperator Separator
+  endInSeparator Separator
+WhiteSpace
+  white
+  WhiteSpace white
+white
+  ' '
+  EOL
+  comment
+comment
+  '`' body EOL
+body
+  
+  body notEOL
+Operator
+  op
+  Operator op
+op
+  '?'
+  ':'
+  '|'
+  '&amp;'
+  '~'
+  '<'
+  '>'
+  '='
+  '+'
+  '-'
+  '*'
+  '/'
+Separator
+  '('
+  ')'
+  '{'
+  '}'
+  ','
+  ';'
+  '.'
+integer
+  digit
+  integer digit
+real
+  integer '.' integer
+id
+  letter
+  id letter
+  id digit
+</PRE> 
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

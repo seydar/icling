@@ -1,0 +1,513 @@
+% FILE:       FiniteAutomata.tex
+% PURPOSE:    The definition of finite automata
+% COPYRIGHT:  W.M.McKeeman 2007
+
+
+\input bookhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Finite Automata--
+\begin{quote}
+\raggedright
+Definitions\\
+State-transition Diagram\\
+\cfg\ for Automata\\
+Non-deterministic to Deterministic\\
+\end{quote}
+--requires--
+\begin{quote}
+\raggedright
+Notation Supporting Grammars\\
+Context-free Grammars\\
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+
+\noindent {\large \bf Finite Automata} 
+\vspace{1em}
+
+Finite automata (\fa)\index{\fa} are abstract algorithms for 
+the recognition of sequences.  
+They are closely related to regular expressions and \cfg{s}.
+
+Automata are also called state-transition machines.  
+The central idea is that an automaton, at any one time, 
+is in a unique state and can transition to some other state 
+by reading input.  
+The transitions are defined by a relation from state-input pairs to states.  
+Transitions on the null string, i.e.~non-reading transitions, are allowed.  
+The sequence of input values read is the string that is recognized. 
+
+Processing begins in a {\em start state}.  
+At each step the automaton examines the text, 
+and based on its state-transition table, goes to another state.  
+Each time an automaton transitions on an input symbol,
+that symbol is discarded so that the next symbol may be processed.
+Whenever the automaton is in a designated {\em final
+state},\index{state, final} the input read so far is said to have been
+{\em accepted}.\index{accepted} 
+If, on the other hand, input appears 
+for which there is no defined transition, 
+the automaton is said to {\em reject\/} \index{reject} the input.  
+Processing continues until the input is rejected or there is no more input.  
+
+Finite automata are either deterministic \index{automata,
+deterministic} (\dfa)\index{\dfa} or nondeterministic\index{automata,
+nondeterministic} (\nfa).\index{\nfa} A \dfa\ example is presented
+first.
+
+\subsection{\bf State-transition Diagram} 
+
+One can draw an intuitive diagram representing a \dfa.  
+The diagram below recognizes properly rounded values approximating $2/3$.  
+The value to be recognized must start with zero, then a dot, 
+then any number of sixes and terminate with a seven.  
+Each state is boxed; the initial state is labelled S; 
+the final state is double boxed.
+
+\stepcounter{figure}				% simulate /figure
+\newcounter{fsm}[chapter]
+\setcounter{fsm}{\value{figure}}
+% a state diagram for 0.6*7
+\begin{picture}(200,60)(-60,10)
+
+\put(30,20){\fbox{S}}
+\put(44,22){\vector(1,0){26}}
+\put(50,25){$0$}
+
+\put(70,20){\fbox{A}}
+\put(84,22){\vector(1,0){26}}
+\put(90,25){\bf.}
+
+\put(110,22){\fbox{B}}
+
+\put(124,26){\line(1,0){5}}
+\put(129,26){\line(0,1){20}}
+\put(129,46){\line(-1,0){30}}
+\put(99,46){\line(0,-1){20}}
+\put(99,26){\vector(1,0){11}}
+\put(117,37){$6$}
+
+\put(124,22){\line(1,0){5}}
+\put(129,22){\line(0,-1){7}}
+\put(129,15){\vector(1,0){21}}
+\put(135,19){$7$}
+
+\put(150,12){\fbox{\fbox{C}}}
+\end{picture}
+\begin{center}
+Figure \thefigure. A \dfa\ for rounded values of $2/3$.
+\end{center}
+
+The same information can be represented as a {\em transition matrix}, 
+with current state and next input symbol as coordinates, 
+the successor state is at the intersection, 
+blank means error(reject).  Final states are boxed.
+
+\stepcounter{figure}				% simulate /figure
+\newcounter{famatrix}[chapter]
+\setcounter{famatrix}{\value{figure}}
+% a transition matrix for 0.6*7
+\begin{picture}(200,90)(-90,0)
+\put(50,80) {\em see}
+\put(-20,30){\em in}
+\put(-30,20){\em state}
+\put(20,70){0}
+\put(43,70){\bf .}
+\put(60,70){6}
+\put(80,70){7}
+\put(-3,51){\fbox{C}}
+\put( 0,36){B}
+\put(60,36){B}
+\put(80,36){C}
+\put( 0,19){A}
+\put(40,19){B}
+\put(0 , 2){S}
+\put(20, 2){A}
+\put(15,66){\line(1,0){80}}     % horizontal lines
+\put(15,49){\line(1,0){80}}     % 17 points per row
+\put(15,32){\line(1,0){80}}
+\put(15,15){\line(1,0){80}}
+\put(15,-2){\line(1,0){80}}
+\put(15,-2){\line(0,1){68}}     % vertical lines
+\put(35,-2){\line(0,1){68}}
+\put(55,-2){\line(0,1){68}}
+\put(75,-2){\line(0,1){68}}
+\put(95,-2){\line(0,1){68}}
+
+\end{picture}
+
+\begin{center}
+Figure \thefigure. Transition matrix for rounded values of $2/3$.
+\end{center}
+
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item  Draw a diagram for a \dfa\ that recognizes any sequence of
+nickels and dimes (N and D) that adds up to a quarter. 
+(Hint: let state {\bf k} represent an accumulation of $5k$ cents.)
+
+\item Draw a diagram for an automaton that recognizes a sequence
+of zero or more a's, followed by a sequence of zero or more b's,
+followed by one c.
+
+\item 
+Draw a diagram and transition matrix for a \dfa\ that recognizes
+positive integers.\footnote{The statement of a recognition condition
+for an automaton implies in addition ``and rejects anything else.''}
+
+\item Draw a diagram or transition matrix for a \dfa\ that recognizes 
+rounded values of $1/7$.
+
+\item  Suppose that you have a \dfa\ that recognizes truncated
+representations of fraction $1/n$.  
+How can you transform it into a \dfa\ that 
+recognizes rounded representations of $1/n$?  
+(Hint: does your solution work for $1/101$?).
+
+\newcounter{abcexercise}
+\setcounter{abcexercise}{\value{enumi}}
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+If any entry in the transistion matrix has more than one value,
+or has the empty string as a value, the \fa\ is a \nfa.  
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{\cfg\ for Automata}
+
+\stepcounter{table}					% simulate \table
+\newcounter{FAschema}[chapter]
+\setcounter{FAschema}{\value{table}}
+
+A \fa\ can also be defined by a \cfg.  
+If the rules in $\Pi$ are restricted to one of the 
+three forms shown in Table~\thetable\ the grammar is a \fa.  
+The phrase names correspond to states; the rules define transitions; 
+the goals are the final states (such a \cfg\ is
+sometimes called a {\em left linear grammar}).
+
+
+\begin{samepage}
+\begin{eqnarray}
+	A &\rightarrow& B {\rm a}		\\
+	A &\rightarrow& B				    \\
+	A &\rightarrow& \lambda		
+\end{eqnarray}
+\begin{center}
+Table~\thetable: Schema for Finite Automata\index{schema, finite automata}
+\newcounter{NfaDfa}[chapter]
+\setcounter{NfaDfa}{\value{table}}
+\end{center}
+\end{samepage}
+
+\noindent More formally a \cfg,
+
+\begin{center}$\langle V_I, V_N, V_G, \Pi\rangle$ \end{center}
+
+\noindent
+is a \fa\ if
+
+\begin{center}
+   $\Pi \subseteqdef V_N\times\{V_N\circ V_I \cup V_N \cup \{\lambda\}\}$
+\end{center}
+
+\noindent
+The set
+
+\begin{center}$V_S \eqldef \Pi\Rstrict\{\lambda\}$\end{center}
+
+\noindent
+defines the {\em start states}; $V_G$ is the set of final states.
+
+The first kind of \fa\ rule defines the
+transitions (often called {\em shifts}).\index{shift} 
+The shifts are deterministic if
+\begin{displaymath}
+\forall A{\rm a}.\ {\rm size}(\Pi\Rstrict\{A\rm a\}) \leq 1
+\end{displaymath}
+That is to say, for no phrase name $A$ is there more than one shift
+defined for any input symbol a.
+
+The second kind of rule is called an empty
+transition (from $B$ to $A$).\index{transition, empty}\footnote{An
+empty transition is often called an $\epsilon$
+transition\index{transition, epsilon} in literature using letter
+$\epsilon$ to denote the empty string.}  
+The third kind of rule provides a start state.
+
+For example, the \cfg\ for rounded values of 2/3 is:
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxxxxxxxx\=xxx\=\kill
+\>C = B \sq 7\sq;                 \\
+\>B = B \sq 6\sq;                 \\
+\>B = A \sq.\sq;                  \\
+\>A = S \sq 0\sq;                 \\
+\>S = ;
+\end{tabbing}
+\end{tt}
+\begin{center}
+\cfg\ Form of a \dfa\ Describing 2/3
+\end{center}
+
+If the shifts are deterministic and there are no empty transitions,
+and there is only one start state, then the automaton is a \dfa;
+otherwise it is an \nfa.\index{automaton, deterministic} 
+
+If one uses a \fa\ \cfg\ to reduce a string, one starts with the input text.
+The only reductions that can be applied are those for start states.  
+At each subsequent stage the \fa\ transitions according to
+one of the other rules for 2/3 until the \fa\ stops.  
+The derivation of the S/R sequence using the \sform\ predicate 
+(from ContextFreeGrammar) follows.  
+As usual it is read bottom to top (reducing).
+
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxxxxxx\=xxxxxxxxxxxxxxx\=\kill
+\>{\sform(C, $\lambda$)}    \>$_{\rm reduce}$             \\
+\>{\sform(B7, $\lambda$)}   \>$_{\rm shift}$              \\
+\>{\sform(B, 7)}            \>$_{\rm reduce}$             \\
+\>{\sform(B6, 7)}           \>$_{\rm shift}$              \\
+\>{\sform(B, 67)}           \>$_{\rm reduce}$             \\
+\>{\sform(B6, 67)}          \>$_{\rm shift}$              \\
+\>{\sform(B, 667)}          \>$_{\rm reduce}$             \\
+\>{\sform(A., 667)}         \>$_{\rm shift}$              \\
+\>{\sform(A, .667)}         \>$_{\rm reduce}$             \\
+\>{\sform(S0, .667)}        \>$_{\rm shift}$              \\
+\>{\sform(S, 0.667)}        \>$_{\rm reduce}$             \\
+\>{\sform($\lambda$,0.667)} \>$_{\rm start}$
+\end{tabbing}
+\end{tt}
+\begin{center}
+\cfg\ proof of $0.667 \in {\cal L}(2/3)$
+\end{center}
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item Write down the grammars defining the automata derived in
+the previous set of exercises. 
+
+\item Write a program to execute the \dfa\ in Figure~\thefsm.
+\index{\dfa, implementation}
+
+\item  Write a program to execute an arbitrary \dfa.  
+(Hint: represent $\Pi$ as a transition matrix.)
+
+\item Write a program to execute an arbitrary \nfa.  (Hint: use
+threading or backtracking.)\index{\nfa, implementation}
+
+\item  Show how to derive a grammar $\cal A'$ for the {\em sequence of
+states} passed to accept a string from the grammar $\cal A$ defining the
+\fa. (Hint $V_I' = V_N$).
+
+\newcounter{TransitionExercise}
+\setcounter{TransitionExercise}{\value{enumi}}
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\subsection{\nfa\ to \dfa}
+
+The surprising fact is that any (bad) \nfa\ can be systematically
+transformed into a (good) \dfa.
+
+One can transform an \nfa\ into a \dfa\ a little bit at a time.  
+The idea is to use \cfg\ transformations, each removing some
+non-determinancy, while preserving the language.
+
+If a \nfa\ has a rule with an empty right-hand side (which is
+forbidden in a \dfa), one can {\bf remove} the rule. Any immediate
+circularity can be removed whenever it occurs or is introduced.  
+Here is an example with A as the start state and C as a final state.
+The problem is an empty transition from A to B.  
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>C = B \sq 1\sq;                 \\
+\>B = A;                          \\
+\>B = A \sq 2\sq;                 \\
+\>A = ;                           \\
+\end{tabbing}
+\end{tt}
+\end{samepage}
+
+\noindent Following the removal of the "bad" rule 
+ and adding a new rule substituting A where B was used:
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>C = B \sq 1\sq;                 \\
+\>C = A \sq 1\sq;                 \\
+\>B = A \sq 2\sq;                 \\
+\>A = ;                           \\
+\end{tabbing}
+\end{tt}
+\end{samepage}
+
+\noindent 
+This new \cfg\ is a \dfa.  
+It can be used to parse the string '21' as follows:
+
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=\kill
+\>\sform(C, $\lambda$)            \\
+\>\sform(B1, $\lambda$)           \\
+\>\sform(B,  1)                   \\
+\>\sform(A2, 1)                   \\
+\>\sform(A, 21)                   \\
+\>\sform($\lambda$, 21)
+\end{tabbing}
+\end{tt}
+
+Here is an example with both kinds of non-determinancy.
+The \cfg\ has an erasing rule and also
+state A has two different transitions on 1.  
+The language is \{101, 110, 111\}.
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>F = D \sq 0\sq;                 \\
+\>F = E \sq 1\sq;                 \\
+\>E = D;                          \\
+\>E = B \sq 0\sq;                 \\
+\>D = C \sq 1\sq;                 \\
+\>C = A \sq 1\sq;                 \\
+\>B = A \sq 1\sq;                 \\
+\>A = ;                           \\
+\end{tabbing}
+\end{tt}
+\end{samepage}
+
+\noindent After eliminating the empty transition (as before), 
+we have the transformed \cfg:
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>F = D \sq 0\sq;                 \\
+\>F = E \sq 1\sq;                 \\
+\>F = D \sq 1\sq;                 \\
+\>E = B \sq 0\sq;                 \\
+\>D = C \sq 1\sq;                 \\
+\>C = A \sq 1\sq;                 \\
+\>B = A \sq 1\sq;                 \\
+\>A = ;                           \\
+\end{tabbing}
+\end{tt}
+\end{samepage}
+
+
+\noindent After fusing the two ambiguous rules, adding a new symbol X, 
+and using X where C and B had been used,
+we have the transformed \cfg\ for the \dfa:
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxxxxxx\=xxx\=\kill
+\>F = D \sq 0\sq;                 \\
+\>F = D \sq 1\sq;                 \\
+\>F = E \sq 1\sq;                 \\
+\>E = X \sq 0\sq;                 \\
+\>D = X \sq 1\sq;                 \\
+\>X = A \sq 1\sq;                 \\
+\>A = ;                           \\
+\end{tabbing}
+\end{tt}
+\end{samepage}
+
+\stepcounter{figure}				% simulate /figure
+\newcounter{dfamatrix}[chapter]
+\setcounter{dfamatrix}{\value{figure}}
+\noindent The corresponding transition diagram is given in Figure~\thefigure.
+
+\begin{center}
+\begin{picture}(220,110)(-60,-20)
+\put(25,80) {\em see}
+\put(-20,20){\em in}
+\put(-30,10){\em state}
+\put(20,70){0}
+\put(43,70){1}
+\put(-3,51){\fbox{F}}
+\put( 0,36){E}
+\put(40,36){F}
+\put( 0,19){D}
+\put(20,19){F}
+\put(40,19){F}
+\put( 0,2){X}
+\put(20,2){E}
+\put(40,2){D}
+\put( 0,-15){A}
+\put(40,-15){X}
+\put(15,66){\line(1,0){40}}     % horizontal lines
+\put(15,49){\line(1,0){40}}     % 17 points per row
+\put(15,32){\line(1,0){40}}
+\put(15,15){\line(1,0){40}}
+\put(15,-2){\line(1,0){40}}
+\put(15,-19){\line(1,0){40}}
+\put(15,-19){\line(0,1){85}}     % vertical lines
+\put(35,-19){\line(0,1){85}}
+\put(55,-19){\line(0,1){85}}
+
+\end{picture}
+\end{center}
+
+\begin{center}
+Figure \thefigure. Transition matrix for constructed \dfa.
+\end{center}
+
+
+\subsection{Big Bang \nfa\ to \dfa\ transformation}
+
+There is a ``big-bang'' algorithm to do the \nfa-\dfa\ transformation all in
+one step.  See, for example, Wikipedia on "Powerset construction."
+The underlying concept is collecting all states with the same effect into sets,
+then defining a new machine based on sets of the original states.
+
+The algorithm can be expressed in terms of the \nfa\ \cfg.  
+Suppose $\cal G$ is the \nfa\ and
+${\rm A}\in V_N, {\rm B}\in V_N, {\rm b}\in V_I$. 
+The sought-after \dfa\ $\cal G'$ is recursively defined as follows:
+\begin{eqnarray*}
+  {\cal M}({\rm B}, {\rm b}) 
+     &\eqldef& \{{\rm A}\;|\;{\rm A}\leftarrow^*{\rm Bb}\}    \\
+  {\cal E} 
+     &\eqldef& \{{\rm A}\;|\; {\rm A}\leftarrow^*\lambda\}    \\
+  V_I'  
+     &\eqldef& V_I                                            \\
+  V_N'     
+     &\eqldef& 
+       \{{\cal E}\} \cup
+       \{ {\cal M}({\rm B},{\rm b})\}                         \\ 
+  V_G'
+     &\eqldef& \{V_G\}                                        \\
+  \Pi'     
+     &\eqldef& \{{\cal E}\leftarrow\lambda\}                  \\
+     &\cup& 
+       \{{\rm A}'\leftarrow{\rm B}'{\rm b} \;|\; 
+         {\rm B}'\in{\cal D}(\Pi') 
+       \wedge {\rm A}'={\cal M}({\rm B},{\rm b})
+       \wedge {\rm B}\in {\rm B}'\}
+\end{eqnarray*}
+
+\end{document}

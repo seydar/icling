@@ -1,0 +1,442 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Projects.html
+     PURPOSE:   About projects for learning/using the xcom system.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Projects
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Projects.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Projects</H3>
+</CENTER>
+
+<P ALIGN="RIGHT">
+    If you cannot solve the proposed problem <BR>
+    try to solve first some related problem.<BR>
+    Could you imagine a more accessible related problem?<BR>
+    A more general problem?<BR>
+    A more special problem?<BR>
+    An analogous problem?<BR>
+    George Polya, <EM>How to Solve It</EM> (1945)
+</P>
+
+<P> 
+  The compiler project is to extend X in some way that you find useful.
+  This does not, however, have to be done all in one step.
+  One can, to paraphrase Polya, "try a simpler similar problem first."
+  Extending <TT>xcom</TT> carries some expectations, 
+  such as the ability to do input/output for all types of values.
+</P>
+
+<P>
+  The result of the compiler project is
+  <OL>
+    <LI>A live demonstration.</LI>
+    <LI>A <A HREF="ProjectReport.html">report</A>
+        signed by all team members.
+    </LI>
+  </OL>
+</P>
+
+<P>
+  The oft-repeated and <EM>fundamental</EM> beginner's error is trying
+  to build the next great language as a learning project.
+  Do not try to solve the problems of the world yet.
+  You will  have enough of your own.
+</P>
+
+<P>
+  My advice is to read this page to the end before making any decisions,
+  but don't let what you read limit your creativity.
+</P>
+
+<P>
+  You should first write a number of programs in your proposed extension.
+  This provides both a set of tests and
+  a confirmation that you will actually find the extension useful.
+  You should then extend the X 
+  <A HREF="ReferenceX.pdf">reference manual</A>
+  to document your language.
+  If you do not want to grapple with LaTeX, 
+  you can publish an HTML appendix instead.
+  Then you are ready to 
+  <A HREF="ChangingXcom.html">extend xcom</A>.
+  </P>
+
+<UL>
+  <LI><B>Warm up exercise</B>.  
+    <P>
+      Add the absolute value function to X.
+      You should follow each of the recommended steps to make a
+      <A HREF="Warmup.html">little change</A> in X.
+      This warm up exercise avoids any language design, 
+      and any serious pitfalls.
+      It will be hard enough without them.
+    </P>
+  </LI>
+
+  <LI><B>Change xcom</B>
+    <P>
+      The <A HREF="ChangingXcom.html">recommended method </A>
+      for changing xcom involves the order of events 
+      and also the use of the unit tests.  
+      When you get stuck, ask for help.
+    </P>
+  </LI>
+
+  <LI><B>Adding a scalar type (relatively easy)</B>
+    <P>
+      Suppose you wanted to do more accurate scalar computations.
+    </P>
+    <UL>
+      <LI><B>Double Precision</B>
+      <P>
+        You might prefer 64-bit IEEE to the current 
+        xcom 32-bit IEEE implementation of real variables.  
+        In fact, the hardware always does 64-bit arithmetic;
+        xcom goes to some trouble to truncate the results after 
+        every operation.
+        Expanding the storage for scalars in the run-time frame 
+        is the only substantive part of this extension.
+        Not much to be learned about compiler writing.
+        It is probably reasonable to extend the 
+        integer precision to 64 bits
+        at the same time so as to have a consistent storage model.
+      </P>
+      </LI>
+
+      <LI><B>Loooong Integers</B>
+      <P>
+        Some computations require many digits of integer accuracy.
+        One can extend xcom without changing the grammar at all
+        by simply changing the meaning of integer constants.
+        The (difficult) implementation of the arithmetic
+        can be left to the <A HREF="http://gmplib.org/">BIGNUM</A>
+        package. Your problems are accessing its functions using the same
+        mechanism that xcom currently uses for /, // and rand and also
+        how to handle the operands that BIGNUM gives you.
+      </P>
+      </LI>
+
+      <LI><B>Extended Accuracy</B>
+      <P>
+        The <A HREF="http://gmplib.org/">BIGNUM</A>
+        package offers much more than big integers.
+        One could implement big rational numbers or super-accurate reals.
+      </P>
+      </LI>
+
+      <LI><B>Complex</B>
+      <P>
+        Replace real with 
+        <A HREF="http://en.wikipedia.org/wiki/Complex_number">complex</A>, 
+        or add a new type complex.
+        You may want to reserve "i" for the square root of -1.
+        Do not push too much off onto the lexer.  Expression
+        <BIG>
+          <PRE>
+            a+i*b
+          </PRE>
+        </BIG>
+        is already syntactically correct.  You might want to add
+        builtin functions modulus and phase.
+      </P>
+      </LI>
+
+      <LI><B>People</B>
+        <P>
+          One group decided to make a scalar type for people.  
+          The language had to do with relationships.
+          Identifiers starting with a single uppercase letter such as John
+          were constants.
+        </P>    
+      </LI>
+    </UL>
+  </LI>
+
+  <LI><B>Adding an operator</B>
+    <P>
+      While one can invent arbitrary operators composed out of ASCII characters,
+      it is often best to overload an existing operator to keep X from getting
+      cluttered. 
+      The addition of set union and string catenation are discussed below under
+      the corresponding data structures.
+      The <A HREF="Warmup.html">warm up</A> exercise is an example
+      where the operator is abs. 
+    </P>
+    <P>
+      Consider
+      <UL>
+        <LI>
+          adding real-valued builtins <B>inf</B> and <B>nan</B>
+          and logical-valued builtins <B>isinf</B> and <B>isnan</B>.
+        </LI>
+        <LI>
+          adding &nbsp; ~~ &nbsp; &amp;&amp; &nbsp; || &nbsp; to mean 
+          <A HREF="Glossary.html#shortcircuit">short-circuit</A> 
+          logical evaluation
+        </LI>
+        <LI>
+          extending &nbsp; ~ &nbsp; &amp; and &nbsp; | &nbsp; to type integer
+          (giving 32-bit results).  Perhaps add ^ meaning exclusive or. 
+        </LI>
+      </UL>
+    </P>
+    <P>
+      All of mathematical notation awaits your implementation.
+    </P>
+  </LI>
+
+  <LI><B>Adding a data structure</B>
+    <P>
+      The X language has only scalar variables.  
+      This makes it nearly impossible to write useful programs.
+      One is, then, highly motivated to add structured data variables.
+      By the way, <A HREF="http://docs.python.org/tut/">python</A> 
+      has worked out many of the language design problems for 
+      data structures.  
+      It is OK to peek.
+    </P>
+    <UL>
+      <LI><B>Sets of scalar values.</B>
+      <P>
+        One can imagine writing
+        <PRE>
+    X := {1,2,3};
+    y := choice(X);       ` a randomly chosen member
+    Z := {i2r(y)} | {3.141592};
+    if ~(4.0 in Z) ? fi;  ` assert 4.0 is NOT there
+    X := X - {y};         ` discard y from X
+        </PRE>
+        wherein finite sets of values are allowed.  
+        In essence this means adding a few new symbols to X.cfg, 
+        three new types 
+        (logicalSetType, integerSetType, realSetType) to the symbol table,
+        and then carrying through the implementation.
+      </P>
+      <P>
+        A set computation will necessarily <B>allocate new storage</B>
+        for each result.
+        The storage needs to be accessible from your emitted code,
+        so it is more convenient to let C allocate and free the storage.
+        <TT>xcom</TT> contains a convenient mechanism for dropping into C 
+        for such actions
+        (see the implementaton of /, // and rand in file getCfun.c).
+        You might consider how to avoid storage leaks.
+        You might also consider a set-complement operation.
+      </P>
+      <P>
+        Note the implied overloading of the '|' operator to mean set union above.
+        You may, of course, choose one of many other ASCII notational devices,
+        perhaps '||' or '|_|' or '\/' or 'U'.
+      </P>
+      <P>
+        The sets idea quickly leads to sets of anything, including sets.
+        The mathematics can get deep fast.  Step carefully.
+      </P>
+    </LI>
+
+    <LI><B>Strings</B>
+    <P>
+      One can imagine writing
+      <BIG>
+        <PRE>
+          X := "abc" + "def";
+          y := 3;
+          Y := X[y:y+1];
+          z := c2i(X[2]);
+        </PRE>
+      </BIG>
+    <P>
+    </LI>
+
+    <LI><B>Vectors of scalar values</B>
+      <P>
+        One can imagine writing
+        <BIG>
+          <PRE>
+            y := 3;
+            X := [1,2,y];
+            Y[3] := X[y-1];
+          </PRE>
+        </BIG>
+      </P>
+      <P>
+        As in MATLAB, vectors expand storage to hold any value 
+        sent their way.  Accessing an undefined value causes a run error.
+        The representation of a vector in memory might be a simple
+        version of the MATLAB representation.  In the variable is
+        an address, which points to a header, which points to the data.
+        Both the header and the data must be allocated.  The data might
+        need to be reallocated as the computation proceeds.
+      </P>
+    <BIG>
+      <PRE>
+                   len   ptr        data
+                 +-----+----+     +-------+     
+        x: o---->|  4  |  o-----> |1 2 3 4|
+                 +-----+----+     +-------+
+      </PRE>
+    </BIG>
+    </LI>
+
+    <LI><B>Lists of lists</B>
+      <P>
+        One can imagine writing
+        <BIG>
+          <PRE>
+            y := 3;
+            X := &lt;1,2,y>;
+            Y := &lt;X, &lt;7,9.0>> + &lt;3.12>;
+            Z := tail(Y);
+          </PRE>
+        </BIG>
+      </P>
+    </LI>
+    
+    <LI><B>Abstraction</B></LI>
+    <P>
+      Objects and structs are hierarchical data structures with named
+      fields.  In C one might write
+      <PRE>
+        struct T {
+        int x;
+        float y;
+        } t;
+      </PRE>
+      to get a two-field struct.  In MATLAB once writes
+      <PRE>
+        t.x = 0; 
+        t.y = 1.0;
+      </PRE>
+      to get the same effect and, in addition, initialize the fields.
+    </P>
+    <P> 
+      In an extension to X one might write
+      <PRE>
+        T = {x,y};
+        t = T{0,1.0};
+      </PRE>
+      where the first assignment makes T a two field struct type,
+      and the second initializes the fields and, as a side effect,
+      permanently binds the type of the fields of type T.
+    </P>
+  </UL>
+
+      <LI><B>Doing science</B>
+        <P>
+          Not all computations are just grown-up FORTRAN.  
+          Some science requires algebraic manipulations.
+          Some has data that is nothing like the computers give us.
+          Compiler writers are rarely competent in such science,
+          and such scientists are rarely competent in compiler writing.
+          There is an opportunity for a big advance here.
+        </P>
+        <UL>
+          <LI><B>Chemistry</B>
+            <P>
+              A chemist writes formulas in which the operands are chemicals.
+              The equations enforce constraints and imply reactions.
+              The HTML presentation here does not do justice to this idea
+              but X can be typeset by xcom or even rendered by 
+              MATLAB graphics.
+            </P>
+            <P>
+              water := 2H + O;<BR>
+              h := water.<A HREF="http://en.wikipedia.org/wiki/Standard_enthalpy_change_of_formation">enthalpy</A>;
+            </P>
+            <P>
+              <A HREF="http://en.wikipedia.org/wiki/Methane">methane</A> := C + 2H<SUB>2</SUB>
+            </P>
+            
+            <P>
+              caffeine.name = '3,7-Dihydro-1,3,7-trimethyl-1H-purine-2,6-dione'<BR>
+              caffeine.diagram<BR>
+              <IMG HEIGHT="200" WIDTH="200" SRC="../images/caffeine.gif">
+            </P>
+          </LI>
+        </UL>
+      </LI>
+      
+      <LI><B>Little Languages</B>
+        <P>
+          Many problems are easier to solve with a
+          <A HREF="littlelanguages.pdf">
+            little language
+          </A>.  There are many successful examples.  
+          Instead of modifying xcom, you start from scratch.
+          All things considered, it best to make this your second project.
+        </P>
+      </LI>
+      
+      <LI><B>Localization</B>
+        <P>
+        In this English-centric world of computing, 
+        everyone is forced to learn the English words describing
+        things in X.  
+        Perhaps a Latino would prefer <B>si-is</B> to <B>if-fi</B>
+        or <B>entero</B> to <B>integer</B>.
+        <P>
+        
+        <P><IMG SRC="../images/china.jpg" HEIGHT="50" WIDTH="25">
+          The idea is to change nothing in X except its input.
+          What would someone in &#20013;&#22283; want, for example?
+        </P>
+        
+        <P>
+          The biggest piece of work is deciding what to do (language design).
+          The second task is to modify the lexer to accept 
+          <A HREF="Unicode.html">UTF8</A> instead of ASCII.
+          Then any other place where the source text is touched has to be
+          make "unicode safe".
+        </P>
+      </LI>
+    </LI>
+    
+    <LI><B>Final Word</B>
+      <P>
+        If one is going to achieve Dijkstra's "compelling and deep 
+        logical beauty," one must forgo much of the paraphernalia of 
+        conventional general purpose programming languages.
+        This spartan attitude is most likely to succeed when the
+        objective of the language is rigorously limited, 
+        the linguistic additions are few, 
+        and additions are well suited to meeting that objective.  
+        See some ideas on computer language
+        <A HREF="LanguageDesign.html">design</A> to get a fresh perspective.
+      </P>
+    </LI>
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

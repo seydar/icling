@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      GemHistory.html
+     PURPOSE:   How Executable Grammars came to be
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.03 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- A History of GEM
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+  <SMALL>
+    <EM>File</EM> GemHistory.html&nbsp;&nbsp;&nbsp;  
+    <EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+    <EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;  
+    <A HREF="Index.html">index</A>
+  </SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+
+<CENTER>
+  <H3>How GEM Came To Be</H3>
+</CENTER>
+
+<P>
+One of the duties of a faculty member as the University of California at 
+Santa Cruz is to supervise undergraduate senior thesis work.  
+And so it came to pass, one day in 1976, that a senior asked me
+for a topic.  
+I had been hacking away on the XPL self-compiling compiler.
+I had noticed that by throwing things out of the XPL language, 
+I could make the compiler smaller.  
+Without much thought, I said to this student 
+"build the shortest extendible self-compiling compiler".
+</P>
+
+<P>
+In due course that student appeared with his compiler.
+It fit on one Hollerith card.  
+The front end was only 27 characters.
+The whole compiler was 63 characters.
+He had implemented it on our second-hand Burroughs B5500.
+Needless to say, this student had my attention.
+</P>
+
+<P>
+Not too long thereafter this student and his father founded SCO.
+The student's name?  Doug Michels.  You may know him.
+The moral of the story so far: watch out, 
+some of those undergraduates are real smart.
+</P>
+
+<P>
+Unfortunately Doug's compiler was pretty slow.  
+We think it's run time is O(3<SUP>k</SUP>) in the length of the input, 
+longer than the mean time between failures on the Santa Cruz B5500, 
+so the compiler never actually compiled itself.
+</P>
+
+<P>
+We met a few more times.  In just a few weeks 
+we had a version that ran pretty swiftly
+on my Zilog Z80 development system.  
+And that version, extended and polished, is what exists today.
+</P>
+
+<P>
+The goal of using GEM to build up to ever-more powerful compilers
+is explored in a <A HREF="../m/html/StanfordTalk-01.html">talk</A> 
+given to Stanford.
+</P>
+
+<P>
+  /s/ Bill McKeeman
+</P>
+
+<P>
+  References:
+  <OL>
+    <LI>
+      Douglas L. Michels, <EM>A concise extensible metalanguage 
+      for translator implementation</EM>, 
+      a senior thesis presented at the University of 
+      California at Santa Cruz, July 25, 1976.
+    </LI>
+    <LI>
+      Tech Report <A HREF="http://www.dtic.mil/srch/doc?collection=t2&id=ADA054505">online</A>.
+    </LI>
+    <LI>
+      <A HREF="http://books.google.com/books?id=FL0-AAAAIAAJ&dq=3rd+USA-Japan+Computer+Conference+proceedings++by+USA-Japan+Computer+Conference&q=michels&pgis=1#search_anchor">
+        Published version
+      </A>. 
+      Same author and title, page 291ff, 
+      3rd USA-Japan Computer Conference, 
+      Proceedings: October 10-12, 1978, San Francisco, California
+      By American Federation of Information Processing Societies, 
+      American Federation of Information Processing Societies, 
+      Joho Shori Gakkai<BR>
+      Published by AFIPS, 1978
+      514 pages
+    </LI>
+    <LI>
+      Published version
+      <A HREF="michels1978.pdf">
+        online
+      </A>
+    </LI>
+  </OL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

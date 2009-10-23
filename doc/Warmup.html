@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Warmup.html
+     PURPOSE:   adding abs to X
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- A Warm-up Exercise
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Warmup.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Warm-up Exercise for Changing xcom</H3>
+</CENTER>
+
+
+<P ALIGN="RIGHT">
+<TABLE>
+<TR><TD ALIGN="RIGHT">It is faster to make a 4-inch mirrror</TD></TR>
+<TR><TD ALIGN="RIGHT">and then a 6-inch mirror</TD></TR>
+<TR><TD ALIGN="RIGHT">than it is to make a 6-inch mirror</TD></TR>
+</TABLE>
+-- Allyn J. Thompson 
+<A HREF="../images/TelescopeMaking.jpg">
+<I>Making your own Telescope</I>
+</A>  1947
+</P>
+
+<H4>Different Styles</H4>
+
+<P>
+Some students want to understand everything before hacking into a piece of
+complicated software like <B>xcom</B>.  
+If that is you, then wait awhile before doing this exercise,
+but do read through the description all the way in any case.
+</P>
+<P>
+If you like to live dangerously, 
+and learn a lot real fast, forge ahead.
+The idea is to shoot a <B>bullet</B> right through xcom, 
+missing almost everything, 
+but adding just a bit of new functionality. 
+Don't forget, you are getting help with your aim.
+You can always get another xcom if you mess this one up.
+</P>
+<P>
+When it comes time to make a serious change to xcom,
+there is a <A HREF="ChangingXcom.html">systematic method</A>.
+Each module has a <B>unit test</B> and a <B>unit trial</B>
+After any change to a module, 
+the unit test is also changed to test the new functionality.
+The idea in this case is to proceed through xcom,
+checking each step before moving on to the next.
+More than likely, you will want to enhance the trial
+as a natural consequence of seeing what is going on with your changes.
+</P>
+
+<H4>Add abs to X</H4>
+
+<P>
+Consulting page 2 of the <A HREF="ReferenceX.pdf">reference manual</A> 
+for X, one notes that there are four builtin functions.  
+One generates a random number, the other three convert between types.
+All of them are represented by reserved words.
+I propose a fifth builtin
+
+<TABLE ALIGN="CENTER" BORDER="1">
+<TR><TD><I>signatures</I></TD>
+    <TD><I>op</I></TD>
+    <TD><I>meaning</I></D>
+</TR>
+<TR><TD><I>r(r) i(i)</I></TD>
+    <TD><I>abs(x)</I></TD>
+    <TD><I>absolute value (real or integer)</I></TD>
+</TR>
+</TABLE>
+
+<H4>Steps</H4>
+<OL>
+<LI>
+<A HREF="ChangingX.html">Add a line to context-free grammar X.cfg</A>.  
+<P>
+The new line 
+<PRE>
+  abs factor
+</PRE>
+conveniently comes right before the line for rand.
+The new line looks like the line for function r2i.  
+Here is how the end of the <TT>X.cfg</TT> file should look:
+<PRE>
+  r2i factor
+  abs factor
+  rand
+</PRE>
+</P>
+<P>
+Note that there are no parentheses in the grammar for abs.
+Since parentheses are allowed in general, 
+then both forms
+<PRE>
+  abs 2.1
+</PRE>
+and 
+<PRE>
+  abs(-7)
+</PRE>
+will be syntactically correct.
+That is, function abs is to be a unary prefix operator like '-'.
+Because abs appears in the grammar, and not as a rule name, 
+it is automatically classified as a new reserved word by Cfg.m.
+Of course, you have to remember to run makeCfg (below)
+for your changes to X.cfg to be noticed by xcom.
+</P>
+</LI>
+
+<LI><A HREF="CommandLine.html">Make new cfg tables</A>
+  <P>
+  <PRE>
+    >> makeCfg -saveMat X.cfg
+  </PRE>
+    or, if you are in a hurry and are not using the LR tables,
+  <PRE>
+    >> makeCfg -noLR -saveMat X.cfg
+  </PRE>
+  </P>
+</LI>
+
+<LI><A HREF="CommandLine.html">Run xcom</A>
+<P>
+  <PRE>
+    >> xcom x:=1
+    >> xcom x:=y+1
+    >> xcom x:=abs(-1)
+    >> xcom x:=abs(-1.0)
+  </PRE>
+What you discover is the first two trials work, the second two fail.  
+This result should not be too surprising.
+Except for the new unknown builtin abs, nothing has changed.
+<B>Cfg</B> has built new tables but all the old values are still available.
+Note that the diagnostic has come from the <B>Parser</B>,
+so apparently the <B>Lexer</B> has not been damaged by your bullet.
+In fact the Cfg processor has recognized that abs is a new reserved word 
+and added it to the reserved word table.
+It would do the same for a new operator identifier 
+(say <BIG><TT>&&</TT></BIG>).
+Moving right along...
+</P>
+</LI>
+
+<LI><A HREF="ChangingParser.html">Modify Parser.m</A>.  
+<P>Find an M function <B>factor</B>.
+It has a switch on the current token <B>tok</B>.
+What you must do is add the line
+<PRE>
+  case rw.abs, step(); factor(); reduce(rule.factor_absfactor);
+</PRE>
+right after the line for r2i.
+What you are doing is telling the parser that 
+when it encounters this new reserved token abs, 
+it is to stop complaining (as it did on your earlier test)
+and instead step past the token, call function factor (recursively) 
+and, finally, report that it has reduced a rule named
+<PRE>
+  rule.factor_absfactor
+</PRE>
+The new funny name is constructed by Cfg.m by 
+<A HREF="http://en.wikipedia.org/wiki/Name_mangling">mangling</A>
+the whole grammar rule.
+Look at the <A HREF="Xcfg.html">grammar</A> to see the correspondence
+between funny names and rule texts.  
+The funny names are unique and do not change when new rules are added.
+</P>
+</LI>
+
+<LI>Rerun the four xcom tests (above)</A>.
+<P>
+The two abs tests still cause errors, but this time from the 
+<B>symbol table</B>.
+<B>xcom</B> object <B>Tree</B> has built a tree with a new kind of node in it,
+and the <B>xcom</B> object <B>Symbols</B> 
+does not know what to do with that node.
+But, this is progress.  
+Apparently Cfg.m, Lexer.m, Parser.m and Tree.m can handle the new builtin.
+</P>
+</LI>
+
+<LI><A HREF="ChangingSymbols.html">Modify Symbols.m</A>.  
+<P>Find the (very big)
+function exprWalk.  It contains a case containing a funny node name for 
+our next-door X.cfg neighbor <B>r2i</B>:
+<PRE>
+  case rn.factor_r2ifactor                 % r2i x
+  if bitand(mustBe, intType) == 0
+    symErr(nd, 'r2i returns type real');
+  end
+  exprWalk(tree.getKid(nd, 2), realType);
+  res = intType;
+</PRE>
+The first test makes sure that an <B>intType result</B> 
+is allowed by the context (variable mustBe).
+If not, then r2i has discovered a type error. 
+The symbol module gives a diagnostic and quits.
+</P>
+<P>
+Supposing intType is allowed by the context, 
+then the tree representing the argument to r2i is walked (recursion).
+In this case, 
+the new value of mustBe is passed down the tree as realType 
+because r2i demands a <B>real argument</B>.
+Finally, the resulting type is set to intType (as demanded by r2i).
+</P>
+<P>
+The r2i case is a template for the new case you need to add.
+<PRE>
+  case rn.factor_absfactor                 % abs x
+    if bitand(mustBe, arithType) == 0      % arith is OK
+      symErr(nd, 'arithmetic type needed for abs');
+    end
+    res = exprWalk(tree.getKid(nd, 2), bitand(mustBe, arithType));
+</PRE>
+Since abs can be overloaded, it is has a more relaxed initial type test
+that r2i.
+In this case, when the function exprWalk recurs, 
+it makes sure it does not further relax constraint mustBe.
+When exprWalk returns, it may have tightened the type of the result.
+Or maybe not.
+</P>
+</LI>
+
+<LI>Rerun the four xcom tests (above).
+<P>
+Now the diagnostic comes from <B>xcom</B> object <b>Generator</B>.  
+The missing code is in the generator's exprWalk function. 
+</P>
+</LI>
+
+<LI><A HREF="ChangingGenerator.html">Modify Generator.m</A>
+<P>
+Add a case after factor_r2ifactor
+<PRE>
+  rn.factor_absfactor
+</PRE>
+Don't forget the semicolon separating cases.
+</P>
+</LI>
+
+<LI>Rerun the four xcom tests.
+<P>
+  Now the diagnostic comes from object <b>EmitX86</B>.  
+  We have a missing case in M function expr1 
+  (expressions with a single argument).
+  Actually, we have two missing cases, one for integer and one for real.
+</P>
+</LI>
+
+<A NAME="Emitter">
+<LI><A HREF="ChangingEmitter.html">Modify EmitX86.m</A>
+<P>
+Since there are two cases for abs, abs needs two new code sequences.  
+</P>
+<P>The case for <B>real</B> is analogous to, 
+and in the same switch as, unary '-'.
+The new code is:
+</P>
+<PRE>
+  case rn.factor_absfactor               % abs(real)
+    toR(opd);                            % to FPS
+    asm.fabs();                          % take float abs
+    toX(opd);                            % off FPS into temp
+</PRE>
+<P>
+Code is emitted to push the operand onto the hardware floating point stack,
+the (very convenient) Intel absolute value instruction is emitted,
+and then code is emitted to pop the FPS operand into temporary memory.  
+It would be more efficient to leave the result on the floating point stack, 
+but then one would have to deal with potential FPS stack overflow.  
+</P>
+<P>
+The <B>integer</B> case is a little more complicated 
+since there is no integer absolute value instruction.  
+The new code is:
+</P>
+<PRE>
+  case rn.factor_absfactor               % abs(int)
+    toR(opd);                            % into reg
+    asm.cmpRC(getVal(opd),0);            % compare with zero
+    fixuploc = asm.jge32(0);             % jmp if nonneg
+    asm.negR(getVal(opd));               % negate
+    asm.fixup32(fixuploc);               % fill in destination
+</PRE>
+<P>
+The operand is forced into a general register (it may already be in one).
+Then the register is compared with zero.
+If it is non-negative, nothing needs to be done so some code is skipped.
+Otherwise, the register is negated. 
+Finally the conditional branch address needs to be 
+<A HREF=Glossary.html#fixup>filled in</A>.
+</P>
+</LI>
+
+<LI><A HREF="ChangingAsm.html">Modify AsmX86.m</A>
+<P>
+Actually, the <B>fabs</B> instruction is already implemented.
+What you should do is look at AsmX86.m to make sure.
+</P>
+</LI>
+
+<LI><A HREF="CommandLine.html">Run the four xcom tests above again</A>.
+<P>It works!</P>
+</LI>
+
+<LI>
+  <P>Do more thorough <A HREF="TestingXcom.html">testing</A>.
+    Run <A HREF="CommandLine.html#tests">testAll() and tryAll()</A>.
+  </P>
+  <P>
+    The unit tests and trials also pass.  You are done!
+    As mentioned above, if making a serious change, 
+    each unit test needs new code to confirm 
+    that the change did the expected thing.
+  </P>
+</LI>
+</OL>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

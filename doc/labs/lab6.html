@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab6.html
+     PURPOSE:   work at the hardware level
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 6 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab6.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<BR>
+
+<H3>Examine and Test Hardware-level Algorithms</H3>
+<P>
+  <UL>
+    <LI>
+      (20 min) Try the xcom runs below for x:=1
+      <PRE>
+        >> xcom -asmTrace -noExecute x:=1
+        >> xcom -asmTrace -exeTrace x:=1
+        >> xcom -asmTrace -emulate x:=1
+        >> xcom -asmTrace -interactive x:=1 % try some negative steps</PRE>
+    </LI>
+    <LI>
+      (40 min) Try to understand the assembler output for the following
+      <PRE>
+        >> xcom -asmTrace -noExecute  r:=1.1+2.2-3.3*4.4/5.5
+        >> xcom -asmTrace -noExecute 'i,r:=1+2-3*4/5//6,17.0'
+        >> xcom -asmTrace -noExecute  b:=1<2&2.0<3.0
+        >> xcom -asmTrace -noExecute 'if r2i(1.0)=1 ? x:=3 :: true ? x:=4 fi'
+        >> xcom -asmTrace -noExecute 'do x<3 ? x:=x+1 od'
+    <LI>(challenge) Add a unit test to testAsmX86.m
+      <PRE>
+      >> edit mxcom/m/tests/testAsmX86</PRE>
+    </LI>
+    <LI>(challenge) Add a unit test to testEmulate.m
+      <PRE>
+      >> edit mxcom/m/tests/testEmulateX86</PRE>
+    </LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

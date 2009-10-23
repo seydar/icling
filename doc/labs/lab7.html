@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab7.html
+     PURPOSE:   code selection
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.13 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 7 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab7.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<BR>
+
+<H3>Look at Code Selection</H3>
+<P>
+  <UL>
+    <LI>
+      (20 min) Try many examples with different X source text, e.g.
+      <PRE>
+      >> xcom -asmTrace -emitTrace -genTrace x:=1
+      >> xcom -asmTrace -emitTrace -genTrace 'b,i,r:=true,1,2.0'
+      >> xcom -asmTrace -emitTrace -genTrace 'if 1<2 ? x:=1; fi'</PRE>
+    </LI>
+    <LI>
+      (20 min) Let MATLAB debug walk you through an example.  
+      Set a breakpoint at the start of xcom.m. 
+      Make sure the [debug] pulldown on MATLAB is marked
+      <PRE> x Open M-Files when Debugging</PRE>
+      Then redo the example above
+      <PRE>>> xcom -asmTrace -emitTrace -genTrace x:=1</PRE>
+      When you arrive at the breakpoint, reset it to the start of the
+      backend loop (about line 343)
+      <PRE>for p=1:ct</PRE>
+      <PRE>K>> dbstep </PRE>
+      until just before entering Generator(...), then
+      <PRE>K>> dbstep in</PRE>
+      You should then find yourself looking at the file Generator.m.
+      Set a breakpoint at the call of GenWalk() (about line 52) and
+      <PRE>K>> dbcont</PRE>
+      <PRE>K>> dbstep in</PRE>
+      In a few steps, step into emit.prolog(), then asm.prolog(), and
+      so on.  Watch as the trace appears in the command window.
+      Try to stick with it until you step into emit.epilog().
+      Be sure to step into stmtWalk().
+    </LI>
+    <LI>(20 min) Add a unit test to testEmitX86.m
+      <PRE>
+      >> edit testEmitX86.m</PRE>
+    </LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

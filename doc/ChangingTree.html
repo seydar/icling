@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingTree.html
+     PURPOSE:   how to change the xcom syntax tree builder.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Tree Builder
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingTree.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the xcom Syntax Tree Builder</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>In MATLAB, in the xcom directory, type (or cut and paste from here
+to the MATALAB command line).
+<PRE>
+>> help Tree.m
+>> xcom -treeTrace -treeDump x:=1
+>> addpath tests trials
+>> testTree
+>> tryTree
+</PRE>
+or run the tree builder standalone
+<PRE>
+>> load cfg cfg               % prepare to run Parser standalone
+>> EOL = 10;                  % ASCII newline
+>> lx = Lexer(cfg, ['x:=1;' EOL 'y:=x']);
+>> pr = Parser(lxtr.dump();
+>> tr = Tree(pr)
+>> tr.dump()
+</PRE>
+
+</P>
+
+<P>Read the general description of the <A HREF="SyntaxTree.html">
+Syntax Tree</A>.<P>
+
+<H4>But, Why?</H4>
+<P>
+The syntax tree building code should never have to be changed so long
+as using read-only syntax trees is considered sufficient.  
+If, on the other hand, one wants abstract syntax trees, or writable
+trees, then changes are required.
+</P>
+
+<H4>The Arena Implementation</H4>
+<P>
+Nodes point to nodes, thus some kind of pointer mechanism must exist.
+In the case of xcom, 
+the syntax tree is <A HREF="Glossary.html#arena">arena-allocated</A>.
+</P>
+<P>Trees are built strictly depth-first.  The nodes can have any width.
+The descendents of a node are either internal nodes, or leaves.
+The leaves contain tokens.  
+The tree-walker could consult the CFG to find out which descendents
+are leaves, and the width of the node,
+but in <B>xcom</B> the information is contained within the tree node itself.
+The first entry in the node is the rule name (a small integer).
+The second entry contains a pattern of 2-bit values.  
+Two of the 4 possibilities are NODE and LEAF.
+The pattern ends when a two-bit zero (NONE) is encountered in the pattern.
+The details are documented in the source file Tree.m.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

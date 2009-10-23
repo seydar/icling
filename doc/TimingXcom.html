@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      TimingXcom.html
+     PURPOSE:   About timing XCOM and X programs
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.11.14 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- X and XCOM timing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> TimingX.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Timing X Programs and the XCOM Compiler</H3>
+</CENTER>
+
+<P>
+Even though <B>xcom</B> avoids the usual tricks to make
+the compiler fast or the executable efficient, 
+one can be curious about how it compares with other compilers.
+If one wished to extend <B>xcom</B> to do serious work, 
+then time tests would be necessary.
+</P>
+
+<H4>Timing Execution</H4>
+<P>
+<B>xcom</b> is <B>instrumented</B> to collect time on its major phases.
+Use flag
+  <BIG>
+    <PRE>
+      -xcomTime
+    </PRE>
+  </BIG>
+</P>
+<P>
+Most ordinary X programs run so fast that the granularity of the clock
+interfers with accurate measurement.
+It is reasonable to put the snippet of interest in a loop and run
+it many times.  
+For example, read the program xcom/x/timeIntegerInc.x.
+It repeats the snippet <BIG><TT>ctr := ctr + 1</TT></BIG> 100,000,000 times.
+The snippet is cut&amp;paste included 10 times to make sure the
+loop overhead does not dominate.
+</P>
+
+<P>
+It does not matter whether the timed program does input/output.
+All input takes place before execution.
+All output takes place after execution.
+The instrumentation separates out these two activities, 
+so slow fingers on the keyboard will show up in a separate category.
+</P>
+
+<P>
+MATLAB itself is a convenient standard against which to run.
+The program xcom/times/timeInc.m runs two X programs and then
+two equivalent (apples-to-apples) M programs.
+</P>
+
+<H4>Timing Compilation</H4>
+<P>
+The gross measures of front end and back end times are given by
+the <B>xcom</B> timing flag.
+Much more detailed information is available via the MATLAB <B>profiler</B>.
+If your interest is in the internal components of xcom, 
+it makes sense to avoid execution time cluttering the results
+by using the 
+<BIG>
+  <PRE>
+    -noExecute 
+  </PRE>
+</BIG>
+flag.
+</P>
+<P>
+It is somewhat harder to compare with MATLAB JIT compile time since, 
+once JITted,
+the MATLAB executable is saved for reuse (unlike xcom).
+The MATLAB comparison function needs to be cleared before it is run.
+The R2007b JIT will compile the comparison function (or most of it) 
+the first time.
+There is no guarantee what future JITs will do.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

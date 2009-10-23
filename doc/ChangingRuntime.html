@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingRuntime.html
+     PURPOSE:   How to change the xcom runtime
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the xcom Runtime
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingRuntime.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the xcom Runtime</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>
+Read the general description of the <A HREF="Runtime.html">Runtime</A>.
+</P>
+
+<H4>Adding a Builtin Function to the Runtime</H4>
+<P>
+The first step is to add the new builtin to X.cfg.
+See the <A HREF="Warmup.html">warm up exercise</A> to 
+track the consequences and responses to this kind of change. 
+Eventually code must be generated.
+Not all cases require a call to C -- it sometimes possible just to
+emit inline code, as in the case of builtin 
+<BIG>
+    <PRE>
+        abs
+    </PRE>
+</BIG>
+  proposed in the <A HREF="Warmup.html">warm up</A>.
+</P>
+
+<P>
+Suppose the decision is to add a function named 'xxx' to the 
+xcom C runtime library, 
+the models supplied by <BIG><TT>rand</TT></BIG> and 
+<BIG><TT>intDiv</TT></BIG> can be followed.
+<TABLE BORDER="1" ALIGN="center">
+<TR>
+  <TD><B>X construct</B></TD>
+  <TD><B>xcom file</B></TD>
+  <TD><B>generator</B></TD>
+  <TD><B>encapsulation</B></TD>
+  <TD><B>runtime file</B></TD>
+  <TD><B>runtime name</B></TD>
+</TR>
+<TR>
+  <TD><TT>rand</TT></TD>
+  <TD><TT>Generator.m</TT></TD>
+  <TD><TT>expr0</TT></TD>
+  <TD><TT>realRand</TT></TD>
+  <TD><TT>getCfun.c</TT></TD>
+  <TD><TT>XCOMrand</TT></TD>
+</TR>
+<TR>
+  <TD><TT>/ and //</TT></TD>
+  <TD><TT>Generator.m</TT></TD>
+  <TD><TT>expr2</TT></TD>
+  <TD><TT>intDiv</TT></TD>
+  <TD><TT>getCfun.c</TT></TD>
+  <TD><TT>XCOMdiv</TT></TD>
+</TR>
+</TABLE>
+  
+For builtin rand the code in Generator.m is encapsulated in a local
+function realRand called from expr0 (an expression with no args).
+Code for integer divide is encapsulated in function intDiv called
+from expr2 (an expression with two args).
+Analogous code must be written for your new builtin. 
+</P>
+
+<P>
+The required call to getCfun('xxx') then requires a corresponding change.
+The name 'xxx' is added to the C macro 
+<BIG>
+    <PRE>
+        CFUNCTIONS
+    </PRE>
+</BIG>
+and a static function named XCOMxxx must be implemented.
+Presumably the rest of the xcom modules will not be affected,
+so this finishes the task.
+</P>
+
+<H4>Rebuilding the Runtime</H4>
+<P>
+It is necessary to MEX each changed dot-c file before
+the changes are useful to <B>xcom</B>.
+The normal workflow is to change the dot-c file (say getCfun.c) then
+<BIG>
+    <PRE>
+        >> makeMex getCfun.c
+    </PRE>
+</BIG>
+</P>
+<P>
+<B>xcom</B> checks that the compiled MEX files exist and are not 
+out-of-date with respect to the C source.
+The making of MEX files could be made automatic, but only at the 
+cost of make-like logic. 
+It seems better to leave the making of MEX files in your hands.  
+Calling <BIG><TT>makeMex</TT></BIG> with
+no arguments remakes all the existing dot-c files in the mxcom directory.
+(Watch it!  Don't leave any stray C files lying around.)
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

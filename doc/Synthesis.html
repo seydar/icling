@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Synthesis.html
+     PURPOSE:   Describe compiler back ends
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Synthesis of Executables
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Synthesis.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Synthesis of Executables</H3>
+</CENTER>
+
+<H4>Overview</H4>
+
+<P>
+Synthesis is the process of using the information gathered during Analysis
+to extract the meaning (semantics) and construct an executable.  
+In a typical compiler, an intermediate representation, or IR, 
+holds the gathered information.  
+In xcom the IR representing an X program consists of 
+a syntax tree and associated symbol table.
+Since several X programs may cooperate (all but one defining subprograms),
+the synthesis algorithms need IR for <EM>all</EM> of the X programs 
+before synthesizing the result.  
+</P>
+
+<P>The consequence is that the Analysis (often called the front-end) 
+examines each input source program in order 
+and constructs a sequence of IR representations, one for each program. 
+This sequence is examined by the Synthesis (often called the back-end).
+At any moment the Synthesis is principally concerned with the 
+IR for one subprogram, but may refer to other IRs for cross-program linking. 
+</P>
+
+<H4>Back-end Components</H4>
+<UL>
+<LI>
+<A HREF="Assembler.html">Assembly</A>.  Formatting CPU instructions,
+putting them in memory, and executing them.
+</LI>
+
+<LI>
+<A HREF="Emitter.html">Instruction Selection</A>.  Transforming a sequence
+of semantic actions into a sequence of CPU actions.
+</LI>
+
+<LI>
+<A HREF="Generator.html">The Execution Sequence</A>.
+  Transforming the IR into a sequence of semantic actions.
+</LI>
+
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,97 @@
+<!-- FILE:    notation/grammars.html
+  -- PURPOSE: The Concept of Notation
+  -- MODS:    McKeeman -- 1999.07.22 -- original
+  -->
+
+<html>
+<head>
+<title>Language Description</title>
+</head>
+
+<body bgcolor="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<table>
+<tr><p></tr>
+<tr><td width=80></td><td width=500>
+
+<h2>A Simple Grammar Notation</h2>
+
+<p>Grammars are a major topic in this course.
+Here we are only concerned with a clean notation for writing down concrete
+grammars.  
+At its simplest, a grammar is a set of <em>substitution rules</em>. 
+There is a left hand side (naming the symbol being defined) and a right hand
+side (giving the definition).
+</p>
+
+<p>
+Any contiguous sequence of non-blank characters is a <em>symbol</em>.  
+A symbol that appears on the left margin is being defined.
+All other symbols stand for themselves (literals).  The definitions,
+represented sequences of symbols (separated by whitespace), appear immediately
+below the defined symbol and are indented.  An empty definition is allowed and
+is represented by a blank line.  Empty lines at the end of a sequence of
+definitions are ignored.  Referring to the grammar for binary integer below,
+there are four definitions. The last two give the simplest cases.  The other
+two extend the simple cases, one binary digit at a time.</p>
+
+<pre>
+binaryInteger
+   binaryDigit
+   binaryInteger binaryDigit
+binaryDigit
+   0
+   1
+</pre>
+
+<p>
+Operationally, a grammar starts with some selected symbol 
+(by convention, usually the first).  
+If there are one or more definitions for that symbol, 
+the definition may be substituted for the selected symbol, 
+possibly increasing the number of defined symbols.  
+Given the resulting substituted sequence, 
+one may repeat substitutions indefinitely, 
+in any order, 
+until there are no more symbols with definitions remaining in the sequence.  
+In the case of binary numbers, one can easily see that
+</p>
+
+<p>
+<ol>
+<li>The substitutions may continue indefinitely.
+<li>Whenever there are no more substitutions to make (only literals remain),
+the result is, in fact, a binary integer
+<li>There is a sequence of substitutions leading to every finite binary integer.
+</ol>
+
+<p>
+The defined symbols are called <em>phrase names</em>.
+</p>
+
+<p>Grammars can be used for many things.  Computer languages usually
+have grammars.
+For <a href=c.html>C</a> the grammar is an international standard.
+For <a href=java11.html>Java 1</a> the grammar is a proprietary standard.
+A 
+    <A HREF="http://java.sun.com/docs/books/jls/second_edition/html/syntax.doc.html">
+        public version
+    </A>
+    is maintained by Sun Microsystems.
+</p>
+
+<hr>
+Created: <i>Tuesday, August 17, 1999</i><br>
+Last modified: <i>
+March 27, 2002
+</i><br>
+email: McKeeman{at}Mathworks{dot}COM<br>
+
+<!-- the following table end provides margins and textbook like appearance -->
+</td><td width=50></td></tr>
+</table>
+
+</body>
+</html>
+

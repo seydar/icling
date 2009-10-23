@@ -1,0 +1,926 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ExecutableGrammar.html
+     PURPOSE:   About Executable Grammars
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Executable Grammars
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+  <SMALL>
+    <EM>File</EM> ExecutableGrammar.html&nbsp;&nbsp;&nbsp;  
+    <EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+    <EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;  
+    <A HREF="Index.html">index</A>
+    <EM>See also my </EM><A HREF="../m/html/Stanford-01.html">Stanford Talk</A>.  
+  </SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+  <H3>Executable Grammars</H3>
+</CENTER>
+
+<H4>Executable IOG</H4>
+<P>
+  I have defined an <A HREF="InputOutputGrammar.pdf" TARGET="ioPdf">IOG</A> 
+  (input/output grammar) as an extension of a CFG.
+  The name is chosen to emphasize the symmetry of input (what any CFG
+  normally does) and output, which has been added.
+  It is a central requirment that there are distinct sets of 
+  <B>input symbols</B>, <B>output symbols</B>, <B>phrase names</B>
+  and <B>meta symbols</B>.
+</P>
+<P>
+  The main point of the following is that an IOG 
+  is an executable code.  It is obvious that grammar reduction
+  rules can be mechanically applied, and that
+  if the reductions lead to a parse, that parse is correct.
+  What is less obvious is that the grammars defined here can
+  be executed a character at a time.
+</P>
+<P>
+  GEM is a "grammar executing machine." 
+  It is implemented as a C program, applying an IOG <TT>g</TT>
+  (analogous to a stored program) to input text <TT>i</TT>
+  and producing corresponding output text <TT>o</TT> (if any).
+  <TT>
+    <P ALIGN="CENTER">
+      o = GEM(i, g)
+    </P>
+  </TT>
+</P>
+<H4>ASCII Notation</H4>
+<P>
+  Each grammar <TT>g</TT> acceptable to GEM 
+  is a sequence of rules each of the form
+</P>
+  <P ALIGN="CENTER">
+    p=&alpha;;
+  </P>
+<P>
+  where p is a letter and &alpha; is a seqence of symbols. 
+</P>
+<P>
+  It is pleasant to read typeset versions of grammars,
+  with different fonts for different kinds of symbols.
+  GEM, on the other hand, requires ASCII input.
+  That in turn requires some kind of convention to distinguish the 
+  kinds of symbols. 
+  I choose to leave phrase names as raw identifiers,
+  quote input symbols with ', and output symbols with ".
+  The output quotes could have been { and } to highlight the connection
+  to YACC but that choice does not make the grammars easy to read.
+  Anything that is not one of the above is a meta symbol.
+</P>
+
+<H4>Restrictions on GEM grammar input</H4>
+<P>
+  The input and output symbols are restricted to single
+  characters.  Thus <TT>'1'</TT> signifies that the digit <TT>1</TT>
+  is input, and <TT>"+"</TT> signifies that the character <TT>+</TT> is
+  output.
+</P>
+<P>
+  Left recursion, direct or indirect, is forbidden because it would 
+  cause GEM to overflow its stack.
+</P>
+<P>
+  Whitespace cannot be used between symbols in grammar rules.  
+</P>
+<P>
+  A significant task is to use GEM to <B>remove</B> the restrictions above.
+</P>
+
+<H4>Top-down Compiler</H4>
+<P>
+  Given these restrictions, the IOG is a 
+  <A HREF="Topdown.html">recursive descent parser</A>
+  in the sense that when GEM:
+  <UL>
+    <LI>encounters a phrase name, a recursion is required;</LI>
+    <LI>encounters an input symbol, matching input is required;</LI>
+    <LI>encounters an output symbol, that symbol is sent to the result;</LI>
+    <LI>finishes a rule, a recursion returns.</LI>
+  </UL>
+  And, in addition, GEM makes user-selected output.
+</P>
+
+<H4>Very Simple Examples</H4>
+<UL>
+<LI>
+  Describe nothing and output $.  
+  <P>
+    If the GEM argument <TT>g</TT> is MATLAB string
+    <P ALIGN="CENTER">
+      <TT>r="$";</TT>
+    </P>
+    running GEM gives
+  </P>
+  <TT>
+    <P ALIGN="CENTER">
+      '$' == GEM('', g)
+    </P>
+  </TT>
+  If the first argument to GEM were not empty, 
+  GEM would issue a diagnostic.
+</LI>
+<LI>
+  To check that the input is <TT>xy</TT> and make the output <TT>OK</TT>
+  let the GEM argument <TT>g</TT> be MATLAB string
+   <P ALIGN="CENTER">
+    <TT>r='x''y'"O""K";</TT>
+  </P>
+  giving |true| for
+  <TT>
+    <P ALIGN="CENTER">
+      all('OK' == GEM('xy', g))
+    </P>
+  </TT>
+</LI>
+<LI>
+  Finally, to check that the input is either <TT>x</TT> or <TT>y</TT>
+  and make no output, let the GEM argument <TT>g</TT> be MATLAB string
+    <P ALIGN="CENTER">
+    <TT>r=p;p='x';p='y';</TT>
+  </P>
+  <TT>
+    <P ALIGN="CENTER">
+      isempty(GEM('x', g))
+    </P>
+  </TT>
+  If the first argument were <TT>'z'</TT>, GEM would issue a diagnostic.
+</LI>
+</UL>
+
+<H4>GEM Grammar-grammars</H4>
+<P>
+  The next example is a self-describing CFG acceptable as input to GEM
+  (except whitespace is used as a kindness to the reader; you may ignore it).
+  Each grammar rule gives one definition for a phrase name. 
+  Symbols <TT>=</TT> and <TT>;</TT> are meta symbols.
+  The order of the rules is significant.
+  By convention, the first rule defines the goal symbol of the grammar.
+</P>
+<P>
+  The rule below for <TT>r</TT> is self-describing.  One might read it as:
+  phrase name <TT>r</TT> 
+  is defined as a phrase name <TT>l</TT> (denoting a letter),
+  followed by input symbol <TT>=</TT>, 
+  followed by phrase name <TT>f</TT> describing a formula,
+  followed by input symbol <TT>;</TT>.
+</P>
+<P>
+  The grammar itself is also self-describing: 
+  <TT>g</TT> defines a perhaps empty sequence of rules;
+  <TT>f</TT> defines a perhaps empty sequence of symbols.
+</P>
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR>
+            <TD><TT>g = r g;</TT></TD>    
+            <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+            <TD><TT>c = ''';</TT></TD> 
+            <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+          <TD><TT>l = 'g';</TT></TD></TR>
+          <TR>
+            <TD><TT>g =;</TT></TD>     
+            <TD></TD>
+            <TD><TT>c = '=';</TT></TD> 
+            <TD></TD>
+          <TD><TT>l = 'r';</TT></TD></TR>
+          <TR>
+            <TD><TT>r = l '=' f ';';</TT></TD>
+            <TD></TD>
+            <TD><TT>c = ';';</TT></TD> 
+            <TD></TD>
+          <TD><TT>l = 'f';</TT></TD></TR>
+          <TR>
+            <TD><TT>f = p f;</TT></TD>      
+            <TD></TD>
+            <TD><TT>c = l;</TT></TD>   
+            <TD></TD>
+          <TD><TT>l = 'p';</TT></TD></TR>
+          <TR>
+            <TD><TT>f =;</TT></TD>        
+            <TD></TD>
+            <TD>      </TD>    
+            <TD></TD>
+          <TD><TT>l = 'c';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = ''' c ''';</TT></TD> 
+            <TD></TD>
+            <TD>      </TD>    
+            <TD></TD>
+          <TD><TT>l = 'l';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = l;</TT></TD>       
+            <TD></TD>
+            <TD>      </TD>    
+            <TD></TD>
+          <TD></TD>               </TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>self</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+<P>
+  In terms of formalities,
+  <TABLE>
+    <TR><TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD></TD></TR>
+    <TR><TD></TD><TD><EM>V<SUB>G</SUB></EM> = {<TT>g</TT>}</TD></TR>
+    <TR><TD></TD><TD><EM>V<SUB>I</SUB></EM> = {<TT>g r f p c l ' = ;</TT>}</TD></TR>
+    <TR><TD></TD><TD><EM>V<SUB>O</SUB></EM> = {}</TD></TR>
+    <TR><TD></TD><TD><EM>V<SUB>N</SUB></EM> = {<TT>g r f p c l</TT>}</TD></TR>
+  </TABLE>
+  and, despite appearances, <EM>V<SUB>I</SUB></EM> 
+  and <EM>V<SUB>N</SUB></EM> are disjoint.
+</P>
+
+<P>
+  The CFG <B>self</B> can be extended to describe an IOG 
+  by adding two rules describing output (look for <TT>"</TT>).
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+      <TABLE CELLPADDING="4" ALIGN="CENTER">
+        <TR>
+          <TD><TT>g = r g;</TT></TD>      
+          <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+          <TD><TT>c = ''';</TT></TD> 
+          <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+        <TD><TT>l = 'g';</TT></TD></TR>
+        <TR>
+          <TD><TT>g =;</TT></TD>
+          <TD></TD>
+          <TD><TT>c = '"';</TT></TD> 
+          <TD></TD>
+        <TD><TT>l = 'r';</TT></TD></TR>
+        <TR>
+          <TD><TT>r = l '=' f ';';</TT></TD>
+          <TD></TD>
+          <TD><TT>c = '=';</TT></TD> 
+          <TD></TD>
+        <TD><TT>l = 'f';</TT></TD></TR>
+        <TR>
+          <TD><TT>f = p f;</TT></TD>      
+          <TD></TD>
+          <TD><TT>c = ';';</TT></TD> 
+          <TD></TD>
+        <TD><TT>l = 'p';</TT></TD></TR>
+        <TR>
+          <TD><TT>f =;</TT></TD>        
+          <TD></TD>
+          <TD><TT>c = l;</TT></TD>    
+          <TD></TD>
+        <TD><TT>l = 'c';</TT></TD></TR>
+        <TR>
+          <TD><TT>p = ''' c ''';</TT></TD> 
+          <TD></TD>
+          <TD>      </TD>    
+          <TD></TD>
+        <TD><TT>l = 'l';</TT></TD></TR>
+        <TR>
+          <TD><TT>p = '"' c '"';</TT></TD> 
+          <TD></TD>
+          <TD>      </TD>
+          <TD></TD>
+        <TD>      </TD>    </TR>
+        <TR>
+          <TD><TT>p = l;</TT></TD>       
+          <TD></TD>
+          <TD>      </TD>    
+          <TD></TD>
+        <TD></TD>               </TR>
+    </TABLE></TD>
+    <TR><TD>
+        <CENTER>A version of <B>self</B> providing for output</CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<P>
+  Since neither of the preceding two CFGs makes output, we expect
+</P>
+
+<P>
+    <P ALIGN="CENTER">
+    <TT>
+      isempty(GEM(self, self))
+    </TT>
+    </P>
+  to be true.
+  The notable result is that GEM does not crash while working very
+  hard to apply <B>self</B> to <B>self</B>.
+</P>
+<H4>Predefined Character Classes</H4>
+<P>
+  As a practical matter, a little more structure is needed.
+  There are eight boring grammars describing letters, digits, and ascii.
+  There is nothing special about them: they can be appended to any
+  interesting grammar but at considerable cost in verbosity.
+  They are analogous to C functions <TT>isdigit</TT>, <TT>isletter</TT>, 
+  etc. 
+  Four of them are designed to recognize (and ignore) any character of 
+  its class.  
+  The other four are identical, 
+  except they pass the character to the output.
+  Their names are
+  <TABLE BORDER="1" ALIGN="CENTER">
+    <TR><TD>digitCFG</TD><TD>lowerCFG</TD><TD>upperCFG</TD><TD>asciiCFG</TD></TR>
+    <TR><TD>digitIOG</TD><TD>lowerIOG</TD><TD>upperIOG</TD><TD>asciiIOG</TD></TR>
+  </TABLE>
+</P>
+<P>
+  The effect of each CFG rule is to accept (and discard) a character.
+  The effect of each IOG rule is to <B>pass</B> 
+  a character from input to output.
+  <TT>D</TT>, <TT>L</TT>, <TT>d</TT>, and <TT>l</TT>
+  are defined below.
+  The first rule for <TT>D</TT> reads "if you see a zero,
+  discard it from the input 
+  and send a zero to the output."
+  The classes <TT>A</TT> and <TT>a</TT> are analogous, 
+  for all of ASCII except null.
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+    <TABLE CELLPADDING="4" ALIGN="CENTER">
+      <TR>
+        <TD><EM>digitIOG</EM></TD>
+        <TD><EM>lowerIOG</EM></TD>
+        <TD><EM>upperIOG</EM></TD>
+      </TR>
+      <TR>
+        <TD><TT>D='0'"0";</TT></TD>
+        <TD><TT>L='a'"a";</TT></TD>
+        <TD><TT>L='A'"A";</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>D='1'"1";</TT></TD>
+        <TD><TT>L='b'"b";</TT></TD>
+        <TD><TT>L='B'"B";</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>...</TT></TD>
+        <TD><TT>...</TT></TD>
+        <TD><TT>...</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>D='9'"9";</TT></TD>
+        <TD><TT>L='z'"z";</TT></TD>
+        <TD><TT>L='Z'"Z";</TT></TD>
+      </TR>
+      <TR>
+        <TD><EM>&nbsp;</EM></TD>
+        <TD><EM>&nbsp</EM></TD>
+        <TD><EM>&nbsp;</EM></TD>
+      </TR>
+      <TR>
+        <TD><EM>digitCFG</EM></TD>
+        <TD><EM>lowerCFG</EM></TD>
+        <TD><EM>upperCFG</EM></TD>
+      </TR>
+      <TR>
+        <TD><TT>d='0';</TT></TD>
+        <TD><TT>l='a';</TT></TD>
+        <TD><TT>l='A';</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>d='1';</TT></TD>
+        <TD><TT>l='b';</TT></TD>
+        <TD><TT>l='B';</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>...</TT></TD>
+        <TD><TT>...</TT></TD>
+        <TD><TT>...</TT></TD>
+      </TR>
+      <TR>
+        <TD><TT>d='9';</TT></TD>
+        <TD><TT>l='z';</TT></TD>
+        <TD><TT>l='Z';</TT></TD>
+      </TR>
+    </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>predefined classes</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<H4>Scan</H4>
+<P>
+  One immediate consequence of the predefined phrase names is a convenience.
+  GEM can be used to remove the (disallowed) whitespace from any input.
+</P>
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR><TD><TT>g = p g;</TT></TD></TR>
+          <TR><TD><TT>g = ;  </TT></TD></TR>
+          <TR><TD><TT>p = ' ';</TT></TD></TR>
+          <TR><TD><TT>p = '   </TT></TD></TR>
+          <TR><TD><TT>';    </TT></TD></TR>
+          <TR><TD><TT>p = I A I;</TT></TD></TR>
+          <TR><TD><TT>p = O A O;</TT></TD></TR>
+          <TR><TD><TT>p = A;</TT></TD></TR>
+          <TR><TD><TT>I = ''' "'";</TT></TD></TR>
+          <TR><TD><TT>O = '"' """;</TT></TD></TR>
+          <TR><TD><TT>asciiIOG</TT></TD></TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>nowhite</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+<P>
+  Since GEM always does first things first, an input blank is discarded
+  without any corresponding output.  
+  A similar statement holds for a newline.
+  Characters protected by quote marks are preserved. 
+  Everything else (but unmatched quotes) 
+  is passed from the input to the output.  
+  The whole grammar <B>asciiIOG</B> is appended (but not displayed here).
+  For example
+</P>
+  <P ALIGN="CENTER">
+  <TT>
+    all('xyz' == GEM('x y z', nowhite))
+  </TT>
+  </P>
+  is true.
+<P>
+  Since the first argument to GEM <EM>always</EM> needs to be deblanked,
+  is it convenient to define a function
+</P>
+<P ALIGN="CENTER"><TT>
+     &#8704;t.scan(t)=GEM(t, nowhite)
+</TT></P>
+<P>
+  Note that a deblanked version of <B>nowhite</B> must
+  be prepared by hand to start the process off.  Here it is:
+</P>
+<PRE>
+g=pg;g=;p=' ';p='
+';p=IAI;p=OAO;p=A;I='''"'";O='"'""";asciiIOG
+</PRE>
+
+<H4>Pretty Printing</H4>
+<P>
+  The ugly deblanked version of a grammar can be restored by a 
+  pretty printer.
+</P>
+
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR><TD><TT>g = r g;</TT></TD></TR>
+          <TR><TD><TT>g =;</TT></TD></TR>
+          <TR><TD><TT>r = L '=' " " "=" f ';' ";" "</TT></TD></TR>
+          <TR><TD><TT>";</TT></TD></TR>
+          <TR><TD><TT>f = " " p f;</TT></TD></TR>
+          <TR><TD><TT>f =;</TT></TD></TR>
+          <TR><TD><TT>p = I A I;</TT></TD></TR>
+          <TR><TD><TT>p = O A O;</TT></TD></TR>
+          <TR><TD><TT>p = L;</TT></TD></TR>
+          <TR><TD><TT>I = ''' "'";</TT></TD></TR>
+          <TR><TD><TT>O = '"' """;</TT></TD></TR>
+          <TR><TD><TT>asciiIOG</TT></TD></TR>
+          <TR><TD><TT>lowerIOG</TT></TD></TR>
+          <TR><TD><TT>upperIOG</TT></TD></TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>pretty</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<P>
+  The grammar above is an example of its own output.  Similarly
+<P ALIGN="CENTER">
+  <TT>
+    prettynowhite = GEM(nowhite, scan(pretty))
+  </TT>
+</P>
+<P>
+  restores the nicely formatted version of <B>nowhite</B> above and 
+  leaves it in variable <TT>prettynowhite</TT>.
+</P>
+
+<P>
+  The pretty printer is also a <B>syntax checker</B> for input acceptable
+  by GEM.
+</P>
+
+<H4>Grammar Inversion</H4>
+<P>
+  The input language to GEM is entirely symmetrical in the input and output.
+  Systematically interchanging the input and output quotes 
+  turns a parser into an <B>unparser</B>.  
+  I suspect the inverter works if and only if the IOG produces a 1-1 mapping.
+  On the other hand, I do not know under what conditions an IOG would
+  produce a 1-1 mapping, so the insight is not immediately useful.
+</P>
+
+<P>
+  The inverter fails to produce a useful grammar when applied to 
+  <B>nowhite</B> because where to put blanks back in is ambiguous 
+  (<B>nowhite</B> is not 1-1).
+</P>
+<P>
+  The inverter applied to itself is still an inverter.
+</P>
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR><TD><TT>g = p g;</TT></TD></TR>
+          <TR><TD><TT>g =;  </TT></TD></TR>
+          <TR><TD><TT>p = ''' """ A ''' """;</TT></TD></TR>
+          <TR><TD><TT>p = '"' "'" A '"' "'";</TT></TD></TR>
+          <TR><TD><TT>p = A;</TT></TD></TR>
+          <TR><TD><TT>asciiIOG</TT></TD></TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>invert</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<H4>Right-associative Sum and Difference</H4>
+<P>
+  Using right recursion, the following grammar defines right associative
+  expressions.  
+  In this case the IOG rule numbers are output; 
+  the result of executing GEM is therefore the reduce sequence.  
+  The display of <B>sum</B> can use
+  whitespace freely since function <TT>scan</TT> will remove it.
+</P>
+
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR><TD><TT>g = e</TT></TD>       <TD><TT>"0";</TT></TD></TR>
+          <TR><TD><TT>e = t '+' e</TT></TD> <TD><TT>"1";</TT></TD></TR>
+          <TR><TD><TT>e = t '-' e</TT></TD> <TD><TT>"2";</TT></TD></TR>
+          <TR><TD><TT>e = t</TT></TD>       <TD><TT>"3";</TT></TD></TR>
+          <TR><TD><TT>t = 'x'</TT></TD>     <TD><TT>"4";</TT></TD></TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>sum</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<P>
+  Running
+  <P ALIGN="CENTER">
+    <TT>GEM('x+x-x', scan(sum))</TT>
+  </P>
+  gives MATLAB string
+  <P ALIGN="CENTER">
+    <TT>'4443210' </TT>
+  </P>
+</P>
+
+<P>
+  If the inverter is applied to <B>sum</B>, the resulting IOG 
+  turns the reduce sequence back into the original source.
+</P>
+
+<P ALIGN="CENTER">
+  <TT>
+    inversesum = GEM(scan(sum), scan(invert));</BR>
+    all('x+x-x' == GEM('4443210', inversesum))
+  </TT>
+</P>
+<P>
+  is true.
+</P>
+
+<H4>Expressions</H4>
+<P>
+  Normal left associative expressions can be described with right recursion.
+  The trick is similar to one used in writing parsers in 
+  functional languages such as <A HREF="http://www.smlnj.org/">ML</A>.
+  This grammar turns an expression into postfix
+  <A HREF="Glossary.html#pfn">PFN</A>. 
+  If the rule for parentheses is removed, this grammar is invertible.
+</P>
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR>
+            <TD><TT>g = e;</TT></TD>  
+            <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+            <TD><TT>s = '*' f "*" s;</TT></TD> </TR>
+          <TR>
+            <TD><TT>e = t r;</TT></TD>
+            <TD></TD>
+            <TD><TT>s = '/' f "/" s;</TT></TD> </TR>
+          <TR>
+            <TD><TT>r = '+' t "+" r;</TT></TD> 
+            <TD></TD>
+            <TD><TT>s =;</TT></TD> </TR>
+          <TR>
+            <TD><TT>r = '-' t "-" r;</TT></TD> 
+            <TD></TD>
+            <TD><TT>f = L;</TT></TD> </TR>
+          <TR>
+            <TD><TT>r =;</TT></TD>             
+            <TD></TD>
+            <TD><TT>f = D;</TT></TD> </TR>
+          <TR>
+            <TD><TT>t = f s;</TT></TD>   
+            <TD></TD>
+            <TD><TT>f = '(' e ')';</TT></TD> </TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+    <CENTER> <B>postfix</B></CENTER></ TD></TR>
+  </TABLE>
+</P>
+
+<P>
+  For example
+</P>
+<P ALIGN="CENTER">
+  <TT>
+    all('xy3+*x7/-' == GEM(scan(postfix),'x*(y+3)-x/7'))
+  </TT>
+</P>
+<P>
+  is true.
+</P>
+<P>
+  There is a similar, even simpler, grammar to make prefix PFN.
+</P>
+<H4>The Long March towards more Powerful Compilers</H4>
+<P>
+  One can extend <B>nowhite</B> to accept 
+  multiple-character input and output symbols.  The trick is to let 
+  <B>nowhite</B> single up the characters so that GEM can deal with them.
+  Here is the new version
+<P>
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR><TD><TT>g = p g;              </TT></TD></TR>
+          <TR><TD><TT>g = ;                 </TT></TD></TR>
+          <TR><TD><TT>p = ' ';              </TT></TD></TR>
+          <TR><TD><TT>p = '                 </TT></TD></TR>
+          <TR><TD><TT>';                    </TT></TD></TR>
+          <TR><TD><TT>p = I I I;            </TT></TD></TR>
+          <TR><TD><TT>p = O O O;            </TT></TD></TR>
+          <TR><TD><TT>p = ''' r;            </TT></TD></TR>
+          <TR><TD><TT>p = '"' s;            </TT></TD></TR>
+          <TR><TD><TT>p = A;                </TT></TD></TR>
+          <TR><TD><TT>r = ''';              </TT></TD></TR>
+          <TR><TD><TT>r = "'" A "'" r;      </TT></TD></TR>
+          <TR><TD><TT>s = '"';              </TT></TD></TR>
+          <TR><TD><TT>s = """ A """ s;      </TT></TD></TR>
+          <TR><TD><TT>I = ''' "'";          </TT></TD></TR>
+          <TR><TD><TT>O = '"' """;          </TT></TD></TR>
+          <TR><TD><TT>asciiIOG              </TT></TD></TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER><B>nowhite2</B></CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+<H4>Transforming Kleene * to IOG</H4>
+<P>
+  It is non-intuitive to have to avoid left recursion. 
+  One solution is to add the Kleene * to the IOG. 
+  The new IOG can parse itself. 
+  <TABLE BORDER="1" ALIGN="CENTER"><TR><TD>
+        <TABLE CELLPADDING="4" ALIGN="CENTER">
+          <TR>
+            <TD><TT>g = r*;</TT></TD>      
+            <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+            <TD><TT>c = ''';</TT></TD> 
+            <TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+          <TD><TT>l = 'g';</TT></TD></TR>
+          <TR>
+            <TD><TT>r = l '=' p* ';';</TT></TD>
+            <TD></TD>
+            <TD><TT>c = '"';</TT></TD> 
+            <TD></TD>
+          <TD><TT>l = 'r';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = ''' c ''';</TT></TD> 
+            <TD></TD>
+            <TD><TT>c = '=';</TT></TD> 
+            <TD></TD>
+          <TD><TT>l = 'p';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = '"' c '"';</TT></TD> 
+            <TD></TD>
+            <TD><TT>c = ';';</TT></TD>    
+            <TD></TD>
+          <TD><TT>l = 'c';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = l '*';</TT></TD>       
+            <TD></TD>
+            <TD><TT>c = '*';</TT></TD>    
+            <TD></TD>
+          <TD><TT>l = 'l';</TT></TD></TR>
+          <TR>
+            <TD><TT>p = l;</TT></TD>       
+            <TD></TD>
+            <TD><TT>c = l;</TT></TD>    
+            <TD></TD>
+          <TD></TD>               </TR>
+        </TABLE>
+    </TD></TR>
+    <TR><TD>
+        <CENTER>A version of <B>self</B> with Kleene *</CENTER>
+    </TD></TR>
+  </TABLE>
+</P>
+
+<P>
+GEM knows nothing about the Kleene star, so what must be done to make
+progress is to transform Kleene-style grammars back to the original IOG
+form.  One way is to replace each
+</P>
+
+<P>
+  <TT>&nbsp;&nbsp;&nbsp;&nbsp; r*</TT>
+</P>
+<P>
+  with a new symbol (say <TT>R</TT>) and add new rules
+</P>
+<P>
+  <TT>&nbsp;&nbsp;&nbsp;&nbsp;  R = rR;  R =;</TT>
+</P>
+<P> 
+  Kleene + can be implemented by transforming <TT>a+</TT>
+  into <TT>aa*</TT>.
+</P>
+<P>
+  <EM>and</EM> (with the proverbial hand-wave) <EM> so on</EM>.
+</P>
+
+<H4>GEM itself</H4>
+<P>
+  This section introduces a grammar executing machine (GEM) 
+  that can execute the restricted form of IOGs described in the introduction.  
+  The trick is backtracking.  And the trick of the trick is a symmetrical
+  notation that can be executed forward (Parsing) or backward (Backtracking).
+  The effect is to avoid saving state to carry out the backtracking.
+  Most of the actual parsing time is spent in searching the grammar for
+  the next rule to apply.
+  For small grammars, the inefficiencies are not noticable.
+</P>
+
+<H4>Running GEM</H4>
+<P>
+  The implementation of GEM in mxcom is as an object rather than a function.
+  The reason is to allow the bundling of the GEM grammars and GEM
+  functions in the same <A HREF="../m/gem.m">M file</A>.  
+  The examples above can be duplicated as follows:
+  <PRE>
+    >> G    = gem();   % build the grammar executing machine object
+    >> scan = @(txt)G.run(txt, G.nowhite);
+    >> GEM  = @(c,i)G.run(i, scan(c));   % always deblank c
+    >> G.nowhite 
+    >> GEM('x y z', G.nowhite)
+    >> scan('x y z')
+    >> GEM(scan(G.self), G.self)
+    >> GEM(G.nowhite, G.pretty)
+    >> pretty = @(txt)GEM(txt, G.pretty);
+    >> pretty(scan(G.pretty))
+    >> GEM('x+x-x', G.sum)
+    >> invert = @(txt)GEM(txt, G.invert);
+    >> GEM(v, invert(g.sum))
+    >> GEM('x*(y+3)-x/7', G.postfix)
+  </PRE>
+</P>
+
+<P>
+  Using GEM can be frustrating. 
+  First off, the input grammars are "touchy."  
+  A single character error can cause GEM fits.
+  To help, a trace facility is built in.  The flag
+  <PRE>
+    >> G.run('x y z', G.nowhite, '-gemTrace')
+  </PRE>
+  produces voluminous output of GEM's internal flailing.
+  Second, if the input has an error, 
+  all GEM knows how to do is backtrack 
+  until it has failed every possibility.
+  Then GEM reports the failure and the high-water mark; 
+  not much guidance for the needy user.
+  Third, the C code itself is "touchy."  
+  I suppose this is what Einstein meant when he said 
+  "Everything should be as simple as possible, but no simpler."
+</P>
+
+<H4>GEM Implementation</H4>
+<P>
+  The translator of GEM is implemented in a C 
+  <A HREF="../m/iog.c" TARGET="GemC">MEX file</A>.
+  Very little of C is used, primarily increment/decrement, dereference,
+  switch and loops.
+</P>
+
+<P>
+  Once the input, output and grammar strings have been suitably initialized,
+  the machine executes in one of three modes.
+  <OL>
+    <LI>Search mode, looking through the grammar for a rule.</LI>
+    <LI>Parse mode, matching the input and current grammar rule.</LI>
+    <LI>Backtrack mode, executing backward until a restart point is reached.</LI>
+  </OL>
+</P>
+
+<P>
+  While searching:
+  <UL>
+    <LI>
+      the pair ;x signifies the beginning a rule defining phrase x --
+      parsing begins again.
+    </LI>
+    <LI>
+      if the end of input is reached, search has failed, backtracking starts.
+    </LI>
+    <LI>
+      Everything else can be ignored.
+    </LI>
+  </UL>
+  While parsing:
+  <UL>
+  <LI>
+    a letter signifies a recursive call; 
+    a search for an applicable rule begins.
+  <LI>
+    the character ' signifies the beginning of an input symbol;
+    if the grammar input symbol matches the source input, 
+    the symbol is shifted; otherwise backtracking begins.
+  </LI>
+  <LI>
+    the character " signifies the beginning of an output symbol;
+    the quoted grammar symbol is appended on the output.
+  </LI>
+  <LI>
+    the character ; signifies the end of a rule;
+    the reduction is recorded and the recursion returns or,
+    if the stack is empty, GEM is done.
+  </LI>
+  </UL>
+  While backtracking:
+  <UL>
+  <LI>
+    a letter signifies a previously complete subparse;
+    it must be recursively executed backward.
+  </LI>
+  <LI>
+    the character ' signifies the end of an input symbol;
+    the quoted symbol must be pushed back on the input.
+  </LI>
+  <LI>
+    the character " signifies the end of an output symbol;
+    the quoted symbol is removed from the output.
+  </LI>
+  <LI>
+    the character = signifies the end (actually, start) of a rule;
+    search resumes from this point to find the next possible match.
+  </LI>
+  </UL>
+</P>
+
+
+<H4>Final Notes</H4>
+<P>
+  Some closely related work called
+  <A HREF="http://en.wikipedia.org/wiki/Parsing_expression_grammar">PEG</A>s.
+</P>
+<P>
+There is some <A HREF="GemHistory.html">history</A> for all of this.
+<P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

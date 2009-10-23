@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab2.html
+     PURPOSE:   exercises with CFGs
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 2 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab2.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>Examine and Change CFGs</H3>
+<P>
+    <UL>
+      <LI>Look at a Cfg (5 min) 
+        <PRE>
+          >> cd mxcom/m
+          >> type E.cfg
+        </PRE>
+      </LI>
+      <LI>
+        Using pencil and paper, use E.cfg to parse i*i eof. (5 min) 
+        (<A HREF="ans2-1.html">answer</A>)
+      </LI>
+      <LI>
+        Using pencil and paper, use E.cfg to parse (i) eof. (5 min) 
+      </LI>
+      <LI>
+        Make up a few more examples. (10 min) 
+      </LI>
+      <LI>
+        Using pencil and paper, use E.cfg to detect an error in 
+        <TT>i**i eof</TT> (5 min) 
+      </LI>
+      <LI>
+        Look at Cfg tables for E.cfg (5 min) 
+        <PRE>
+          >> c = Cfg(xread('E.cfg'))
+          >> c.Vi
+          >> c.Vn
+          >> c.V
+          >> c.dump()
+        </PRE>
+        Note that in V, the input symbols are first, phrase names next.
+        This is a (traditional) hack so that it is easy to tell them apart.
+      </LI>
+      <LI>
+        Change the first rule to
+        <PRE>
+          E
+          S eof
+        </PRE>
+        denoting a sum, then modify the rest of the grammar to accomodate
+        <TT>+</TT>.
+        Repeat the first part of this exercise to see if Cfg.m can handle
+        your changes. (<A HREF="ans2-2.html">answer</A>) (10 min)
+      </LI>
+      <LI>
+        Continue, adding <TT>-</TT> and <TT>/</TT> for subtract and divide.
+        Again, see if Cfg.m can handle your changes. (10 min)
+      </LI>
+    </UL>
+    Extra credit
+    <UL>
+    <LI>
+      Continue, adding D after i, and define D to be 0,1,2,...,9.
+      Again, see if Cfg.m can handle your changes.
+    </LI>
+    <LI>
+      Peek at the LR(1) matrix. We will talk about how to make and use it 
+      later.
+      <PRE>
+        >> c.dumpLR()
+      </PRE>
+    </LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

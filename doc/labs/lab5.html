@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab5.html
+     PURPOSE:   exercise trees and symbol tables
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 5 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab5.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<BR>
+
+<H3>Examine and Test the Tree Builder</H3>
+<P>
+  <UL>
+    <LI>(25 min) Try many examples like
+      <PRE>
+      >> xcom -treeTrace -noExecute x:=1
+      >> xcom -treeDump -noExecute x:=1
+      >> xcom -treeDump -noExecute -noAST x:=1
+      >> xcom -treeDump -noExecute 'if x<0? y:=1; :: x>0? y:=2; fi'</PRE>
+      For each generated output, draw the tree.
+      <P>&nbsp;</P>
+    </LI>
+    <LI> (05 min) Add a (better) unit test to testTree.m 
+      <PRE>
+      >> edit mxcom/m/tests/testTree.m</PRE>
+    </LI>
+  </UL>
+</P>
+<H3>Examine and Test the Symbol Table</H3>
+<P>
+  <UL>
+    <LI>
+      (10 min) Try many examples like
+      <PRE>
+      >> xcom -symTrace -noExecute x:=1
+      >> xcom -symDump -noExecute xyz:=xyz+1.1
+      >> xcom -symDump -noExecute b1:=b2|true
+      >> xcom -symDump -noExecute r:=i2r(17)
+      >> xcom -symDump -noExecute 'if x<0? y:=1 :: x>0? y:=2 fi'</PRE>
+    </LI>
+    <LI> (20 min) Add a unit test to testSymbols.m 
+      <PRE>
+      >> edit mxcom/m/tests/testSymbols.m</PRE>
+    </LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

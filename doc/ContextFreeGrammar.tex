@@ -1,0 +1,875 @@
+% FILE:		    ContextFreeGrammar.tex
+% PURPOSE:  	The theory and use of context-free grammars
+% COPYRIGHT:  W.M.McKeeman 2007
+
+\input bookhead
+
+\begin{document}
+
+\begin{center}
+  \begin{small}
+    \noindent --contents of Context-free Grammars--
+    \begin{quote} \raggedright
+        Phrase Structure\\
+        Everyday Grammars for Programming Language\\
+        Formal Definition of Context-free Grammars\\
+        Definition of Language\\
+        Left-to-right Application\\
+        \cfg\ defects\\
+        Transforming \cfg{s}\\
+        Alternative Notations\\
+        Self-describing \cfg \\
+    \end{quote}
+  \end{small}
+\end{center}
+
+\vspace{1em}
+
+\begin{center} 
+      {\large \bf Context-free Grammars} 
+\end{center}
+\vspace{1em}
+
+\begin{quote} \raggedleft
+			{\em Grammar:} 					\\
+			that part of the study of language which deals with \\
+			form and structure of words ({\em morphology}) 	\\
+			and with their customary arrangement in 	\\
+			phrases and sentences ({\em syntax}),		\\
+			usually distinguished from 			\\
+			the study of word meanings ({\em semantics}).	\\
+			{--\em Webster}
+      % New World Dictionary of the American Language, 2nd ed, 1978
+\end{quote}
+\vspace{1em}
+
+\subsubsection{Phrase Structure}
+
+Each programming language has some {\em symbols} reserved for fixed purposes.  
+In addition there are classes of symbols 
+such as identifiers and literal constants
+which the programmer can use to name higher level constructs of a program.  
+The input text must be a sequence of these symbols, 
+interspered with white space and comments.  
+Each programming language also uses {\em phrase names} to define its syntax.
+
+A {\em reduction\/} defines a phrase as a sequence of phrase names and
+symbols.  For English, the rule
+
+{\em sentence \la subject predicate .}
+
+\noindent
+indicates that a subject followed by a predicate followed by a period 
+is one allowed form of a sentence.  
+There are usually several reductions defining any one phrase name.  
+A reduction is a substitution rule.  
+Wherever a contiguous exact match to the right-hand side of such a rule 
+is found in a text, 
+the matched text can be removed and replaced 
+by the phrase name on the left side of the rule.  
+The act of substitution is called reduction.  
+The meta-symbol `\la' is called the {\em reduction arrow}.
+
+A {\em grammar\/} is a set of related reductions.  
+One (or more) of the phrase names is the {\em goal\/} of the grammar.  
+In English the goal is {\em sentence}.  
+In programming the goal is usually {\em program}.  
+If, by a sequence of substitutions, 
+the input text can be reduced to a goal, 
+the input is syntactically correct.  
+
+\stepcounter{table}					% simulate \table
+\newcounter{Reductions}[chapter]
+\setcounter{Reductions}{\value{table}}
+
+For example, 
+the propositional calculus provides combinations of boolean values.
+Table~\theReductions\ presents a grammar for propositions.
+There are ten reductions.  
+The symbol t represents true, f represents false.
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxx\=Propositionxx\=xxx\=\kill
+\>Proposition \>\la\> Disjunction                        \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction     \\
+\>Disjunction \>\la\> Conjunction                        \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation      \\
+\>Conjunction \>\la\> Negation                           \\
+\>Negation    \>\la\> $\neg$ Boolean                     \\
+\>Negation    \>\la\> Boolean                            \\
+\>Boolean     \>\la\> {\rm t}                            \\
+\>Boolean     \>\la\> {\rm f}                            \\
+\>Boolean     \>\la\> {\rm(} Disjunction {\rm)}
+\end{tabbing}
+\end{em}
+
+\begin{center}
+Table~\thetable: Proposition Grammar (mathematical form)
+\end{center}
+\end{samepage}
+
+A sequence of reductions is called the {\em parse}.
+Suppose the input text is f$\vee$t$\wedge\neg$f.  
+Here is a sequence of strings, each of which results from the former
+by the application of one substitution rule.  
+
+\begin{small}
+  \begin{quote} \raggedright
+    f $\vee$ t $\wedge \neg$ f\\
+    {\em Boolean} $\vee$ t $\wedge \neg$ f\\
+    {\em Negation} $\vee$ t $\wedge \neg$ f\\
+    {\em Conjunction} $\vee$ t $\wedge \neg$ f\\
+    {\em Disjunction} $\vee$ t $\wedge \neg$ f\\
+    {\em Disjunction} $\vee$ {\em Boolean} $\wedge \neg$ f\\
+    {\em Disjunction} $\vee$ {\em Negation} $\wedge \neg$ f\\
+    {\em Disjunction} $\vee$ {\em Conjunction} $\wedge \neg$ f\\
+    {\em Disjunction} $\vee$ {\em Conjunction} $\wedge \neg$ {\em Boolean}\\
+    {\em Disjunction} $\vee$ {\em Conjunction} $\wedge$ {\em Negation}\\
+    {\em Disjunction} $\vee$ {\em Conjunction}\\
+    {\em Disjunction}\\
+    {\em Proposition}
+  \end{quote}
+\end{small}
+
+\stepcounter{figure}				% simulate /figure
+\newcounter{SyntaxTree}[chapter]
+\setcounter{SyntaxTree}{\value{figure}}
+
+\noindent
+The grammar allows many different choices at each step.  
+Some of them are just a matter of order.
+The left-to-right order was chosen here because that is the way a parser
+will do it.
+Other choices were more serious. 
+If the wrong choice had been made the parse would have gotten stuck
+without reaching its goal {\em Proposition}.
+For example, the first time {\em Disjunction} appeared, it could
+have immediately been rewritten as {\em Proposition}.  
+See if you can find a few more places where the right decision was
+magically made.
+How to make the right choice (efficiently) is what automatic 
+parsing is all about.  
+
+The parse can be displayed as a {\em syntax tree}, 
+with the input at the leaves and the goal at the root.
+There are six
+symbols in the text, therefore one expects six leaves on the
+syntax tree.  The tree is shown in Figure~\theSyntaxTree.
+
+\begin{samepage}
+\begin{em}
+% --------------------- level 1 -------------------------------
+\begin{picture}(310,180)(40,40)
+\put(155,200){Proposition}
+\put(180,185){\vector(0,1){10}}     % from Disjunction
+
+% --------------------- level 2 -------------------------------
+\put(155,175){Disjunction}
+\put(170,160){\vector(1,1){10}}		  % from Disjunction
+\put(220,160){\vector(-4,1){40}}		% from Conjunction
+\put(180, 60){\vector(0,1){110}}		% from \vee
+
+% --------------------- level 3 -------------------------------
+\put(120,150){Disjunction}
+\put(140,135){\vector(1,1){10}}  		% from Conjunction
+
+\put(210,150){Conjunction}
+\put(235,135){\vector(1,1){10}}  		% from Conjunction
+\put(245, 60){\vector(0,1){85}}	  	% from \wedge
+\put(265,135){\vector(-2,1){20}}		% from Negation
+
+% --------------------- level 4 -------------------------------
+\put(110,125){Conjunction}
+\put(115,110){\vector(1,1){10}}		  % from Negation
+
+\put(190,125){Conjunction}
+\put(210,110){\vector(1,1){10}}		  % from Negation
+
+\put(255,125){Negation}
+\put(285, 60){\vector(0,1){60}}	 	  % from \neg
+\put(305,110){\vector(-2,1){20}}		% from Boolean
+
+% --------------------- level 5 -------------------------------
+\put(90,100){Negation}
+\put(110,85){\vector(0,1){10}}			% from Boolean
+
+\put(185,100){Negation}
+\put(210,85){\vector(0,1){10}}			% from Boolean
+
+\put(295,100){Boolean}
+\put(315,60){\vector(0,1){35}}			% from f
+
+% --------------------- level 6 -------------------------------
+\put(90,75){Boolean}
+\put(110,60){\vector(0,1){10}}			% from f
+
+\put(190,75){Boolean}
+\put(210,60){\vector(0,1){10}}			% from t
+
+% --------------------- level 7 -------------------------------
+\put(108,50){\rm f}
+\put(177,50){$\vee$}
+\put(208,50){\rm t}
+\put(243,50){$\wedge$}
+\put(281,50){$\neg$}
+\put(315,50){\rm f}
+
+\end{picture}
+\end{em}
+\end{samepage}
+
+\begin{center}
+Figure~\theSyntaxTree\\
+Syntax Tree for ${\rm f}\vee{\rm t}\wedge\neg{\rm f}$
+\end{center}
+
+One can express the same tree in linear functional notation, with the phrase
+names as functions and the subnodes as arguments.
+
+\vspace{1em}
+
+\noindent
+$Proposition(Disjunction(Disjunction(Conjunction(Negation(Boolean(
+{\rm f})))),\vee,$
+
+\noindent
+$Conjunction(Conjunction(Negation(Boolean({\rm t}))), \wedge, 
+Negation(\neg, Boolean({\rm f})))))$
+ 
+\vspace{1em}
+
+\subsubsection{Everyday Grammars for Programming Languages}
+
+In everyday use, for programming languages, 
+it is more convenient to use page layout to present the reductions.  
+All the rules defining a single phrase name are grouped together; 
+the right sides of the reductions are indented; 
+there is no need for the meta-symbol $\la$.  (For the moment,
+consider the rule names as comments.)
+
+\stepcounter{table}					% simulate \table
+\newcounter{PropositionGrammar}[chapter]
+\setcounter{PropositionGrammar}{\value{table}}
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxx\=xx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>{\underline{\rm \cfg\ rule}}  \>   \>{\rm \underline{rule name}}\\
+\>Proposition                                 \\
+\> \>Disjunction                      \> r0   \\
+\>Disjunction                                 \\
+\> \>Disjunction $\vee$ Conjunction   \> r1   \\
+\> \>Conjunction                      \> r2   \\
+\>Conjunction                                 \\
+\> \>Conjunction $\wedge$ Negation    \> r3   \\
+\> \>Negation                         \> r4   \\
+\>Negation                                    \\
+\> \>$\neg$ Boolean                   \> r5   \\
+\> \>Boolean                          \> r6   \\
+\>Boolean                                     \\
+\> \>{\rm t}                          \> r7   \\
+\> \>{\rm f}                          \> r8   \\
+\> \>{\rm(} Disjunction {\rm)}        \> r9 
+\end{tabbing}
+\end{em}
+
+\begin{center}
+Table~\thetable: Everyday Grammar for Propositions
+\end{center}
+\end{samepage}
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+\begin{enumerate}
+
+\item Build syntax trees for t, ((t)), and t$\wedge$f$\wedge$f.
+
+\item Relabel the nodes of the syntax tree with the rule names 
+instead of the phrase names.
+For example, the top node is named {\em r0} instead of {\em Proposition}.
+This is the form of tree most often used in compilers.
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+\subsubsection{Formal Definition of Context-free Grammars}
+
+\newcounter{GrammarDef}[chapter]
+\stepcounter{equation}
+\setcounter{GrammarDef}{\value{equation}}
+
+Grammars like this are called {\em context-free grammars} 
+(abbreviated as \cfg), 
+indicating that a phrase can be reduced independent of the
+symbols to its left and right in the text.  
+This section presents a formal definition.  
+The notation is largely conventional although the reader may wish 
+to turn to the section on Notation for details and some
+concepts peculiar to this book.  Formally, the 4-tuple
+
+\begin{samepage}
+\begin{equation}
+{\cal G} \eqldef \langle V_I, V_N, V_G, \Pi\rangle
+\label{GrammarDefinition}
+\end{equation}
+\index{$\cal G$}\index{$V_N$}\index{$V_T$}\index{$V_G$}\index{$\Pi$}
+
+\noindent
+consisting of a set of symbols, a set of phrase names, 
+a set of goals, and a set of reductions, 
+is a \cfg\ if it satisfies the following constraints:
+
+\begin{eqnarray*}
+     V                &\eqldef& V_I \cup V_N        \\
+     V_I \cap V_N     &\eqldef& \{\}				        \\
+     V_G	      &\subseteqdef& V_N			            \\
+     \Pi	      &\subseteqdef& V_N\times V^*
+\end{eqnarray*}
+\end{samepage}
+
+\noindent
+It is convenient to restrict the use of lower case Greek letters to
+represent sequences of symbols (strings).  In particular, $\lambda$ is
+used to represent the null string.
+
+The members of $\Pi$ are pairs: 
+each consisting of a phrase name on the left and a phrase on the right.  
+It is more mnemonic to write $p\la\alpha$ 
+instead of $\langle p,\alpha\rangle$ for members of $\Pi$
+even in the middle of formulas.  
+The arrow notation is consistent with the fact that $\la$ is a relation.
+
+For the example proposition grammar, the sets are:
+\begin{eqnarray*}
+     V_N   &=& \{Proposition,Disjunction,Conjunction,Negation,Boolean\}\\
+     V_I   &=& \{\vee,\wedge,\neg,{\rm t},{\rm f},{\rm (},{\rm )}\}	   \\
+     V_G	 &=& \{Proposition\}			                                   \\
+\end{eqnarray*}
+
+Usually one first writes down $\Pi$ and infers $V_I$, $V_N$, $V_G$ and, 
+perhaps, a unique goal symbol $G$.\index{grammar, inferred from rules} 
+The phrase names are the symbols used on the left of the rules of $\Pi$ 
+(sometimes called the {\em nonterminal vocabulary}).  
+The right sides of the rules use in addition all of
+the input symbols (sometimes called the {\em terminal vocabulary}).  
+By convention, the first rule of $\Pi$ defines a goal $G$ 
+and goals are used only on the left of 
+rules.
+
+Some new notation is required.  
+If $R$ is a set of pairs, ${\cal D}(R)$ is the domain 
+of $R$ and ${\cal R}(R)$ is the range of $R$. 
+If $B$ is a set of sequences of symbols, 
+then $B^{1/*}$ is the set of symbols found in any sequence in $B$.  
+In particular, $(A^*)^{1/*} = A$.
+$choice(S)$ is one element of $S$.
+Thus $S\ne \{\} \Rightarrow choice(S) \in S$.
+
+\begin{samepage}
+\begin{eqnarray*}
+   V_N        &\eqldef&    {\cal D}(\Pi)               \\
+   V_I        &\eqldef&    {\cal R}(\Pi)^{1/*} - V_N   \\
+   V_G        &\eqldef&    V - {\cal R}(\Pi)^{1/*}     \\
+   G          &\eqldef&    {\rm choice}(V_G)
+\end{eqnarray*}
+\end{samepage}
+
+\subsubsection{Definition of Language}
+
+The finite relation $\la$ on $V_N \times V^*$ can be 
+extended to $V^* \times V^*$ by allowing constant context.  That is, 
+
+\begin{center}
+$\alpha \in V^* \wedge \gamma \in V^* \wedge B\la\beta
+\Rightarrow \alpha B \gamma \la \alpha\beta\gamma$
+\end{center}
+
+\noindent
+Moreover, the relation $\la$ is transitive on $V^*\times V^*$, so 
+
+\begin{center}$\beta\la^*\alpha$\end{center}
+
+\noindent
+means there is a sequence of zero or more rewrites 
+reducing $\alpha$ to $\beta$.  
+If the sequence of rewriting rules is $\rho$, then
+
+\begin{center}$\beta{\stackrel{\rho}{\la}}\alpha$\end{center}
+
+\noindent means the same thing.
+
+The {\em language} defined by a grammar $\cal G$ is the 
+set of strings of input symbols that can be reduced to a goal.
+\begin{displaymath}
+{\cal L(G)}  \eqldef
+	\{\alpha\ |\ G\la^*\alpha) \wedge G \in V_G\} \cap V_I^*
+\end{displaymath}
+
+Since, as noted earlier, we can derive $\cal G$ from $\Pi$, it is also
+reasonable to write ${\cal L}(\Pi)$ to mean the same thing as $\cal L(G)$.
+
+\subsubsection{Left-to-right Application}
+
+The definition of language does not specify the order in which the 
+reductions are to be applied.  
+In fact processing is always left-to-right for a number of reasons.  
+There is a {\em parse stack\/} $\sigma$ and {\em input text\/} $\tau$.
+Input symbols are stacked until a phrase is on the top of the stack.  
+Then the phrase is popped off and replaced with its phrase name.  
+This continues until all the input is consumed and 
+the parse stack contains only a goal symbol.
+
+Left-to-right order is required by the following 
+alternative definition of language.  
+There is a predicate \sform\ which can be used to prove a string is
+in the language defined by the grammar.
+
+\stepcounter{table}					% simulate \table
+\newcounter{reductions}[chapter]
+\setcounter{reductions}{\value{table}}
+\begin{eqnarray*}
+  G \in V_G &\Rightarrow& {\sform}(G, \lambda)                \\
+  B\la\beta \in \Pi \wedge {\sform}(\sigma B, \tau) 
+      &\Rightarrow& {\sform}(\sigma\beta, \tau)               \\
+  a \in V_I \wedge {\sform}(\sigma {\rm a}, \tau)
+      &\Rightarrow& {\sform}(\sigma, {\rm a}\tau)             \\
+  {\sform}(\lambda, \tau) &\Rightarrow& \tau \in \cal L(G)
+\end{eqnarray*}
+\begin{center}
+Table~\thetable: Left-to-right Reduction Application
+\end{center}
+
+The first implication defines the goal.  
+The second implication applies a reduction on the top of the parse stack.  
+The third implication shifts a symbol 
+from the input text and pushes it on the top of the stack.  
+The {\em shift/reduce sequence} is the reverse of the steps of the proof.  
+Repeating the parse of ${\rm f}\vee{\rm t}\wedge\neg{\rm f}$:
+
+\stepcounter{table}					% simulate \table
+\newcounter{GrammarProofAgain}[chapter]
+\setcounter{GrammarProofAgain}{\value{table}}
+\begin{tabbing}{ll}
+\quad\quad\quad\quad\=
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>\quad \underline{\em predicate}               \>\underline{\em rule}      \\
+\>$\sform(Proposition,\lambda)$                                             \\
+\>$\sform(Disjunction,\lambda)$                                \>$^{r0}$    \\
+\>$\sform(Disjunction\vee Conjunction, \lambda)$               \>$^{r1}$    \\
+\>$\sform(Disjunction\vee Conjunction \wedge Negation, \lambda)$ \>$^{r3}$  \\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg Boolean, \lambda)$ \>$^{r5}$\\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg\rm f, \lambda)$    \>$^{r8}$\\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg,\rm f)$\>$^{shift\ \rm f}$  \\
+\>$\sform(Disjunction\vee Conjunction\wedge,\neg\rm f)$ \>$^{shift\ \neg}$  \\
+\>$\sform(Disjunction\vee Conjunction,\wedge\neg\rm f)$ \>$^{shift\ \wedge}$\\
+\>$\sform(Disjunction\vee Negation,\wedge\neg\rm f)$              \>$^{r4}$ \\
+\>$\sform(Disjunction\vee Boolean,\wedge\neg\rm f)$               \>$^{r6}$ \\
+\>$\sform(Disjunction\vee\rm t,\wedge\neg f)$                     \>$^{r7}$ \\
+\>$\sform(Disjunction\vee,\rm t\wedge\neg f)$         \>$^{shift\ \rm t}$   \\
+\>$\sform(Disjunction,\vee\rm t\wedge\neg f)$            \>$^{shift\ \vee}$ \\
+\>$\sform(Conjunction,\vee\rm t\wedge\neg f)$                     \>$^{r2}$ \\
+\>$\sform(Negation,\vee\rm t\wedge\neg f)$                        \>$^{r4}$ \\
+\>$\sform(Boolean,\vee\rm t\wedge\neg f)$                         \>$^{r6}$ \\
+\>$\sform(\rm f,\vee t\wedge\neg f)$                              \>$^{r8}$ \\
+\>$\sform(\rm\lambda,f\vee t \wedge\neg f)$          \>$^{shift\ \rm f}$
+\end{tabbing}
+\begin{center}
+Table~\thetable: 
+Proof of, and shift/reduce sequence for,
+$\sq{\rm f}\vee{\rm t}\wedge\neg{\rm f}\sq \in \cal L(G)$
+\end{center}
+
+The {\em parsing problem\/} is finding a shift/reduce sequence given the
+\cfg\ and an input text.
+
+\subsection{\cfg\ defects}
+
+As it turns out, a particular \cfg\ may be defective.  
+Having extraneous symbols in the \cfg\ is one form of defect.  
+Another is having a property that will defeat some tool that is going
+to be used.  
+
+Some new notation is useful.
+For a relation $R$ and set $S$, the \mbox{\em domain restriction} of 
+$R$ to $S$ is $S \Dstrict R \eqldef (S \times \universe) \cap R$ 
+and the \mbox{\em range restriction} of $R$ to $S$
+is $R\Rstrict S \eqldef R \cap (\universe\times S)$.
+
+The following table lists some properties which may, or may not, be
+considered requirements.  For all $A$ in $V_N$:
+
+\vspace{1em}
+
+\stepcounter{table}					% simulate \table
+\newcounter{GrammarLimits}[chapter]
+\setcounter{GrammarLimits}{\value{table}}
+
+\begin{samepage}
+\quad\quad\quad\quad$
+\begin{array}{lll}
+{\rm size}(V_G) = 1 
+                && \mbox{unique goal}				\\
+\Pi\Rstrict\{\lambda\}=\{\}
+		&& \mbox{no erasure}				\\
+A\nla^{\scriptscriptstyle+}A\alpha
+		&& \mbox{no left recursion}			\\
+A\nla^{\scriptscriptstyle+}A
+		&& \mbox{no circularity}			\\
+\{\alpha\ |\ A\la^*\alpha\}\cap V_I^*\not=\{\}
+		&& \mbox{no useless phrase names}		\\
+{\cal L}({\cal G})^{1/*} = V_I
+		&& \mbox{no useless symbols in V}
+\end{array}
+$
+\end{samepage}
+
+\begin{center}
+Table \thetable: Possible Restrictions on \cfg{s}
+\end{center}
+
+\subsubsection{Transforming \cfg{s}}
+
+\noindent A grammar can be transformed by treating rules as text.  
+A reduction can be applied to the right hand side of another reduction or, 
+inversely, a phrase can be substituted for its phrase name.
+Because a \cfg\ allows context-free substitution, 
+one can see that no new strings are introduced into the language 
+by either of these kinds of transformations. 
+
+Let $\Pi$ be a given set of rules. 
+Then for the transformations $\cal T$ below, 
+${\cal L}({\cal T}(\Pi)) ={\cal L}(\Pi)$.  
+Doing a transformation may introduce other opportunites 
+for transformations to clean up $\Pi$.  
+Sometimes a new symbol $X \not\in V_N$ must be introduced.
+
+\vspace{1em}
+
+\stepcounter{table}					% simulate \table
+\newcounter{GrammarTx}[chapter]
+\setcounter{GrammarTx}{\value{table}}
+
+\begin{samepage}
+\begin{tabbing}{lll}
+xxxxxxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\underline{\em transform}
+  \>\quad\underline{\em condition} 
+  \>\quad\underline{${\cal T}(\Pi)$}                       \\
+substitute
+  \> $A\leftarrow\alpha B\gamma \in \Pi \wedge B \leftarrow\beta \in \Pi$
+  \> $\Pi \cup \{A\leftarrow\alpha\beta\gamma\}$          \\
+circular
+  \> $A\leftarrow A \in \Pi$
+  \> $\Pi - \{ A\leftarrow A \}$                         \\
+useless
+  \> $A\leftarrow \alpha \in \Pi \wedge  
+     A \not\in V_G \cap {\cal R}(\Pi)^{1/*}$
+  \> $\Pi - \{ A\leftarrow \alpha \}$                    \\
+shorten rule
+  \> $A\leftarrow\beta b \in \Pi$
+  \> $\Pi -\{A\leftarrow\beta b\} \cup 
+           \{A\leftarrow X b, X\leftarrow \beta\}$       \\
+fuse rules
+  \> $A\leftarrow\beta \in \Pi \wedge 
+      B\leftarrow\beta \in \Pi$
+  \> see fusion discussion below                         \\
+remove rule
+  \> $A\leftarrow \beta \in \Pi$
+  \> see removal discussion below
+\end{tabbing}
+\end{samepage}
+
+\begin{center}
+Table \thetable:  \cfg\ Transformations
+\end{center}
+
+\subsubsection{Fusion}
+\noindent Fusion will be significant for the discussion of finite 
+automata.  
+The object is to combine rules with different phrase names but
+the same phrase definition.
+The first step is to add a new rule replacing both of the rules
+with the identical right hand sides.
+
+$\Pi \cup \{X\la\beta\} 
+        - \{A\la\beta, B\la\beta\}$
+
+\noindent Then each rule in $\Pi$ using $A$ or $B$ on the right hand side 
+must be duplicated, with $A$ or $B$ replaced by $X$.  That is, for each 
+$C\leftarrow\alpha A\gamma \in \Pi$
+
+$\Pi = \Pi \cup \{C\leftarrow\alpha X \gamma \}$
+
+\noindent and similiarly for $B$.  
+There is an obvious generalization for three or more identical right hand
+sides.
+
+\subsubsection{Removal}
+
+Any rule can be removed from the grammar by systematically
+back substituting its right-hand-side for its phrase name.
+The new $\Pi$ first substitutes $\beta$ for $A$ in all rules 
+$B\leftarrow \alpha A \gamma$, adding the new rules to the \cfg,
+
+$\Pi = \Pi \cup \{B\leftarrow \alpha\beta\gamma\}$
+
+\noindent then removes the rule itself
+
+$\Pi = \Pi \cup \{A\leftarrow\beta \}$
+
+\subsubsection{Erasure Removal}
+
+When $\beta$ is $\lambda$, we have erasure.
+Avoiding erasure is a restriction of convenience for many
+grammar-oriented tasks; 
+on the other other hand, 
+erasure is useful for conciseness and representing semantics.  
+The problem with erasure for parsers is that a phrase name can be 
+created out of nothing.  
+This makes parsing decisions at least locally nondeterministic.  
+
+The transformation above might create an erasing rule, 
+so an iteration is required to clean all 
+erasure\footnote{$\ldots$ unless the empty string itself is in the
+language.} out of the \cfg.  
+The following iteration for an equivalent erasure-free set 
+of rules $\Pi'$ converges rapidly.
+
+\stepcounter{table}					% simulate \table
+\newcounter{Erasure}[chapter]
+\setcounter{Erasure}{\value{table}}
+\begin{samepage}
+\begin{center}$
+\begin{array}{l}
+    \Pi_0 = \Pi                                                  \\
+    \Pi_{i+1} = \Pi_i \cup \{ 
+         B \la\alpha\gamma\ |\  
+         A \la \lambda \in \Pi_i \wedge
+         B \la \alpha A\gamma \in \Pi_i\}                        \\
+ \Pi_\infty = \stackrel{\rm lim}{\scriptscriptstyle i\rightarrow\infty}\Pi_i  \\
+                                                               \\
+    \Pi' = (\Pi_\infty \Rstrict {\scriptstyle\overline{\{\lambda\}}})
+    \cup (V_G\Dstrict \Pi_\infty)
+
+\end{array}
+$
+\end{center}
+
+\begin{center}
+Table \thetable: $\lambda$ Removal
+\end{center}
+\end{samepage}
+
+\subsubsection{Substitute}
+Suppose one systematically back-substitutes the grammar for
+propositions, starting with {\em Boolean}.  
+After the first stage there are six rules for {\em Negation} 
+and the phrase name {\em Boolean} has been eliminated.  
+The new grammar describes the same language as before.
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxx\=Propositionxx\=xxx\=\kill
+\>Proposition \>\la\> Disjunction                        \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction     \\
+\>Disjunction \>\la\> Conjunction                        \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation      \\
+\>Conjunction \>\la\> Negation                           \\
+\>Negation    \>\la\> $\neg$ {\rm t}                     \\
+\>Negation    \>\la\> $\neg$ {\rm f}                     \\
+\>Negation    \>\la\> $\neg$ {\rm(} Disjunction {\rm)}   \\
+\>Negation    \>\la\> {\rm t}                     \\
+\>Negation    \>\la\> {\rm f}                     \\
+\>Negation    \>\la\> {\rm(} Disjunction {\rm)}   \\
+\end{tabbing}
+\end{em}
+\end{samepage}
+
+\noindent So far one phrase name has been eliminated 
+and the size of the rule set increased by one.  
+One can continue in this way to remove {\em Negation} 
+and {\em Conjunction}, ending with more rules and only two phrase names.  
+The reader can form an opinion as to which grammar is preferable.  
+The technique will have many uses.
+
+\subsubsection{Alternative Notations}
+
+\begin{quote}\raggedleft
+					The syntax will be described 	\\
+				with the aid of metalinguistic formulae.\\
+		Their interpretation is best explained by an example.	\\
+					--- {\em Report on Algol 60}
+% Revised Report on Algol 60, section 1.1
+\end{quote}
+
+\noindent
+There are other notations for grammars.  
+In all of them there are {\em meta-symbols}\index{meta-symbol} 
+which must be distinguished from the input symbols and the phrase names.  
+Since white space is rarely significant in programming languages, 
+the everyday grammar (cleverly) uses white space for the meta-symbols, 
+thus avoiding the conflict.  
+In general, this trick is insufficient.
+
+The earliest popular form of context-free grammar, called \tname{bnf}, 
+appeared in the definition of \tname{algol 60}.  
+\tname{bnf} used the compound symbol `{\tt::=}' where $\la$ is used above; 
+phrase names were bracketed; the reserved words were bold face; 
+and the symbol $|$ was used to separate alternative definitions 
+for a single phrase name.  Here is an excerpt:
+
+\begin{samepage}
+\begin{center}
+\begin{tabbing}
+xxxxxxxxxxxxxx\=\kill
+$\langle$Boolean secondary$\rangle$ {\tt::=} 
+$\langle$Boolean primary$\rangle$ 
+$|$ $\neg$ $\langle$Boolean primary$\rangle$ \\
+
+$\langle$Boolean factor$\rangle$ {\tt::=}
+$\langle$Boolean secondary$\rangle$  
+$|$ $\langle$Boolean factor$\rangle$ $\wedge$ 
+$\langle$Boolean secondary$\rangle$  \\
+
+$\langle$Boolean term$\rangle$ {\tt::=}
+$\langle$Boolean factor$\rangle$  
+$|$ $\langle$Boolean term$\rangle$ $\vee$ 
+$\langle$Boolean factor$\rangle$
+\end{tabbing}
+\end{center}
+\end{samepage}
+
+The \tname{iso} \tname{c} Standard uses a notation 
+similar to the everyday notation.  
+Phrase names are in italic font, 
+may be hyphenated, and are followed by a `:' when defining a rule.  
+The input symbols are set in mono-width font.
+Two extensions are used, `one of' introduces a list of phrases, 
+and $_{opt}$ follows an optional item in a phrase.  Here is an excerpt:
+
+\begin{em}
+\begin{tabbing}
+xxxxxxxx\=\kill
+logical-AND-expression:                                  \\
+\>inclusive-OR-expression                                \\
+\>logical-AND-expression \verb+&&+ inclusive-OR-expression  \\
+\\
+logical-OR-expression:                                   \\
+\> logical-AND-expression                                \\
+\> logical-OR-expression \verb+||+ logical-AND-expression
+\end{tabbing}
+\end{em}
+
+Another practical grammar notation arises from the need to provide 
+meta-symbols and also convenient computer input.  
+The previous trick of using white space does not generalize, 
+for instance to using grammars to describe grammars themselves,
+or when white space must be described 
+or when rules are too long to place on one line, 
+or when typesetting is not convenient.  
+The requirement that $V_I\cap V_N = \{\}$ prevents grammars 
+from describing elements of $V_N$.
+
+One solution is to ignore white space,
+to quote input symbols with `\sq', 
+use identifiers for phrase names, and leave 
+everything else for meta-use\index{meta-symbol}.  
+The result of these changes is a free-form notation 
+similar to that for modern programming languages.  
+The meta-symbol indicating ``is defined as'' becomes `{\tt=}';
+left-hand sides are repeated as often as necessary; 
+``end of rule'' is indicated by `{\tt;}'.
+
+\stepcounter{table}					% simulate \table
+\newcounter{PropositionsAgain}
+\setcounter{PropositionsAgain}{\value{table}}
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxx\=xxxxxxxxxxxx\=xx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>Proposition\>=\>Disjunction ;                                \\
+\>Disjunction\>=\>Disjunction \sq$\vee$\sq\ Conjunction ;      \\
+\>Disjunction\>=\>Conjunction ;                                \\
+\>Conjunction\>=\>Conjunction \sq$\wedge$\sq\ Negation ;       \\
+\>Conjunction\>=\>Negation ;                                   \\
+\>Negation\>=\>\sq$\neg$\sq\ Boolean ;		                   \\
+\>Negation\>=\>Boolean ;		                               \\
+\>Boolean\>=\>\sq t\sq ;                                       \\
+\>Boolean\>=\>\sq f\sq ;                                       \\
+\>Boolean\>=\>\sq(\sq\  Disjunction \sq)\sq  ;
+\end{tabbing}
+\end{tt}
+\begin{center}
+Table~\thetable: Free-form Proposition \cfg\
+\end{center}
+\end{samepage}
+
+The notation in Table~\thePropositionGrammar\ allowed $V_N$ and
+$V_I$ to be inferred from a concrete representation of $\Pi$.  
+The inference required global information: 
+one could not know if a symbol was an input or a phrase name 
+until the entire set of rules had been examined 
+({\tt t} and {\tt f}, for example, 
+are input symbols only because they 
+fail to appear on the left of a defining rule).
+
+In the new notation each rule stands by itself and inputs 
+can be immediately distinguished from phrase names.  
+There are three special space-saving phrase names --- 
+{\tt Letter}, {\tt Digit} and {\tt Any} --- which are grammatical 
+builtins meaning any letter, any digit and any (printable) character.  
+
+\subsubsection{Self-describing \cfg}
+
+\stepcounter{table}					% simulate \table
+\newcounter{GrammarGrammar}[chapter]
+\setcounter{GrammarGrammar}{\value{table}}
+
+Ignoring white space, the new notation can be used to describe itself as in
+Table~\theGrammarGrammar.
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxx\=xxxxxxxx\=xxx\=\kill
+\>Grammar \>=\>Rules;                                           \\
+\>Rules   \>=\>Rules Rule;                                      \\
+\>Rules   \>=\>;                                                \\
+\>Rule    \>=\>Name \sq=\sq\ Phrase \sq;\sq;                    \\
+\>Phrase  \>=\>Phrase Symbol;                                   \\
+\>Phrase  \>=\>;                                                \\
+\>Symbol  \>=\>Name;                                            \\
+\>Symbol  \>=\>Input;                                           \\
+\>Name    \>=\>Letter;                                          \\
+\>Name    \>=\>Name Letter;                                     \\
+\>Name    \>=\>Name Digit;                                      \\
+\>Input   \>=\>\sq\sq\sq\ Any \sq\sq\sq;
+\end{tabbing}
+\end{tt}
+\begin{center}
+Table~\thetable: A Self-describing \tname{cfg}
+\end{center}
+\end{samepage}
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item What is $V_I$ in the grammar-grammar in 
+Table~\theGrammarGrammar?
+
+\item Use the \cfg\ in
+Table~\theGrammarGrammar\ to parse itself.  Actually, it is enough
+just to parse the rule that describes itself
+ --- leave big parses to the computer.
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+
+\end{document}
+
+

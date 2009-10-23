@@ -1,0 +1,177 @@
+<!-- FILE:    notation/numbers.html
+  -- PURPOSE: Evaluating Notation
+  -- MODS:    McKeeman -- 1999.08.20 -- revised for Spring 2000
+  -->
+
+<html>
+<head>
+<title>Evaluating Notation</title>
+</head>
+
+<body bgcolor="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<table>
+<tr><p></tr>
+<tr><td width=80></td><td width=500>
+
+<h2>Evaluating Notation</h2>
+
+<p>We use numbers in many ways, to measure, to count and to play.  It is  perhaps
+not surprising that different notations suit different uses.  The overarching
+issue is to isolate the properties that make 
+  <B>one notation better than another</B>. 
+Numbers are simple enough to serve as a basis for such insights.</p>
+
+<h3>Roman Numerals</h3>
+
+<p>For children, Roman numerals are very attractive.  Three symbols (I, V
+and X) allow all the numbers a child needs.  The concept that I + I is
+II follows very nicely from the nannie's finger counting techniques.</p>
+
+<p>But, as an accounting notation (all Roman numerals really ever had
+to deliver), the concept fails to scale.  New symbols would need to be
+added indefinitely as the size of the counted quantities increase (L,
+C, D, M, ...).  But the Romans stopped at M.  Then they began to hack.
+Using an overbar meant multiply by M.  Again the concept did not
+scale.  They could have used two overbars to mean multiply by over-bar
+M, but there is no record of such usage.  Perhaps Arabic (some say <a
+href =
+http://home.c2i.net/greaker/comenius/9899/indiannumerals/india.html>Hindu</a>)
+numerals arrived before the computing environment became hostile to
+Roman numerals. (Note: without a notation for zero, Hindu numerals
+failed to scale in much the same way as Roman numerals.</p>
+
+<p>
+What is notational niche that puts the year a building was constructed
+written in Roman Numerals and engraved in granite?  I offered this course
+in year <b>MM</b>.  The previous year was 
+<b>MCMXCIX</b> which has the beauty of a cryptogram and exhibits the
+dangers of Y2K for Roman accountants. Is this niche somehow related to
+ego or community monuments, or is it merely tradition?  Is there a
+scientific way to approach the issue?
+</p>
+
+<p> The talley sheet, a mutant or perhaps a throwback, has survived in another
+niche.  
+
+<center>
+<img src="counting.jpg">
+</center>
+
+The tally sheet is surely not surviving on the ego needs of people.  But can
+one give a convincing argument that talley sheets will survive the battering
+of handheld devices of all kinds?
+</p>
+
+<p>One can, as many 
+<a href="http://en.wikipedia.org/wiki/Roman_numerals">web pages</a> do, 
+explain Roman Numerals in prose.  
+Here is a <a href="roman-grammar.html">grammar</a> that 
+describes Roman Numerals up to C.
+</p>
+ 
+<h3>Arabic numbers</h3>
+<p>Here is a  <a href="decimal-grammar.html">grammar</a> that describes
+decimal integers.</p>
+
+<h3>Comparison of decimal and Roman number systems.</h3>
+
+<p>Supposing we limit our concern to positive integer arithmetic (the same data
+described by Roman Numerals).  Can we quantitatively compare decimal integers
+and Roman numerals?  What measures ought we to apply?  Here are some
+candidates.
+<ul>
+<li>density (cost in ink, or penstrokes, or paper).
+<li>characters vs. size of represented integer.
+<li>average time for the eye to do a "&lt;" operation between two integers.
+<li>average time for a hand addition of two integers.
+<li>average time for a hand subtraction of two integers.
+<li>average time for a hand multiplication of two integers.
+<li>average time for a hand division of two integers.
+<li>average time to evaluate a rational expression (gcd, proper and improper
+fractions).
+</ul>
+</p>
+
+<p>The timed examples might be approximated by writing arithmetic methods (in
+    MATLAB) which accept two <BIG><tt>String</tt></BIG> inputs and 
+    create a <BIG><tt>String</tt></BIG>
+output.   Once implemented, the algorithm could form the basis of estimating
+hand computation costs.  Of course, such methods surely exist somewhere on the
+web...</p>
+
+<p>Would any such an evaluation lead to deeper understanding?  Before expending
+much effort, one might like to explore the <em>history of decimal integers</em>
+to determine what kinds of computation were being done by the early adopters.
+Was zero important?  Was the introduction of the decimal point a deciding
+factor?  Was scaling up an important factor?
+
+  
+<h3>Binary numbers (of all kinds)</h3>
+
+<p>Perhaps one has left the comparisons above with a tinge of pride in the clever
+decimal number system that has won, and should have won, the battle for
+survival in everyday computation.  But, wait!  Most computation these days is
+done in binary!  And perhaps you have been treated to hexadecimal.  Here is a
+bit of a core dump that happened to be lurking in my home directory.
+<pre>
+0000000  6f43 6572 0002 002c 0003 0000 0000 0000
+0000020  0001 0000 000b 0000 656e 7374 6163 6570
+0000040  7400 632e 2020 2020 2020 2020 2020 2020
+0000060  0005 7369 2e63 0d73 0003 0000 0000 0000
+0000100  1c10 646e 0000 0000 0210 0000 0000 0000
+0000120  2000 0000 0000 0000 0004 7369 2e63 0d73
+</pre>
+
+One can write <a href=binary-grammar.html>grammars</a> for these two
+modern number systems.</p>
+
+<p>Here the comparison of interest is between binary and decimal integers.
+Is it as simple as computers counting on two fingers versus our ten?
+Is perhaps tradition, as in Roman-decorated cornerstones, the controlling
+factor?  Would decimal win <em>any</em> of the comparisons described above
+for Roman Numerals?  At least we can say that 10 unites us across cultures;
+even oriental cultures stick arabic digits in amongst ideographic symbols.
+Alphabet no.  Digits yes.  Is there anything deep lurking here?</p>
+
+
+<h3>Base 12 (and other bases)</h3>
+
+<p>Ten is such a mess.  Not enough factors.  Twelve is better.  So, why not use
+duodecimal?  <a href = http://www.psinvention.com/zoetic/base12.htm>Many have
+proposed it</a>, some <a href =
+http://www.treasure-troves.com/math/Duodecimal.html>famous</a>.  What is the
+history of this (so far) failing insight?  If we had twelve fingers, would
+decimal seem like a crazy affectation?</p>
+
+<h3>The Point of All This</h3>
+
+<p>Integers are pretty simple.  They have a familiar history.  We think we
+understand them.  It is clear that decimal positional notation was a
+fundamental step in the development of quantitative science.</p>
+
+<p>We can use decimal numbers for "practice" evaluation 
+before taking on more subtle notations.  
+The question is: can we add any depth to the rather shallow
+reasoning on this web page?  
+<B>Can we make a quantitative and convincing argument
+describing just what decimal integers have done for us intellectually?</B>  
+Can we step back far enough so that we can see the world with and without 
+decimal integers or are they so integrated into our psyche that we, 
+poor humans, cannot think without them, and therefore about them?
+</p>
+
+<hr>
+Created: <i>Friday, August 20, 1999</i><br>
+Last modified: <i>
+Thu May 22 08:58:33 EDT 2003
+</i><br>
+email: McKeeman{at}MathWorks{dot}COM<br>
+
+<!-- the following table end provides margins and textbook like appearance -->
+</td><td width=50></td></tr>
+</table>
+
+</body>
+</html>

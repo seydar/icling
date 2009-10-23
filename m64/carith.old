@@ -1,0 +1,319 @@
+/*
+ * FILE:    carith.c
+ * PURPOSE: Basic utility to provide hardware int arithmetic
+ * METHOD:  2's complement arithmetic
+ * USAGE:   res = carith(op, opd)
+ *          op: one of '+' '-' '~' '!'
+ *          res = carith(opd1, op, opd2)
+ *          op: one of '+' '-' '*' '/' '%' '&' '|' 
+ *          class(opd): one of int8 uint8... int64 uint64
+ *          result is always 32 or 64 bits.
+ *
+ * COPYRIGHT W.M.McKeeman 2006.  You may do anything you like with 
+ * this file except remove or modify this copyright.
+ */
+
+# include <stdio.h>
+# include "mex.h"
+
+typedef unsigned           char u8_t;
+typedef signed             char s8_t;
+typedef unsigned     short int u16_t;
+typedef signed       short int s16_t;
+typedef unsigned           int u32_t;
+typedef signed             int s32_t;
+typedef unsigned long long int u64_t;
+typedef signed   long long int s64_t;
+
+/* prefix operators in C */
+static s32_t 
+sprefix32(char op, s32_t opd) {
+  s32_t res;
+  switch (op) {
+  case '+': res =  opd; break;
+  case '-': res = -opd; break;
+  case '~': res = ~opd; break;
+  case '!': res = !opd; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static u32_t 
+uprefix32(char op, u32_t opd) {
+  u32_t res;
+  switch (op) {
+  case '+': res =  opd; break;
+  case '-': res =  opd; break;
+  case '~': res = ~opd; break;
+  case '!': res = !opd; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static s64_t 
+sprefix64(char op, s64_t opd) {
+  s64_t res;
+  switch (op) {
+  case '+': res =  opd; break;
+  case '-': res = -opd; break;
+  case '~': res = ~opd; break;
+  case '!': res = !opd; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static u64_t 
+uprefix64(char op, u64_t opd) {
+  u64_t res;
+  switch (op) {
+  case '+': res =  opd; break;
+  case '-': res =  opd; break;
+  case '~': res = ~opd; break;
+  case '!': res = !opd; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+/* infix operators in C */
+static s32_t 
+sinfix32(s32_t opd1, char op, s32_t opd2) {
+  s32_t res;
+  switch (op) {
+  case '+': res = opd1+opd2; break;
+  case '-': res = opd1-opd2; break;
+  case '*': res = opd1*opd2; break;
+  case '/': res = opd1/opd2; break;
+  case '%': res = opd1%opd2; break;
+  case '&': res = opd1&opd2; break;
+  case '|': res = opd1|opd2; break;
+  default: printf("op=%d\n", op);mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static u32_t 
+uinfix32(u32_t opd1, char op, u32_t opd2) {
+  u32_t res;
+  switch (op) {
+  case '+': res = opd1+opd2; break;
+  case '-': res = opd1-opd2; break;
+  case '*': res = opd1*opd2; break;
+  case '/': res = opd1/opd2; break;
+  case '%': res = opd1%opd2; break;
+  case '&': res = opd1&opd2; break;
+  case '|': res = opd1|opd2; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static s64_t 
+sinfix64(s64_t opd1, char op, s64_t opd2) {
+  s64_t res;
+  switch (op) {
+  case '+': res = opd1+opd2; break;
+  case '-': res = opd1-opd2; break;
+  case '*': res = opd1*opd2; break;
+  case '/': res = opd1/opd2; break;
+  case '%': res = opd1%opd2; break;
+  case '&': res = opd1&opd2; break;
+  case '|': res = opd1|opd2; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+static u64_t 
+uinfix64(u64_t opd1, char op, u64_t opd2) {
+  u64_t res;
+  switch (op) {
+  case '+': res = opd1+opd2; break;
+  case '-': res = opd1-opd2; break;
+  case '*': res = opd1*opd2; break;
+  case '/': res = opd1/opd2; break;
+  case '%': res = opd1%opd2; break;
+  case '&': res = opd1&opd2; break;
+  case '|': res = opd1|opd2; break;
+  default: mexErrMsgTxt("unknown operator");
+  }
+  return res;
+}
+
+void
+mexFunction(
+  int nlhs, mxArray *plhs[],
+  int nrhs, const mxArray *prhs[]
+) {
+  int len, cid, bits;
+  int output;
+  const int dims[] = {1,1};
+  char toType[8];
+  int c,d;
+
+  /* ops */
+  char op;
+  /* possible operands */
+  s32_t slft32;
+  s32_t srgt32;
+  u32_t ulft32;
+  u32_t urgt32;
+  s64_t srgt64;
+  s64_t slft64;
+  u64_t urgt64;
+  u64_t ulft64;
+  /* possible results */
+  s32_t sres32;
+  u32_t ures32;
+  s64_t sres64;
+  u64_t ures64;
+  
+  if (nlhs > 1) mexErrMsgTxt("bad call: use one output");
+  if (nrhs < 2 || nrhs > 3) mexErrMsgTxt("bad call: op and one or two args");
+
+  /* prefix operators */
+  if (nrhs == 2) {
+    if (!mxIsChar(prhs[0])) mexErrMsgTxt("bad call: op must be char");
+    len = (mxGetM(prhs[1]) * mxGetN(prhs[1]));
+    if (len != 1)  mexErrMsgTxt("bad call: use scalar arg)");
+    op = (char)*(mxChar*)mxGetData(prhs[0]);
+    d = 0; /* make irrelevant */
+    
+    /* capture operand */
+    if      (mxIsInt8(prhs[1]))  {
+      c=1; srgt32 = *(s8_t*)mxGetData(prhs[1]);
+    } else if (mxIsUint8(prhs[1])) {
+      c=1; srgt32 = *(u8_t*)mxGetData(prhs[1]);
+    } else if (mxIsInt16(prhs[1])) {
+      c=1; srgt32 = *(s16_t*)mxGetData(prhs[1]);
+    } else if (mxIsUint16(prhs[1])) {
+      c=1; srgt32 = *(u16_t*)mxGetData(prhs[1]);
+    } else if (mxIsInt32(prhs[1])) {
+      c=1; srgt32 = *(s32_t*)mxGetData(prhs[1]);
+    } else if (mxIsUint32(prhs[1])) {
+      c=2; urgt32 = *(u32_t*)mxGetData(prhs[1]);
+    } else if (mxIsInt64(prhs[1])) {
+      c=3; srgt64 = *(s64_t*)mxGetData(prhs[1]);
+    } else if (mxIsUint64(prhs[1])) {
+      c=4; urgt64 = *(u64_t*)mxGetData(prhs[1]);
+    } else mexErrMsgTxt("bad call: provide int operand");
+    
+    /* execute prefix operator */
+    switch(c) {
+    case 1: sres32 = sprefix32(op, srgt32); break;
+    case 2: ures32 = uprefix32(op, urgt32); break;
+    case 3: sres64 = sprefix64(op, srgt64); break;
+    case 4: ures64 = uprefix64(op, urgt32); break;
+    default: mexErrMsgTxt("internal error 1");
+    }
+    
+  /* binary operators */
+  } else {
+    if (!mxIsChar(prhs[1])) mexErrMsgTxt("bad call: op must be char");
+    len = (mxGetM(prhs[0]) * mxGetN(prhs[0]));
+    if (len != 1)  mexErrMsgTxt("bad call: use scalar arg)");
+    len = (mxGetM(prhs[2]) * mxGetN(prhs[2]));
+    if (len != 1)  mexErrMsgTxt("bad call: use scalar arg)");
+    op = (char)*(mxChar*)mxGetData(prhs[1]);
+
+    /* capture operands */
+    if        (mxIsInt8(prhs[0]))  {
+      c=1; slft32 = *(s8_t*)mxGetData(prhs[0]);
+    } else if (mxIsUint8(prhs[0])) {
+      c=1; slft32 = *(u8_t*)mxGetData(prhs[0]);
+    } else if (mxIsInt16(prhs[0])) {
+      c=1; slft32 = *(s16_t*)mxGetData(prhs[0]);
+    } else if (mxIsUint16(prhs[0])) {
+      c=1; slft32 = *(u16_t*)mxGetData(prhs[0]);
+    } else if (mxIsInt32(prhs[0])) {
+      c=1; slft32 = *(s32_t*)mxGetData(prhs[0]);
+    } else if (mxIsUint32(prhs[0])) {
+      c=2; ulft32 = *(u32_t*)mxGetData(prhs[0]);
+    } else if (mxIsInt64(prhs[0])) {
+      c=3; slft64 = *(s64_t*)mxGetData(prhs[0]);
+    } else if (mxIsUint64(prhs[0])) {
+      c=4; ulft64 = *(u64_t*)mxGetData(prhs[0]);
+    } else mexErrMsgTxt("bad call: provide int operand");
+    
+    if        (mxIsInt8(prhs[2]))  {
+      d=1; srgt32 = *(s8_t*)mxGetData(prhs[2]);
+    } else if (mxIsUint8(prhs[2])) {
+      d=1; srgt32 = *(u8_t*)mxGetData(prhs[2]);
+    } else if (mxIsInt16(prhs[2])) {
+      d=1; srgt32 = *(s16_t*)mxGetData(prhs[2]);
+    } else if (mxIsUint16(prhs[2])) {
+      d=1; srgt32 = *(u16_t*)mxGetData(prhs[2]);
+    } else if (mxIsInt32(prhs[2])) {
+      d=1; srgt32 = *(s32_t*)mxGetData(prhs[2]);
+    } else if (mxIsUint32(prhs[2])) {
+      d=2; urgt32 = *(u32_t*)mxGetData(prhs[2]);
+    } else if (mxIsInt64(prhs[2])) {
+      d=3; srgt64 = *(s64_t*)mxGetData(prhs[2]);
+    } else if (mxIsUint64(prhs[2])) {
+      d=4; urgt64 = *(u64_t*)mxGetData(prhs[2]);
+    } else mexErrMsgTxt("bad call: provide int operand"); 
+    
+    switch(c) {
+    case 1:
+      switch(d) {
+      case 1: sres32 = sinfix32(slft32, op, srgt32); break;
+      case 2: ures32 = uinfix32(slft32, op, urgt32); break;
+      case 3: sres64 = sinfix64(slft32, op, srgt64); break;
+      case 4: ures64 = uinfix64(slft32, op, urgt64); break;
+      default: mexErrMsgTxt("internal error 2");
+      } break;
+    case 2:
+      switch(d) {
+      case 1: ures32 = uinfix32(ulft32, op, srgt32); break;
+      case 2: ures32 = uinfix32(ulft32, op, urgt32); break;
+      case 3: sres64 = sinfix64(ulft32, op, srgt64); break;
+      case 4: ures64 = uinfix64(ulft32, op, urgt64); break;
+      default: mexErrMsgTxt("internal error 3");
+      } break;
+    case 3:
+      switch(d) {
+      case 1: sres64 = sinfix64(slft64, op, srgt32); break;
+      case 2: sres64 = sinfix64(slft64, op, urgt32); break;
+      case 3: sres64 = sinfix64(slft64, op, srgt64); break;
+      case 4: ures64 = uinfix64(slft64, op, urgt64); break;
+      default: mexErrMsgTxt("internal error 4");
+      } break;
+    case 4:
+      switch(d) {
+      case 1: ures64 = uinfix64(ulft64, op, srgt32); break;
+      case 2: ures64 = uinfix64(ulft64, op, urgt32); break;
+      case 3: ures64 = uinfix64(ulft64, op, srgt64); break;
+      case 4: ures64 = uinfix64(ulft64, op, urgt64); break;
+      default: mexErrMsgTxt("internal error");
+      } break;
+    default: mexErrMsgTxt("internal error 5");
+    }
+  }
+  
+  /* prepare output */
+  switch ((c>d)?c:d) {  /* max */
+  case 1:     
+    plhs[0] = mxCreateNumericArray(2, dims, mxINT32_CLASS, mxREAL);
+    *(s32_t*)mxGetData(plhs[0]) = sres32; 
+    break;
+  case 2:     
+    plhs[0] = mxCreateNumericArray(2, dims, mxUINT32_CLASS, mxREAL);
+    *(u32_t*)mxGetData(plhs[0]) = ures32; 
+    break;
+  case 3:     
+    plhs[0] = mxCreateNumericArray(2, dims, mxINT64_CLASS, mxREAL);
+    *(s64_t*)mxGetData(plhs[0]) = sres64; 
+    break;
+  case 4:     
+    plhs[0] = mxCreateNumericArray(2, dims, mxUINT64_CLASS, mxREAL);
+    *(u64_t*)mxGetData(plhs[0]) = ures64; 
+    break;
+  default: mexErrMsgTxt("internal error 6");
+  }
+}
+
+
+  

@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:    Lexing.html
+     PURPOSE: About lexing programming languages
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:    McKeeman - 2007.07.06 - original
+              Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Lexing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Lexing.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Lexing</H3>
+</CENTER>
+
+<P><B>Lexemes</B><P>
+
+<P>Lexemes in X are divided into a few categories.  Letting 
+<UL>
+<LI>L stand for Letter</LI>
+<LI>D stand for decimal digit</LI>
+<LI>O stand for one of + - * / &amp; | &lt; = &gt; : ?</LI>
+<LI>S stand for one of , . ; ( ) [ ] { }</LI>
+<LI>EOL stand for end-of-line</LI>
+</UL>
+then the following descriptions
+name and give approximate descriptions of the categories.
+</P>
+<TABLE ALIGN="center" BORDER="1">
+<TR><TD>Whitespace</TD>              <TD> blanks, tabs, EOL</TD></TR>
+<TR><TD>Comments</TD>                <TD> `stuff EOL</TD></TR>
+<TR><TD>Identifiers</TD>             <TD> L(L|D)*</TD></TR>
+<TR><TD>Logical Literals</TD>        <TD> true false</TD></TR>
+<TR><TD>Integer Literals</TD>        <TD> D+</TD></TR>
+<TR><TD>Real Literals</TD>           <TD> D+.D*</TD></TR>
+<TR><TD>Operator Identifiers</TD>    <TD> O+</TD></TR>
+<TR><TD>Separators</TD>              <TD> S</TD></TR>
+</TABLE>
+<P>
+The task of the lexer is, given a programming language text as input, 
+to locate and report the sequence of lexemes.  
+The catenation of the lexemes is the original source program text.
+The lexical structure can be described precisely with a 
+<A HREF="LexCfg.html">lexical CFG</A>.
+</P>
+
+<P>The concept of <B>Operator Identifier</B> is unusual enough to 
+  require a few words of explanation.  
+  We are used to building up words from sequences of letters.  
+  Some operators (such as <TT>:=</TT>) need more than one character.  
+  In an extensible language such as X, we expect a need for more
+  such multi-character operators, 
+  so the lexer catenates operator characters
+  just as it does letters and digits for identifiers.
+  It is sometimes a bit surprising to find these characters sticking 
+  together (for example <TT>x:=-1</TT> will cause a diagnostic because 
+  a space is required between the <TT>=</TT> and the <TT>-</TT>).
+  An arbitrary decision is made to exclude some separator-like characters
+  from the operator list.  Separators include comma and various parentheses.
+  You, the new owner of this xcom, can change the above decisions at will.
+</P>
+<P>
+  It will turn out that operator identifiers need ordinary identifiers for
+  names.  Since the Cfg analyzer classifies operators found in the CFG,
+  it needs a systematic way of generating names.  The chosen solution is
+  that every character has a short name.  The generated name is the 
+  catenation of the short names.  For example, in Parser.m
+  <PRE>
+    := 
+  </PRE>
+  is named 
+  <PRE>
+    COLONEQ 
+  </PRE>
+  and is accessed as an enumeration value 
+  <PRE>
+    rw.COLONEQ
+  </PRE>
+  See functions idCtor.m and enum.m for how this is done.
+</P>
+
+<P><B>Tokens</B></P>
+<P>
+  Catenating the lexemes would recreate the source text 
+  (nothing is omitted, no information is lost).
+</P>
+<P>
+  Once the lexemes are isolated, 
+  a second level of categorization is applied.
+  Some identifiers and operators are reserved.   
+  The consumer of the lexemes has to be able to determine
+  what was found (an identifying category code), 
+  how to examine the actual text of the lexeme, 
+  and how to find its location in the input.  
+  This bundle of information is called a token.
+</P>
+
+<PRE>
+   1234567890123456789
+   x := rand*1000;
+             ^  ^
+             |  |
+          +--+  |
+          |     |
+    &lt;INT, 11,  14>
+   code start finish
+</PRE>
+
+<P>
+  The lexemes are collected in a single pass over the input.  
+  Typically only the next token is needed by the consumer, one at a time.
+  Lookahead and error processing may require any token at any time.
+  This capability is provided by holding the tokens
+  in the Lexer object as an array of tokens 
+  and providing access functions to the array.
+  The array index is the representative of a token.
+</P>
+
+<P>
+  It is tempting to bundle up all the useful information into
+  a struct value for each token.  
+  That might include the characters in the text, the kind of token,
+  the line and column number where the token is found, and so on.
+  For example
+</P>
+<PRE>
+    tok.text = 'xyz';
+    tok.line = 13;
+    tok.col  = 56;
+    tok.kind = ID;
+    tok.rval = 0.0;
+    tok.ival = 0;
+    tok.lval = false;
+</PRE>
+<P>
+  The <TT>kind</TT> of token is always needed,
+  but the other information is needed much less often.
+  Therefore in xcom the token is represented by three values: 
+  a small integer designating what kind of token it is,
+  the starting position of the token in the source text, 
+  and the ending position in the source text.  
+  No characters are moved.
+  These three integer values are kept in separate parallel arrays.
+  The consequence is to reduce the cost of accessing memory: 
+  information that is not needed is never fetched.
+  Other information (besides these three stored values)
+  is computed by the lexer after-the-fact only when it is needed.
+</P>
+
+<P>
+  Even the three values are logically overkill.  
+  Given just the starting position,
+  the lexer could recompute the <TT>kind</TT> and ending position.
+  The choice made here represents my view of the sweet spot in the 
+  space/time performance tradeoff.  
+  A different source language and different
+  requirements might lead to a different tradeoff.
+</P>
+<P>
+  The xcom parser object steps through the stream to extract
+  significant tokens,
+  stepping over whitespace and comments on the way.
+  Some lexers might save the parser trouble and discard the whitespace
+  and comments while building the token stream.  
+  That choice would violate a software engineering principle: 
+  the producer should have no dependencies on the consumer.  
+</P>
+
+
+<H4>Converting Literal Constant Values</H4>
+
+<P>Note especially that numeric constants are not converted to machine
+  numeric format by the lexer.
+  Conversion can be left to the consumer so long as the text is available.
+  This deferral is a kind of separation of concerns.  
+  The lexer does not need to know the target machine numeric format;
+  it deals in characters only.
+</P>
+
+<P><B>Algorithm</B></P>
+<P>
+  Examine Lexer.m in the xcom implementation; 
+  the structure of the lexer is an <B>endless loop</B>.  
+  Each trip around the loop examines the leading character 
+  of the next lexeme candidate.
+  Once a candidate is chosen, 
+  the <B>longest match</B> for this kind of lexeme is collected.  
+  If necessary, the text is looked up in the reserved tables.
+  Finally, the identifying code, start and end of the text are tabulated.
+  The loop terminates when the latest token is in fact an EOF.
+</P>
+
+<P><B>Lexing Other Languages</B></P>
+
+<P>
+  Most programming languages have somewhat more complicated lexical
+  structure than does X, 
+  but a typical lexer can be written by hand for any language 
+  in a few hours, typically by hacking an existing lexer.  
+  There is a tradition in old compilers to provide a <B>feedback path</B> 
+  from the parser or symbol table to help the lexer make decisions.  
+  This trick is <B>poor practice</B> from the viewpoint of 
+  compiler structure and maintenance.  
+  On the other hand, languages such as C have "grown up" in that tradition 
+  and it is often hard to avoid breaking the clean sequential 
+  structure and still get a correct implementation.  
+  The root of the problem is that the lexer is so easy to write 
+  that it is an attractive place to grow 
+  <A HREF="Glossary.html#wart">warts</A>.
+</P>
+
+<P>
+  Some compilers implement a lexer that delivers up the lexemes one-by-one,
+  remembering the state of the partially processed input so that 
+  the next request can restart the processing of characters appropriately. 
+  This complexity saved memory because a lexeme had to
+  be kept available only for a short time.  
+  The capability to step ahead and back, required when the parser
+  needs lookahead, can be hard to implement.
+</P>
+<P>
+  The modern (and cache-efficient) way to deliver this 
+  additional capability is to lex the entire input immediately, 
+  and then write a jacket routine (often called scan) 
+  to manage the lookup of reserved items, package the token, 
+  and step around in the already complete lexeme stream.
+</P>
+
+<P><B>Lexer Performance</B></P>
+<P>
+  Since the lexer examines every character of the text, it can be a
+  bottleneck in compiler performance.  
+  A lot of clever coding has gone into making lexers "real fast".  
+  See a <A HREF="lexInCpp.html">lexer</A> 
+  for M written in C++ for an example of reasonably efficient lexing.
+</P>
+<P>
+  In the case of <B>xcom</B>, little attention has been paid to performance.
+  The purpose is education; xcom only has to be fast enough to avoid
+  boring the waiting student.  Modern computer hardware pretty much takes
+  care of that level of performance.
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

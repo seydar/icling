@@ -1,0 +1,35 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    caller35.x
+}\\
+{\tt\char18}{\em{} PURPOSE: subprogram test for xcom
+}\\
+{\tt\char18}{\em{} METHOD:  xcom x/called35.x x/caller35.x
+}\\
+z,\ y,\ x\ $\leftarrow$\ 3,\ 2,\ 1;\>\>\>{\tt\char18}{\em{} for types
+}\\
+z,\ y,\ x\ $\leftarrow$\ called35\ $\leftarrow$\ 15,\ 14,\ 13,\ 12,\ 11;\\
+{\tt\char18}{\em{} correct answer assertions (don't fiddle with called35)
+}\\
+{\bf if}\>x\ $=$\ 81\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+{\tt\char18}{\em{} called35 adds 16 to the sum of the inputs
+}\\
+{\bf if}\>y\ $=$\ 21\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+{\tt\char18}{\em{} called35 just returns 21 for second output
+}\\
+{\bf if}\>z\ $=$\ 31\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+{\tt\char18}{\em{} called35 just returns 31 for third output
+}\\
+\end{tabbing}
+\end{document}

@@ -1,0 +1,16 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    callabsr.x
+}\\
+{\tt\char18}{\em{} PURPOSE: test call of absr.x
+}\\
+shouldbe17\ $\leftarrow$\ 1.0;\>\>{\tt\char18}{\em{} force type
+}\\
+shouldbe17\ $\leftarrow$\ absr\ $\leftarrow$\ $-$17.0;\\
+\end{tabbing}
+\end{document}

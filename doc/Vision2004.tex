@@ -1,0 +1,132 @@
+% FILE:		Vision.tex
+% PURPOSE:	A vision of what Programming Languages could be
+% COPYRIGHT:	2004 W.M. McKeeman
+%        1111111111222222222233333333334444444444555555555566666666667777777777
+%234567890123456789012345678901234567890123456789012345678901234567890123456789
+
+
+\input bookhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Programming Language Vision--
+\begin{quote}
+\raggedright
+Notation\\
+Evolution\\
+Who is the Master?\\
+History and Change\\
+Typography\\
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+
+\noindent {\large \bf A Vision for Programming Language Design} 
+\vspace{1em}
+
+\begin{quote} \raggedleft
+The advantage of simple and clear language concepts 			\\
+is that their implementation in a compiler				\\
+is easily and efficiently possible					\\
+without causing unexpected overhead.					\\
+--{\em Leo Geissmann, PhD thesis}
+\end{quote}
+
+\subsection{Notation}
+
+One can observe the use of notation and admire the power that it
+brings to its users.  What would integral calculus be without
+$\int_{a}^{b} f(x)dx$, set theory be without
+$\overline{A}\cup\overline{B}\equiv \overline{A\cap B}$, inorganic
+chemistry be without $2H+O=H_{2}O$, electromagnetism be without
+$\nabla\cdot E = 4\pi\rho$, predicate logic be without
+$\forall\ \exists\ \neg\ \wedge\ \vee$, music be
+without notes?  Notation evolves through trial and error.  What works
+survives.  No committee decides.  The inventors of notation are its
+users.
+
+\subsection{Evolution}
+
+Programming languages were designed, in the beginning, to be somewhere between
+machine code and mathematical notation.  Lest this seem to be an inordinately
+unambitious goal, review the charter for the design of \tname{algol 60}.
+
+\begin{enumerate}
+\item{\em The new language should be as close as possible to standard
+mathematical notation and be readable with little further explanation.}
+\item{\em It should be possible to use it for the description of numerical
+processes in publications.}
+\item{\em The new language should be readily translatable into machine
+code by the machine itself.}
+\end{enumerate}
+
+Except for the narrow focus on numerical processes, this charter still
+serves a half-century later.  It is ironic that another goal of
+\tname{algol60} was to avoid proliferation of languages by offering a
+standard universally applicable means for expressing programs.  There
+are now hundreds of programming languages in use, each with one or
+more translators.  What the authors did not anticipate was that, like
+other notations, programming languages would evolve by Darwinian
+rules.  \tname{algol 60} was influential but now is dead.  Evolution
+is patient; it has only begun to work its magic.
+
+\subsection{Who is the Master?}
+
+It is the intention of this course to return programming languages to
+their users by providing those users with the capability for personal
+compiler implementation.  I think Darwin would approve.
+
+\subsection{History and Change}
+
+In the beginning, each computer was programmed directly in its own
+instruction set.  High level programming languages changed that.
+\tname{fortran} soon dominated scientific use and \tname{cobol}
+dominated commercial use.  \tname{lisp} became popular in academic
+enviroments.  They are with us still.  \tname{c++} has become the
+language of choice for system implementers (including compiler
+writers).  \tname{java}, by virtue of its elegant integration of many
+features including parallel execution, networks and graphics, has
+dominated on the internet.  There are many programming languages with
+specialized niches, such as \tname{m} for scientific applications in
+\tname{matlab}$^{\scriptstyle{\mbox{\textregistered}}}$.
+\footnote{\tname{matlab} is a registered trademark of The MathWorks,
+Inc.}
+
+We can agree that programming languages have provided an essential
+abstraction of the programming process.  Most of us, understanding the
+trends in other scientific disciplines, would like even higher levels
+of abstraction.  Agreement on what new features are needed and what
+old features can safely be discarded is hard to achieve.  The
+discussion of programming languages often invokes partisan positions,
+perhaps because we programmers are so close to our languages; perhaps
+because ``language user community'' and ``standards committee'' are
+inherently political concepts; perhaps because our preferences are so
+deeply imbedded that words fail us.
+
+One can observe that popular programming languages tend to grow,
+gathering constructs whenever the political climate is right.  It is
+hardly ever time to throw things out; for every old feature there is a
+saving argument or a mass of entrenched use.
+
+\subsection{Typography}
+
+The need for convenient keyboard entry has restricted programming
+languages to a limited set of symbols such as that provided by
+\tname{ascii} or \tname{unicode}.  Neither approaches the richness of
+typeset scientific notation.  This is not a fundamental constraint;
+programs can be typeset.  \tname{algol 60} introduced the concept of a
+{\em publication language}, a form of expression optimal for
+readability and transparently mapped to the {\em reference language}.
+Greek letters, subscripts and superscripts, and an open-ended set of
+parentheses were explicitly encouraged.  
+
+I propose that, in addition to translation to executable form, each
+compiler also provide for translation to publication form.
+
+\end{document}
+

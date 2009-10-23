@@ -1,0 +1,108 @@
+<!-- FILE:    notation/termcap.html
+  -- PURPOSE: Notation of Dance
+  -- MODS:    McKeeman -- 1999.09.20 -- original
+  -->
+
+<html>
+<head>
+<title>termcap</title>
+</head>
+
+<body bgcolor="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<table>
+<tr><p></p></tr>
+<tr><td width=80></td><td width=500>
+
+<p>
+In the 1960's, a uniform description of the control sequences for
+terminals was essential to software like editors.  Every manufacturer
+did something different.  So, we CS folks invented a notation...</p>
+
+
+<h2>termcap</h2>
+<p>Here are 19 out of 17105 lines of the standard /etc/termcap file.
+<pre>
+linux|linux console:\
+	:am:eo:mi:ms:ut:xn:xo:\
+	:NC#18:it#8:\
+	:&amp;7=^Z:@7=\E[4~:AL=\E[%dL:DC=\E[%dP:DL=\E[%dM:F1=\E[23~:\
+	:F2=\E[24~:F3=\E[25~:F4=\E[26~:F5=\E[28~:F6=\E[29~:\
+	:F7=\E[31~:F8=\E[32~:F9=\E[33~:FA=\E[34~:IC=\E[%d@:\
+	:K2=\E[G:Km=\E[M:al=\E[L:bl=^G:cb=\E[1K:cd=\E[J:ce=\E[K:\
+	:ch=\E[%i%dG:cl=\E[H\E[J:cm=\E[%i%d;%dH:cr=^M:\
+	:cs=\E[%i%d;%dr:ct=\E[3g:cv=\E[%i%dd:dc=\E[P:dl=\E[M:\
+	:do=^J:ec=\E[%dX:ei=\E[4l:ho=\E[H:ic=\E[@:im=\E[4h:\
+	:k1=\E[[A:k2=\E[[B:k3=\E[[C:k4=\E[[D:k5=\E[[E:k6=\E[17~:\
+	:k7=\E[18~:k8=\E[19~:k9=\E[20~:k;=\E[21~:kB=\E[Z:kD=\E[3~:\
+	:kI=\E[2~:kN=\E[6~:kP=\E[5~:kb=\177:kd=\E[B:kh=\E[1~:\
+	:kl=\E[D:kr=\E[C:ku=\E[A:le=^H:mh=\E[2m:mr=\E[7m:nd=\E[C:\
+	:nw=^M^J:r1=\Ec\E]R:rc=\E8:sc=\E7:se=\E[27m:sf=^J:sr=\EM:\
+	:st=\EH:ta=^I:u6=\E[%i%d;%dR:u7=\E[6n:u8=\E[?6c:u9=\E[c:\
+	:ue=\E[24m:up=\E[A:us=\E[4m:vb=200\E[?5h\E[?5l:\
+	:ve=\E[?25h\E[?0c:vi=\E[?25l\E[?1c:vs=\E[?25h\E[?8c:\
+	:tc=klone+sgr:tc=ecma+color:
+</pre>
+</p>
+
+<h2>man termcap</h2>
+<p>Here are 39 out of 432 lines of man termcap (a reference manual)
+<pre>
+       al   Insert one line
+       AL   Indert %1 lines
+       ac   Pairs of block grafic characters to map alternate character set
+       ae   End alternative character set
+       as   Start alternative character set for block grafic characters
+       bc   Backspace, if not ^H
+       bl   Audio bell
+       bt   Move to previous tab stop
+       cb   Clear from beginning of line to cursor
+       cc   Dummy command character
+       cd   Clear to end of screen
+       ce   Clear to end of line
+       ch   Move cursor horizontally only to column %1
+       cl   Clear screen and cursor home
+       cm   Cursor move to row %1 and column %2 (on screen)
+       CM   Move cursor to row %1 and column %2 (in memory)
+       cr   Carriage return
+       cs   Scroll region from line %1 to %2
+       ct   Clear tabs
+       cv   Move cursor vertically only to line %1
+       dc   Delete one character
+       DC   Delete %1 characters
+       dl   Delete one line
+       DL   Delete %1 lines
+       dm   Begin delete mode
+       do   Cursor down one line
+       DO   Cursor down #1 lines
+       ds   Disable status line
+       eA   Enable alternate character set
+       ec   Erase %1 characters starting at cursor
+       ed   End delete mode
+       ei   End insert mode
+       ff   Formfeed character on hardcopy terminals
+       fs   Return character to its position before going to status line
+       F1   The string sent by function key f11
+       F2   The string sent by function key f12
+       F3   The string sent by function key f13
+       ...  ...
+       F9   The string sent by function key f19
+</pre>
+</p>
+
+
+<hr>
+Created: <i>Wednesday, May 22, 1999</i><br>
+Last modified: <i>
+May 22, 2002
+</i><br>
+email: McKeeman{at}Mathworks{dot}COM<br>
+
+<!-- the following table end provides margins and textbook like appearance -->
+</td><td width=50></td></tr>
+</table>
+
+</body>
+</html>
+

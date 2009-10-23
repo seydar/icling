@@ -1,0 +1,217 @@
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_0000_01C98120.F2598760"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.5579
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_01C98120.F2598760
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd
+
+=EF=BB=BF
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" =
+"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>ArticleS.UncleBob.TheThreeRulesOfTdd</TITLE>
+
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dutf-8"><LINK=20
+media=3Dscreen href=3D"http://butunclebob.com/files/css/fitnesse.css" =
+type=3Dtext/css=20
+rel=3Dstylesheet><LINK media=3Dprint=20
+href=3D"http://butunclebob.com/files/css/fitnesse_print.css" =
+type=3Dtext/css=20
+rel=3Dstylesheet>
+<SCRIPT src=3D"http://butunclebob.com/files/javascript/fitnesse.js"=20
+type=3Dtext/javascript></SCRIPT>
+
+<META content=3D"MSHTML 6.00.6000.16788" name=3DGENERATOR>
+</HEAD>
+
+<BODY>
+<DIV class=3Dmainbar>
+
+<DIV class=3Dheader>
+<A = href=3D"http://butunclebob.com/ArticleS">ArticleS</A>. 
+<A = href=3D"http://butunclebob.com/ArticleS.UncleBob">UncleBob</A>. =
+
+</DIV>
+
+<DIV class=3Dmain>
+
+<HR>
+
+<H3>
+<DIV class=3Dcentered>The Three Rules of TDD.</DIV>
+</H3>
+<BR>Over the =
+years I have=20
+come to describe Test Driven Development in terms of three simple rules. =
+They=20
+are:<BR>
+<OL>
+  <LI>You are not allowed to write any production code unless it is to =
+make a=20
+  failing unit test pass.=20
+  <LI>You are not allowed to write any more of a unit test than is =
+sufficient to=20
+  fail; and compilation failures are failures.=20
+  <LI>You are not allowed to write any more production code than is =
+sufficient=20
+  to pass the one failing unit test. </LI></OL><BR>You must begin by =
+writing a=20
+unit test for the functionality that you intend to write. But by rule 2, =
+you=20
+can't write very much of that unit test. As soon as the unit test code =
+fails to=20
+compile, or fails an assertion, you must stop and write production code. =
+But by=20
+rule 3 you can only write the production code that makes the test =
+compile or=20
+pass, and no more. <BR><BR>If you think about this you will realize that =
+you=20
+simply cannot write very much code at all without compiling and =
+executing=20
+something. Indeed, this is really the point. In everything we do, =
+whether=20
+writing tests, writing production code, or refactoring, we keep the =
+system=20
+executing at all times. The time between running tests is on the order =
+of=20
+seconds, or minutes. Even 10 minutes is too long.<BR><BR>Too see this in =
+
+operation, take a look at <A=20
+href=3D"http://butunclebob.com/ArticleS.UncleBob.TheBowlingGameKata">The =
+Bowling=20
+Game Kata</A>.<BR><BR>Now most programmers, when they first hear about =
+this=20
+technique, think: "<I>This is stupid!</I>" "<I>It's going to slow me =
+down, it's=20
+a waste of time and effort, It will keep me from thinking, it will keep =
+me from=20
+designing, it will just break my flow.</I>" However, think about what =
+would=20
+happen if you walked in a room full of people working this way. Pick any =
+random=20
+person at any random time. A minute ago, all their code worked. =
+<BR><BR>Let me=20
+repeat that: <I>A minute ago all their code worked!</I> And it doesn't =
+matter=20
+who you pick, and it doesn't matter when you pick. <B>A minute ago all =
+their=20
+code worked!</B><BR><BR>If all your code works every minute, how often =
+will you=20
+use a debugger? Answer, not very often. It's easier to simply hit ^Z a =
+bunch of=20
+times to get the code back to a working state, and then try to write the =
+last=20
+minutes worth again. And if you aren't debugging very much, how much =
+time will=20
+you be saving? How much time do you spend debugging now? How much time =
+do you=20
+spend fixing bugs once you've debugged them? What if you could decrease =
+that=20
+time by a significant fraction?<BR><BR>But the benefit goes far beyond =
+that. If=20
+you work this way, then every hour you are producing several tests. =
+Every day=20
+dozens of tests. Every month hundreds of tests. Over the course of a =
+year you=20
+will write thousands of tests. You can keep all these tests and run them =
+any=20
+time you like! When would you run them? All the time! Any time you made =
+any kind=20
+of change at all!<BR><BR>Why don't we clean up code that we know is =
+messy? We're=20
+afraid we'll break it. But if we have the tests, we can be reasonably =
+sure that=20
+the code is not broken, or that we'll detect the breakage immediately. =
+If we=20
+have the tests we become fearless about making changes. If we see messy =
+code, or=20
+an unclean structure, we can clean it without fear. Because of the =
+tests, the=20
+code becomes malleable again. Because of the tests, software becomes =
+soft=20
+again.<BR><BR>But the benefits go beyond that. If you want to know how =
+to call a=20
+certain API, there is a test that does it. If you want to know how to =
+create a=20
+certain object, there is a test that does it. Anything you want to know =
+about=20
+the existing system, there is a test that demonstrates it. The tests are =
+like=20
+little design documents, little coding examples, that describe how the =
+system=20
+works and how to use it. <BR><BR>Have you ever integrated a third party =
+library=20
+into your project? You got a big manual full of nice documentation. At =
+the end=20
+there was a thin appendix of examples. Which of the two did you read? =
+The=20
+examples of course! That's what the unit tests are! They are the most =
+useful=20
+part of the documentation. They are the living examples of how to use =
+the code.=20
+They are design documents that are hideously detailed, utterly =
+unambiguous, so=20
+formal that they execute, and they cannot get out of sync with the =
+production=20
+code.<BR><BR>But the benefits go beyond that. If you have ever tried to =
+add unit=20
+tests to a system that was already working, you probably found that it =
+wasn't=20
+much fun. You likely found that you either had to change portions of the =
+design=20
+of the system, or cheat on the tests; because the system you were trying =
+to=20
+write tests for was not designed to be testable. For example, you'd like =
+to test=20
+some function 'f'. However, 'f' calls another function that deletes a =
+record=20
+from the database. In your test, you don't want the record deleted, but =
+you=20
+don't have any way to stop it. The system wasn't designed to be=20
+tested.<BR><BR>When you follow the three rules of TDD, <I>all your code =
+will be=20
+testable by definition!</I> And another word for "testable" is =
+"decoupled". In=20
+order to test a module in isolation, you must decouple it. So TDD forces =
+you to=20
+decouple modules. Indeed, if you follow the three rules, you will find =
+yourself=20
+doing much more decoupling than you may be used to. This forces you to =
+create=20
+better, less coupled, designs.<BR><BR>Given all these benfits, these =
+stupid=20
+little rules of TDD might not actually be so stupid. They might actually =
+be=20
+something fundemental, something profound. Indeed, I had been a =
+programmer for=20
+nearly thirty years before I was introduced to TDD. I did not think =
+anyone could=20
+teach me a low level programming practice that would make a difference. =
+Thirty=20
+years is a <I>lot</I> of experience after all. But when I started to use =
+TDD, I=20
+was dumbfounded at the effectiveness of the technique. I was also =
+hooked. I can=20
+no longer concieve of typing in a big long batch of code hoping it =
+works. I can=20
+no longer tolerate ripping a set of modules apart, hoping to reassemble =
+them and=20
+get them all working by next Friday. Every decision I make while =
+programming is=20
+driven by the basic need to be executing again a minute from now.<BR>
+<HR>
+<BR><BR><BR>
+
+</BODY>
+</HTML>

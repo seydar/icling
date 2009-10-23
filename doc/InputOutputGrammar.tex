@@ -1,0 +1,166 @@
+% FILE:		    InputOutputGrammar.tex
+% PURPOSE:  	The theory and use of input-output grammars
+% COPYRIGHT:  W.M.McKeeman 2007
+
+\input xhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Input-Output Grammars--
+\begin{quote}
+\raggedright
+Definition\\
+Proposition Grammar\\
+Interpretation\\
+Application\\
+Self-description\\
+\end{quote}
+--requires--
+\begin{quote}
+\raggedright
+Context-free Grammars\\
+Regular Expressions\\
+Regular Expression Grammars\\
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+\noindent {\large \bf Input-Output Grammars} 
+\vspace{1em}
+
+\subsubsection{Definition of Input-Output Grammar}
+
+One last form of grammar needs to be defined.  The new grammar, named
+an Input/Output grammar (\iog), 
+has a new set of symbols for output.\footnote{The 
+output symbols are analogous to the \tname{yacc} actions.}
+Extending the formalisms for context-free grammars, we have:
+
+\begin{samepage}
+\begin{equation}
+{\cal G} \eqldef \langle V_I, V_O, V_N, V_G, \Pi\rangle
+\label{IOGrammarDefinition}
+\end{equation}
+\index{$\cal G$}\index{$V_I$}\index{$V_O$}\index{$V_N$}
+\index{$V_G$}\index{$\Pi$}
+
+\noindent
+consisting of a set of input symbols, a set of output symbols, a set
+of phrase names, a set of goals, and a set of reductions.  It
+satisfies the following constraints:
+
+\begin{eqnarray*}
+     V                &\eqldef& V_I \cup V_O \cup V_N    \\
+     V_I \cap V_O     &\eqldef& \{\}				      \\
+     V_I \cap V_N     &\eqldef& \{\}				      \\
+     V_O \cap V_N     &\eqldef& \{\}				      \\
+     V_G	            &\subseteqdef& V_N			    \\
+     \Pi	            &\subseteqdef& V_N\times V^*
+\end{eqnarray*}
+\end{samepage}
+
+
+\noindent
+There is no abstract way to distinguish $V_I$ and $V_O$.  
+In fact in some uses they will be interchanged.  
+The \cfg\ is just an \iog\ with $V_O=\{\}$.  
+
+\subsubsection{The Proposition Grammar (again)}
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxxxxxxxxxxx\=Propositionxx\=xxx\=\kill
+\>Proposition \>\la\> Disjunction                      {\rm 0}  \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction   {\rm 1}  \\
+\>Disjunction \>\la\> Conjunction                      {\rm 2}  \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation    {\rm 3}  \\
+\>Conjunction \>\la\> Negation                         {\rm 4}  \\
+\>Negation    \>\la\> $\neg$ Boolean                   {\rm 5}  \\
+\>Negation    \>\la\> Boolean                          {\rm 6}  \\
+\>Boolean     \>\la\> {\rm t}                          {\rm 7}  \\
+\>Boolean     \>\la\> {\rm f}                          {\rm 8}  \\
+\>Boolean     \>\la\> {\rm(} Disjunction {\rm)}        {\rm 9}
+\end{tabbing}
+\end{em}
+
+\begin{center}
+Table~\thetable: Proposition Input-Output Grammar
+\end{center}
+\end{samepage}
+
+
+\subsubsection{Interpretation of Input-Output Grammar}
+
+Left-to-right order is required by the following 
+alternative definition; 
+in this case it will not only consume the input $\tau$, 
+but also construct the output $\rho$.
+The predicate \sform\ is used, as in context-free grammars,
+to prove a string is in the language defined by the grammar.
+It is sufficient for the purposes here to restrict the \iog\
+to rules with the output symbol at the end of each rule.
+
+\stepcounter{table}					% simulate \table
+\newcounter{reductions}[chapter]
+\setcounter{reductions}{\value{table}}
+\begin{eqnarray*}
+  G \in V_G &\Rightarrow& {\sform}(G, \lambda, \lambda)          \\
+  B\la\beta{\rm r}  \in \Pi \wedge {\sform}(\sigma B, \tau, \rho) 
+      &\Rightarrow& {\sform}(\sigma\beta, \tau, {\rm r}\rho)            \\
+  {\rm a} \in V_I \wedge {\sform}(\sigma {\rm a}, \tau, \rho)
+      &\Rightarrow& {\sform}(\sigma, {\rm a}\tau, \rho)           \\
+  {\sform}(\lambda, \tau, \rho) &\Rightarrow& G {\stackrel{\rho}{\la}} \tau
+\end{eqnarray*}
+\begin{center}
+Table~\thetable: Left-to-right Reduction Application
+\end{center}
+
+\noindent The first implication defines the goal.  
+The second implication applies a reduction on the top of the parse stack.  
+The third implication shifts a symbol 
+from the input text and pushes it on the top of the stack.  
+The {\em parse} is the third argument to $\sform$.
+
+\subsubsection{Application of Input-Output Grammar}
+
+Repeating the parse of ${\rm f}\vee{\rm t}\wedge\neg{\rm f}$:
+
+\stepcounter{table}					% simulate \table
+\newcounter{IOGProof}[chapter]
+\setcounter{IOGProof}{\value{table}}
+\begin{tabbing}{ll}
+\quad\quad\quad\quad\=
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>$\sform(Proposition,\lambda, \lambda)$                               \\
+\>$\sform(Disjunction,\lambda, 0)$                                     \\
+\>$\sform(Disjunction\vee Conjunction, \lambda, 10)$                   \\
+\>$\sform(Disjunction\vee Conjunction \wedge Negation, \lambda, 310)$  \\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg Boolean, \lambda, 5310)$\\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg\rm f, \lambda, 85310)$ \\
+\>$\sform(Disjunction\vee Conjunction\wedge\neg,\rm f, 85310)$         \\
+\>$\sform(Disjunction\vee Conjunction\wedge,\neg\rm f, 85310)$         \\
+\>$\sform(Disjunction\vee Conjunction,\wedge\neg\rm f, 85310)$         \\
+\>$\sform(Disjunction\vee Negation,\wedge\neg\rm f, 485310)$           \\
+\>$\sform(Disjunction\vee Boolean,\wedge\neg\rm f, 6485310)$           \\
+\>$\sform(Disjunction\vee\rm t,\wedge\neg f, 76485310)$                \\
+\>$\sform(Disjunction\vee,\rm t\wedge\neg f, 76485310)$                \\
+\>$\sform(Disjunction,\vee\rm t\wedge\neg f, 76485310)$                \\
+\>$\sform(Conjunction,\vee\rm t\wedge\neg f, 276485310)$               \\
+\>$\sform(Negation,\vee\rm t\wedge\neg f, 4276485310)$                 \\
+\>$\sform(Boolean,\vee\rm t\wedge\neg f, 64276485310)$                 \\
+\>$\sform(\rm f,\vee t\wedge\neg f, 864276485310)$                     \\
+\>$\sform(\rm\lambda,f\vee t \wedge\neg f, 864276485310)$
+\end{tabbing}
+\begin{center}
+Table~\thetable: 
+Proof of and parse for
+$\sq{\rm f}\vee{\rm t}\wedge\neg{\rm f}\sq \in \cal L(G)$
+\end{center}
+
+
+\end{document}

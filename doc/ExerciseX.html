@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ExerciseX.html
+     PURPOSE:   Simple exercises to learn to program in X
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- X Exercises
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ExerciseX.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>X Exercises</H3>
+</CENTER>
+
+After getting a <A HREF=InstallXcom.html>personal copy</A> of xcom:
+<UL>
+
+<LI>
+<P>Try the xcom compiler:</P>
+<P>
+Bring up MATLAB and change directory to mxcom from the xcom distribution.  
+At the prompt, type (no blanks internal to the assignment)
+<PRE>
+>> xcom x:=1
+</PRE>
+The result will be to compile the assignment into machine language and then 
+run it.  You should see
+<PRE>
+x := 1
+</PRE>
+which is the correct result for the 4-character program presented to xcom.
+</P>
+
+<P>
+For further information, type
+<PRE>
+>> help xcom
+</PRE>
+or read the <A HREF="ReferenceX.pdf">X Reference Manual</A>.
+</P>
+</LI>
+
+<LI>
+<P>
+Look at these typeset <A HREF="ExampleX.pdf">examples</A> or this
+bigger <A HREF="sinx.html">example</A>.
+</P>
+</LI>
+
+<LI>
+<P>
+In the mxcom x subdirectory, there is a set of X programs.
+One of them computes &pi; by evaluating a series.
+Run it.  xcom "knows" argument x/pi.x is a file name 
+because it ends in '.x'. 
+<PRE>
+>> xcom x/pi.x
+</PRE> 
+The xcom runtime asks for the number of terms you want.
+Try several runs with different settings.
+</P>
+<P>
+Because the 
+<A HREF="http://en.wikipedia.org/wiki/Harmonic_series_(mathematics)">
+alternating harmonic series</A> converges so slowly,
+you will not like the results for small settings.
+</P>
+</LI>
+
+<LI>
+<P>
+Look at the mxcom x directory
+<PRE>
+>> ls x/*.x
+</PRE>
+Run a selection of the programs.
+Some of the programs call each other and, in that case,
+must <B>all</B> be named on the command line.  For example
+<PRE>
+>> xcom x/pi.x x/callpi.x
+</PRE>
+The last program named is the main program.  
+Once it is in execution it can call the others,
+and they can call each other, including the main program.
+</P>
+<P>
+  With a critical eye, read the X source of each program you ran.
+  Suggest <A HREF="xcomQE.html">changes</A> where appropriate.
+</P>
+</LI>
+
+<LI>
+<P>
+Improve the accuracy of the program for &pi;.
+The easiest solution is to present the average of the last two
+results.
+Depending on your prior knowledge and ambition, 
+this exercise could take some research.
+</P>
+</LI>
+
+<LI>
+<P>
+Use the <A HREF="http://en.wikipedia.org/wiki/Taylor_series">
+Taylor Series</A> to implement X functions for e(x), sin(x) and cos(x).
+Use the previous program to compute &pi; to test your new functions.
+Recall that <A HREF="sinx.html">sin(x)</A> 
+is one of the implemented examples, in case you want to peek.
+</P>
+</LI>
+
+<LI>
+<P>
+Implement and test an X function abs so that
+<PRE>
+   pos := abs := signed
+</PRE>
+gives the positive result for signed input.  What type do you 
+want it work for?  Maybe you need two abs functions.
+Could you have used it in the previous exercise?
+</P>
+</LI>
+
+<LI>
+<P>
+Excuse the poor X pun, but carry out the following meta-program
+<PRE>
+do learning ? write(interesting program) 
+od
+</PRE>
+</P>
+</LI>
+
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

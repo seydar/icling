@@ -1,0 +1,3 @@
+       T(pc, sprintf('movRC %s,=%d (0x%lx) %s)', qregs{r+1}, c, c, msg)); 
+
+Asmx86:    8 movRC EAX,=4.691305e+13 (0x4.691305e+13) # addr of rand

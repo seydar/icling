@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingAsm.html
+     PURPOSE:   How to change the xcom assembler object.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Assembler Object
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingAsm.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the Assembler</H3>
+</CENTER>
+
+<H4>Preliminary</H4>
+
+<P>First read about the <A HREF="Assembler.html">assembler</A>.</P>
+
+<P>
+In MATLAB in the mxcom directory, try
+<PRE>
+  >> help Asmx86.m
+</PRE>
+and
+<PRE>
+  >> xcom -asmTrace x:=1
+</PRE>
+</P>
+
+<H4>Small Changes to the x86 Assembler</H4>
+<P>
+  When one needs a new instruction (available in the hardware but not 
+  yet implemented in the assembler), 
+  a new method needs to be added to Asmx86.m.
+  The instruction naming conventions (see the end of the
+  <A HREF="IntelX86.html">x86</A> description) should be followed
+  and the method placed with similar instructions if possible.
+  The method also needs to be added to the list of public names.
+</P>
+
+<P>
+  It is wise to immediately add the same instruction to the
+  x86 <A HREF="Emulator.html">emulator</A>.
+  This helps avoid having to chase down an error message later.
+</P>
+
+<H4>An Assembler for New Hardware</H4>
+<P>
+  New hardware becomes available at regular intervals.
+  The consequence for <B>xcom</B> is that the Emitter and Assembler
+  need to be rewritten to support new instructions.  
+  The Generator should <EM>not</EM> have to be changed.
+</P>
+
+<P>
+  I have found it is usually easier to take the hardware manual
+  for the new CPU and systematically implement the obvious instructions
+  first.
+  The result establishes the new naming conventions and provides
+  an overall structure to the new xcom modules.
+</P>
+
+<H4>The Big Boys</H4>
+<P>
+  Sometimes it is helpful to see how the 'big boys' do it.
+  On linux is it is relatively easy to examine the code 
+  made by another compiler, <A HREF="http://gcc.gnu.org/">gcc</A> 
+  for instance.  
+  Suppose you want to find out how a floating add is done.
+  The first step is to write a test program peek.c.
+  Then compile it with optimization turned <B>off</B>.  
+  Then dump the assembly code.
+  Here is the <A HREF="peek.html">result</A> for a 32-bit linux 
+  implementation.
+</P>
+<P>
+  <B>Note:</B> You might like to experiment with other gcc
+  optimization levels (say, -O4).
+  It will give you some appreciation of what the gcc optimizer can do.
+</P>
+  
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

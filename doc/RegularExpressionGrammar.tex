@@ -1,0 +1,197 @@
+% FILE:		    RegularExpressionGrammar.tex
+% PURPOSE:  	The theory and use of regular expression grammars
+% COPYRIGHT:  W.M.McKeeman 2007
+
+
+\input bookhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Regular Expression Grammars--
+\begin{quote}
+\raggedright
+Definition\\
+Self-describing Regular Expression Grammar\\
+Rewriting Regular Expression Grammars\\
+Fusion\\
+Removal\\
+Back-substituting\\
+Regular Expression to \cfg \\
+Using Regular Expressions\\
+\end{quote}
+--requires--
+\begin{quote}
+\raggedright
+Context-free Grammars\\
+Regular Expressions\\
+Finite Automata\\
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+
+\noindent {\large \bf Regular Expression Grammars} 
+
+\begin{quote}\raggedleft
+                                          In a lot of mathematical work \\
+                                      the use of an appropriate notation \\
+                                                makes all the difference.\\
+					--- {\em Edsger Dijkstra}
+% ref ???
+\end{quote}
+
+\subsubsection{Definition of Regular Expression Grammars}}
+
+Extending the \cfg\ to allow regular expressions of symbols 
+and phrase names on the right hand side of reductions
+makes the grammar more compact and often more readable;
+it does not change the set of languages that can be defined.
+The regular expression meta-operators for intersection and complement 
+are excluded because they are somewhere between 
+inefficient and impossible to implement.
+The extension is called a regular expression grammar (\reg).
+
+\subsubsection{Self-describing \reg}
+
+\stepcounter{table}					% simulate \table
+\newcounter{SelfReg}[chapter]
+\setcounter{SelfReg}{\value{table}}
+
+As in the self-describing \cfg, ignoring whitespace, and using 
+grammatical builtins
+{\tt Letter}, {\tt Digit}, and {\tt Any}
+
+\begin{samepage}
+\begin{tt}
+\begin{tabbing}
+xxxxxxxxxxx\=xxxxxxxx\=xxx\=\kill
+\>Grammar \>=\>Rule*;                                           \\
+\>Rule    \>=\>Name \sq=\sq\ RegExp \sq;\sq;                    \\
+\>RegExp  \>=\>Alt* (\sq|\sq\ Alt*)*;                           \\
+\>Alt     \>=\>Rep (\sq*\sq\ | \sq+\sq\ | \sq?\sq)?;            \\
+\>Rep     \>=\>Name | Input | \sq(\sq\ RegExp \sq)\sq;          \\
+\>Name    \>=\>Letter (Letter | Digit)*;                        \\
+\>Input   \>=\>\sq\sq\sq\ Any \sq\sq\sq;                        \\
+\end{tabbing}
+\end{tt}
+\begin{center}
+Table~\thetable: A Self-describing \tname{reg}
+\end{center}
+\end{samepage}
+
+\subsection{Rewriting Regular Expression Grammars}
+
+\noindent Like \cfg{s}, \reg{s} can be rewritten without changing the
+language. One use of the following rewriting rules is to transform any
+\cfg\ into a \reg\ and {\em vice-versa}.
+
+\vspace{1em}
+
+\stepcounter{table}					% simulate \table
+\newcounter{RegTx}[chapter]
+\setcounter{RegTx}{\value{table}}
+
+\begin{samepage}
+\begin{tabbing}{lll}
+xxxxxxxxxxx\=xxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\underline{\em transform}
+  \>\quad\underline{\em condition} 
+  \>\quad\underline{${\cal T}(\Pi)$}                       \\
+substitute
+  \> $A\la\alpha B\gamma\in\Pi\wedge B\la\beta\in\Pi$
+  \> $\Pi \cup \{ A\la\alpha(\beta)\gamma \}$            \\
+combine
+  \> $A\la\alpha\in \Pi\wedge A\la\beta\in\Pi$
+  \> $\Pi-\{A\la\alpha, A\la\beta\}\cup\{A\la\alpha|\beta\}$\\
+left recursion
+  \> $A\la\alpha\in \Pi\wedge A\la A \beta\in\Pi$
+  \> $\Pi-\{A\la\alpha, A\la A\beta\}\cup\{A\la\alpha(\beta)^*\}$\\
+right recursion
+  \> $A\la\alpha\in \Pi\wedge A\la\beta A\in\Pi$
+  \> $\Pi-\{A\la\alpha, A\la\beta A\}\cup\{A\la(\beta)^*\alpha\}$\\
+meta-parens
+  \> $A\la(\alpha)\in \Pi$
+  \> $\Pi-\{A\la(\alpha)\}\cup\{A\la\alpha\}$                    \\
+\end{tabbing}
+\end{samepage}
+
+\subsubsection{Substitute}
+
+The substitution rule from {\cfg}s can be applied to {\reg}s 
+so long as meta-parentheses are added.
+
+\subsubsection{Combine (general form)}
+
+The rules
+
+$A\la\alpha_1$ \quad $A\la\alpha_1$ \ldots $A\la\alpha_m$
+
+\noindent
+can be replaced with a regular expression rule
+
+$A\la \alpha_1|\alpha_2|\ldots|\alpha_m$
+
+\subsubsection{Recursion}
+Both of the recursion rules can also be applied in reverse to remove
+the Kleene `*'.
+
+\subsubsection{Left Recursion Removal}
+The rules
+
+$A\la\alpha_1$ \quad $A\la\alpha_2$; \ldots $A\la\alpha_m$
+
+\noindent
+and the rules
+
+$A\la A\beta_1$; $A\la A\beta_2$; ... $A\la A\beta_n$
+
+\noindent
+can be turned into the single rule
+
+$A\la$($\alpha_1|\alpha_2 ... |\alpha_m$)($\beta_1|\beta_2 ... |\beta_n$)*
+
+
+\subsection{\reg\ to \cfg}
+
+Given a regular expression $R$, the regular expression grammar (\reg)
+\begin{displaymath}
+\>G\la R
+\end{displaymath}
+describes the same language as the regular expression $R$.
+Using the \reg\ transformations, the regular expression meta-symbols
+can be systematically removed, resulting in a \cfg\ that 
+still describes the same language.
+
+Continuing, the \cfg\ can be transformed into a left-linear form
+describing a \dfa.
+
+The process can be reversed.
+In the general case, starting from an arbitrary \cfg,
+the reverse process will not end in a single rule.
+
+\subsection{Using \reg{s}}
+
+The \reg\ notation will be applied to the two main components of the 
+compiler front end, parsing and scanning.  
+Its obvious descriptive power is offset by not providing an obvious 
+syntax tree.  Because of this we usually need both a \cfg\
+and a \reg\ for each computer language.
+
+\subsubsection{Exercise}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item Describe the X language using an \reg.
+
+\item What is the shortest self describing grammar 
+you can devise?  You may want to exclude some of the meta-symbols.
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+
+\end{document}
+

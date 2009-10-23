@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Analysis.html
+     PURPOSE:   Describe compiler front ends
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Analysis of Programming Languages
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Analysis.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Analysis of Programming Languages</H3>
+</CENTER>
+<P ALIGN=RIGHT>
+`The question is,' said Alice<BR>
+`whether you <EM>can</EM> make words mean so many different things.'<BR>
+`The question is,' said Humpty Dumpty,<BR>
+`which is to be master -- that's all.'<BR>
+-- Lewis Carroll, <EM>Alice in Wonderland</EM>
+</P>
+
+<P><B>Kinds of Analysis</B></P>
+
+<P>
+When a text is written down there must be an agreement 
+so that the readers understand the writers.  
+The agreement includes the form and the meaning of what is written.
+</P>
+
+<P>
+From the viewpoint of a compiler, a user program is a sequence of
+characters; to the programmer it is a much richer entity.  The
+compiler must inspect the input text, deduce the content intended by
+the programmer, and synthesize a corresponding executable.
+</P>
+
+<P>
+Programming language text has two levels of structure.  The first level
+defines <B>symbols</B> analogous to the words and punctuation 
+of natural language.
+The second level defines <B>phrase structure</B>, 
+relating nearby sequences of symbols.  
+The phrase structure of natural language contains concepts
+such as <I>subject</I>, <I>object</I> and <I>predicate</I>.  
+The phase structure of an imperative programming language instead uses 
+phrase names such <I>program</I>, <I>statement</I> and <I>expression</I>.
+</P>
+
+<P>
+Once the shape of the program is determined, the compiler must find
+the <B>meaning</B> of the symbols and their relations.  
+Information about meaning can be inherent in the symbol (such as '+'), 
+or provided explicitly by the programmer, for example, 
+in the form of declarations.  
+In X, the programmer-intended meaning of each non-reserved symbol 
+is inferred from its use.
+</P>
+
+<P>
+When the compiler cannot analyze its input, 
+it issues a <B>diagnostic</B> to assist the programmer in making 
+the input acceptable.  
+Locating the exact <B>point of failure</B>
+is part of the diagnostic process.
+</P>
+
+<H4>Front-end Components</H4>
+<UL>
+
+<LI>
+<A HREF="Grammar.html">Grammars</A>. Grammars, in particular context-free
+grammars and some extensions thereto, 
+are the basis of programming language description.
+Mathematical notation is defined and used; it is also 
+<A HREF="Notation.pdf">
+summarized</A> separately.
+</LI>
+
+<LI>
+<A HREF="Lexing.html">Lexing</A>.  Separating out the words and punctuation of
+computer programs.
+</LI>
+
+<LI>
+<A HREF="Parsing.html">Parsing</A>.  Discovering the phrase structure of
+computer programs.
+</LI>
+
+<LI>
+<A HREF="SyntaxTree.html">Tree</A>.  Building the syntax tree 
+or abstract syntax tree from the canonical parse.
+</LI>
+
+<LI>
+<A HREF="Symbols.html">Symbols</A>.  Associating attributes with names 
+found in computer programs.
+</LI>
+
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

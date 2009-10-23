@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      CodeOptimization.html
+     PURPOSE:   Discussion of conventional computer code optimization
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Conventional Code Optimization
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> CodeOptimization.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Code Optimization</H3>
+</CENTER>
+
+<H4>The "As If" Rule</H4>
+<P>
+When a compiler, for reasons of efficiency, does things differently 
+than one would expect from a literal reading of the original program,
+the compiled program is required to get the same results <B>as if</B> 
+nothing had been changed.  
+The outside observer must not be able to detect the difference, 
+except by improved performance.
+</P>
+
+<P>
+The "as if" rule is sometimes relaxed for floating point computations.
+Reordering operands in an expression can affect the roundoff.
+It is quite easy to write an expression in C that will evaluate to
+NaN with one order of evaluation, and zero with a different order.
+The question is whether the user wants exact semantics or faster
+execution.  The compiler needs a user-settable flag.
+</P>
+
+<P>
+There is no code optimization in <B>xcom</B>,  
+so there are no examples to examine.
+In this short treatment, generalities will have to suffice.
+</P>
+
+<H4>Semantic Specification</H4>
+
+<P>Making a formal statement about the "as if" rule depends on having
+a specification of semantics.  The usual form of such a specification
+is the combination of a simple <B>translation/abstract machine</B> pair.
+The idea is to make the meaning immediately obvious.
+</P>
+<P>
+In the case of X, the simple translation would target the 
+<A HREF="ContextFreeGrammar.pdf">syntax tree</A> and the abstract machine
+would be a tree-walking interpreter.
+If the such an abstraction were implemented,
+it would provide an executable way to test xcom for any input program.
+</P>
+
+<H4>The Compile Time/Execution Time Tradeoff</H4>
+<P>
+Making the executable run faster is not always a good idea.
+The decision depends on how many times the executable is going to be run
+and who is waiting while the compiler is working hard to optimize.
+In the case of a JIT, expensive optimization is rarely justified because
+compile time is user time.  In the case of off-line compilation, such as
+when using gnu C, more optimization can be included in the default
+behavior.
+Compilers almost always supply flags to allow the user to choose the
+level of optimization, partly to avoid waiting for long compiles.
+Usually the debugger does better with unoptimized code, 
+so the user turns optimization off during development.
+Because <B>xcom</B> itself is meant to be read as an example, 
+xcom does no optimization, thereby simplifying the learning experience.
+</P>
+
+<H4>Close in Time -- Close in Space</H4>
+<P>
+The performance bottleneck is almost always <B>access to main memory</B>
+(sometimes called <A HREF="Glossary.html#RAM">RAM</A> 
+for Random Access Memory),
+but nowadays the more random the access, the slower the code. 
+A 
+<A HREF="Glossary.html#cache">cache</A>
+miss is many times more expensive than executing an instruction.  
+Modern optimization is, then, 
+more about keeping access in the cache(s) than about avoiding some
+particularly slow instructions.    
+Following randomly distributed memory links is the worst case.
+Another is a long sequence of calls, each of which is "somewhere else"
+in the metrics of the cache.
+</P>
+<P>
+The local variables of a compiled function are usually kept in a frame:
+a contiguous block of memory accessed via a stack pointer (register).  
+Based on the assumption that the locals will be frequently accessed 
+in a short time interval, the frame should be kept compact, 
+and therefore likely to be held in one or a few 
+<A HREF="Glossary.html#cache">cache</A> lines.
+</P>
+
+<H4>Local Optimization -- Constant Folding</H4>
+<P>
+An obvious optimization is <B>constant folding</B>.  A programmer seeing
+<BIG>
+  <PRE>
+      x := y + 1 + 2 + z;
+  </PRE>
+</BIG>
+feels the urge to rewrite it as
+<BIG>
+  <PRE>
+    x := y + 3 + z;
+  </PRE>
+</BIG>
+The original programmer may have had a good reason to write 1+2, 
+expressed in nearby comments describing the reason for constants 1 and 2.
+That is to say, what is optimal for computer performance may not be optimal
+for the human writer or reader.
+</P>
+<P>
+It is required that the compiler, adding 1 and 2 at compile time,
+use exactly the same arithmetic that the hardware would have used later.
+Insuring consistency takes extra care when the compiler and 
+the executable might run on different machines.
+</P>
+<P>
+In fact, the rewrite above does not follow the formal semantics 
+which would be, because the X CFG says '+' is left associative,
+<BIG>
+  <PRE>
+    x := ((y+1)+2)+z;
+  </PRE>
+</BIG>
+The optimizer "knows" that 2's complement addition is
+computationally associative, so it can go ahead with the constant
+folding based on the "as if" rule.
+<P>
+It is often the case in complex programs that the programmer cannot
+eliminate an actually constant expression by hand because the language
+does not permit enough control over the details.  The expectation is that
+the compiler will take care of the details for us, under the covers, 
+and without any special effort on the part of the programmer.  
+</P>
+<P>
+Constant folding is often implemented by rewriting 
+the intermediate representation.  
+Using the syntax tree for an intermediate representation is not efficient
+if tree transformations are expected.  
+Instead a more compact <A HREF="SyntaxTree.html">abstract syntax tree</A>
+(AST) is constructed by the parser and used in the downstream processing.
+</P>
+<P>
+  The AST for <BIG><TT>x:=((y+1)+2)+z;</TT></BIG>
+  <BIG>
+    <PRE>
+        :=
+       /  \
+      x    +
+          / \
+         +   z
+        / \
+       +   2
+      / \
+     y   1
+      
+    </PRE>
+  </BIG>
+  is transformed into the AST for <BIG><TT>x:=((y+(1+2))+z</TT></BIG>
+  <BIG>
+    <PRE>
+       :=
+      /  \
+     x    +
+         / \
+        +   z
+       / \
+      y   +
+         / \
+        1   2
+    </PRE>
+  </BIG>
+and then the node for (1+2) is nipped out and replace by a node for 3.
+  <BIG>
+    <PRE>
+      :=
+     /  \
+    x    +
+        / \
+       +   z
+      / \
+     y   3
+    </PRE>
+  </BIG>
+</P>
+
+<H4>Local Optimization -- Identities</H4>
+<P>
+Consider these two assignments for some expression.
+<TABLE><TR><TD WIDTH="50"></TD>
+  <TD>
+    <TABLE BORDER="1">
+      <TR>
+        <TD><BIG><TT>x := expr^2;</TT></BIG></TD>
+        <TD><BIG><TT>x := expr*expr;</TT></BIG></TD>
+      </TR>
+    </TABLE>
+  </TD></TR>
+</TABLE>
+<P>
+  Which one should the programmer write?  What should the compiler do?
+  If the expression does not have any side effects (such as calling rand),
+  the two lines of code express the same meaning.
+  The compiler should "do the right thing", 
+  meaning make the same machine language regardless of what is written.
+</P>
+<P>
+  If the expression is large, computing it only once is more efficient.
+  Once computed, it can be multiplied by itself.  
+  The optimization is obvious and easy with the first line of code.
+  The second line requires common subexpression elimination (see below).
+</P>
+<P>
+Suppose the choice was between lines
+<TABLE><TR><TD WIDTH="50"></TD>
+  <TD>
+    <TABLE BORDER="1">
+      <TR>
+        <TD><BIG><TT>x := rand^2;</TT></BIG></TD>
+        <TD><BIG><TT>x := rand*rand;</TT></BIG></TD>
+      </TR>
+    </TABLE>
+  </TD></TR>
+</TABLE>
+The optimizer no longer has a choice since <TT>rand</TT> has a side
+effect.  What the programmer wrote must be literally obeyed.
+</P>
+<P>
+Many compilers have a long list of identities which are used to find
+the simplest form for translation, depending on what the compiler does
+well.  Here is a small sample.  The transformations can be applied
+recursively (For example <BIG><TT>x+0=x</TT></BIG> to 
+<BIG><TT>x=x</TT></BIG> to <BIG><TT>true</TT></BIG>.)
+so long as there are no side-effects are lost.
+<P>
+<TABLE><TR><TD WIDTH="50"></TD><TD>
+<TABLE BORDER="1">
+<TR><TD><EM>source text</EM></TD>
+    <TD><EM>replacement</EM></TD>
+</TR>
+<TR><TD>x | x</TD><TD>x</TD></TR>
+<TR><TD>x | true</TD><TD>true</TD></TR>
+<TR><TD>x | false</TD><TD>x</TD></TR>
+<TR><TD>x &amp; x</TD><TD>x</TD></TR>
+<TR><TD>x &amp; true</TD><TD>x</TD></TR>
+<TR><TD>x &amp; false</TD><TD>false</TD></TR>
+<TR><TD>x &lt; x</TD><TD>false</TD></TR>
+<TR><TD>x &lt;= x</TD><TD>true</TD></TR>
+<TR><TD>x = x</TD><TD>true</TD></TR>
+<TR><TD>x + 0</TD><TD>x</TD></TR>
+<TR><TD>x * 1</TD><TD>x</TD></TR>
+<TR><TD>x * x</TD><TD>x ^ 2</TD></TR>
+<TR><TD>if true ? S fi</TD><TD>S</TD></TR>
+<TR><TD>if false ? S fi</TD><TD>&nbsp;</TD></TR>
+</TABLE>
+</TD></TR></TABLE>
+</P>
+  <TT>xcom</TT> could apply these transformations, 
+  but only after the type analysis.  
+  For instance, xcom infers <BIG><TT>x</TT></BIG>
+  is of type int from the expression <BIG><TT>x+0</TT></BIG>.
+</P>
+<P>
+Because of numerical roundoff and instability, 
+equivalence transformations are much trickier for floating point values.
+</P>
+
+<H4>Local Optimization -- Peephole</H4>
+<P>
+Another source of local optimization is found in code selection and
+transformation at the machine level.  For instance, the sequence
+<BIG>
+  <PRE>
+    y := 1;
+    z := y + 3;
+  </PRE>
+</BIG>
+will almost surely fetch the value of <BIG><TT>y</TT></BIG> 
+into a register again just after storing it into memory.  
+But the register already has the value of <BIG><TT>y</TT></BIG> 
+so the fetch can be eliminated.  
+This is called a 
+<A HREF="http://en.wikipedia.org/wiki/Peephole_optimization">
+peephole optimization</A> because it can be done based 
+on looking at and transforming a small region of code 
+after it has been synthesized.
+The implementation of peepholes is left to a 
+<A HREF="Assembler.html">smart assembler</A>. 
+The compiler gives the assembler a valid sequence of instructions;
+the assembler knows better and changes the code to run faster.
+</P>
+
+<P> For this example, the X86 code sequence
+  <BIG>
+    <PRE>
+      movRC EAX,=1
+      movMR y,EAX
+      movRM EAX,y
+      movRC ECX,=3
+      ADDRR EAX,ECX
+      movMR z,EAX
+    </PRE>
+  </BIG>
+  becomes
+  <BIG>
+    <PRE>
+      movRC EAX,=1
+      movMR y,EAX
+      movRC ECX,=3
+      ADDRR EAX,ECX
+      movMR z,EAX
+    </PRE>
+  </BIG>
+</P>  
+
+<H4>Non-local Optimization -- Common Subexpression Elimination</H4>
+<P>
+It is possible that a subexpression, say <TT>i+1</TT>, 
+is used in several places in a program.
+The optimizer would compile code to compute the subexpression and
+assign the result to a temporary variable, 
+then use the variable in place of the subexpressions.
+While one might think the original programmer could do this,
+it should not be a requirement since it might make the program
+less readable.
+</P>
+<P>
+More to the point, many common subexpressions are not accessible
+to the programmer but <EM>can</EM> be manipulated by the compiler.
+The typical case is a complicated set of subscripts.  For example
+<BIG>
+  <PRE>
+    A(i,j) = B(i,j)*3 + sqrt(A(i,j))
+  </PRE>
+</BIG>  
+In MATLAB, each subscript not only needs to be evaluated,
+but also checked for being an exact integer, and greater than zero,
+and no more than the array bound.  
+The result is a lot of repetitive code doing exactly the same thing,
+over and over and over.  
+The result is common subexpressions, but at a level below direct
+control of the programmer.  The optimizer has to do the work.
+</P>
+<P>
+This valuable optimization comes at a cost.
+The compiler must check that all instances have exactly the same value
+for each variable (no intervening assignments, no intervening branches,
+no changes from other threads).  
+Then a place is picked to insert the unique prior evaluation and assignment 
+to the temporary, and the existing subexpressions have to be deleted and
+replaced by an access to the temporary.
+</P>
+<P>
+Suppose the unique evaluation of the subexpression throws an exception.
+The executable must, of course, report the exception.  But what source
+location can be reported for inserted code?  Single stepping with a
+debugger can be equally confusing.  
+</P>
+
+<H4>Non-local Optimization -- Hoisting</H4>
+<P>
+An expression (common or not) may be constant inside of a loop.
+The compiler can move the point of evaluation outside the loop,
+assign the value to a temporary and use the temporary inside the loop.
+Because loops can nest, 
+a hoisted expression can be part of another hoisted expression.  
+This trick causes the same class of problems mentioned above
+with respect to exceptions and debuggers.
+In a MATLAB solution to the wave equation, moving a constant sparse matrix
+multiply out of the loop led to a 5x speedup.
+</P>
+
+<H4>Non-local Optimization -- Register Allocation</H4>
+<P>
+  Keeping frequently accessed data in a register 
+  (as contrasted to keeping it in memory)
+  is a powerful method of increasing execution speed.
+  The problem is, of course, 
+  that there are only a limited number of registers.
+  An optimizing compiler may <EM>never</EM> put a heavily used variable 
+  (such as a loop control index) in memory.
+  Such a compiler typically has two stages of code production.
+  The first stage assumes there are an infinite number of registers.
+  Once the code is prepared, it is examined to find what 
+  actual assignment of registers is most efficient.
+  Register spill instructions are inserted as necessary to clear 
+  registers for use with the expectation that they will be reloaded later.
+</P>
+
+<H4>Non-local Optimization -- Parallel Execution</H4>
+<P>
+  If the hardware contains multiple execution units,
+  and the compiler can discover independent paths of execution
+  that do not write to any memory that is shared,
+  and the paths are long enough to repay the overhead,
+  then each path can be launched on a separate thread,
+  joining and proceeding sequentially 
+  after the slowest of the bunch is finished.
+  Automatic discovery of such independent paths in general is very hard.
+  The fundamental reason is that the original code is usually not written
+  with parallelism in mind, 
+  computation is interleaved however the programmer feels is 
+  the clearest expression of intent.
+</P>
+
+<H4>Serious Industrial-strength Optimization</H4>
+<P>
+A competitive optimizer takes 100+ engineer-years of effort.
+Here is a brief paper about a 
+<A HREF="DigitalGem.pdf" TARGET="RGrove">code optimizer</A>,
+built by a team of 20 during the 1990's at Digital (Note: it was called
+<EM>Gem</EM>, 
+which is also the name used in this course for Grammar Execution Machine.)
+
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Emitter.html
+     PURPOSE:   Describe transformation semantic actions into CPU actions
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Emitter
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Emitter.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Expand Semantic Action Sequence into CPU Sequence</H3>
+</CENTER>
+
+<H4>Emitter Constructor</H4>
+<P>
+  The emitter activity is mostly confined to the local constructs
+  in the compiled X file.
+  The emitter needs information about other files to call subprograms;  
+  The constructor is passed external information for this purpose.
+</P>
+
+<H4>Semantic Actions</H4>
+<P>
+  The emitter object implements a collection of methods
+  translating semantic actions into hardware actions.
+  The semantic actions of X are:
+  <TABLE ALIGN="center" BORDER="1">
+    <TR>
+      <TD ALIGN="center"><B>name</B></TD>
+      <TD ALIGN="center"><B>summary</B></TD>
+      <TD ALIGN="center"><B>actions</B></TD>
+    </TR>
+    <TR>
+      <TD>prolog</TD>  
+      <TD>X program entry</TD>
+      <TD>set hardware frame, callee save, point at X frame</TD>
+    </TR>
+    <TR>
+      <TD>epilog</TD>  
+      <TD>X program exit</TD>
+      <TD>callee restore, cleanup frame, return to xcom</TD>
+    </TR>
+    <TR>
+      <TD>arithAbort(rule,tok)</TD>     
+      <TD>X program run error</TD>
+      <TD>in case of divide by 0</TD>
+    </TR>
+      <TD>stmt</TD>      
+      <TD>statement processing</TD>
+      <TD>no action needed</TD>
+    </TR>
+    <TR>
+      <TD>call(outputs,name,inputs)</TD>      
+      <TD>call X subprogram</TD>
+      <TD>
+        find called subprogram<BR>
+        check inputs&amp;outputs for type<BR>
+        prepare input&amp;output transfer vector<BR>
+        call linker, cleanup after return
+      </TD>
+    </TR>
+    <TR>
+      <TD>opd=var(tok)</TD>  
+      <TD>LHS var</TD> 
+      <TD>symbol lookup, set tag S</TD>
+    </TR>
+    <TR>
+      <TD>opd=expr0(rule,tok)</TD>     
+      <TD>0-ary expression processing<BR>
+          literals, RHS var, rand
+      </TD>
+      <TD>literal: capture text: set tag L<BR>
+          var: symbol lookup: set tag S<BR>
+          rand: call rand: set tag X
+      </TD>
+    </TR>
+    <TR>
+    <TD>opd=expr1(rule,opd)</TD>     
+      <TD>1-ary expression processing<BR>
+      </TD>
+      <TD>
+        ~ i2b -(integer): set tag R<BR>
+        i2r r2i -(real): set tag X
+      </TD>
+    </TR>
+    <TR>
+      <TD>opd=expr2(rule,left,right)</TD>     
+      <TD>2-ary expression processing</TD>
+      <TD>
+        | &amp;: set tag R<BR>
+        integer &lt; &lt;= = ~= &gt;= &gt;: set tag F<BR>
+        integer + - * / //; set tag R</BR>
+        real &lt; &lt;= &gt;= &gt;: set tag D<BR>
+        real + - * /: set tag X</BR>
+      </TD>
+    </TR>
+    <TR>
+      <TD>store(lefts,rights)</TD>     
+      <TD>store to frame</TD>
+      <TD>:=  set tags A</TD>
+    </TR>
+    <TR>
+      <TD>iffiEnd(list)</TD>
+      <TD>finish up if-fi</TD>
+      <TD>fixup alt ends to beyond fi</TD>
+    </TR>
+    <TR>
+      <TD>iffiAbort(tok)</TD> 
+      <TD>failed all guards</TD>
+      <TD>abort X progran</TD>
+    </TR>
+    <TR>
+      <TD>loc=doodBegin</TD> 
+      <TD>start do-od</TD>
+      <TD>save loop start</TD>
+    </TR>
+    <TR>
+      <TD>doodEnd(list,loc)</TD>
+      <TD>finish up do-od</TD>
+      <TD>fixup alt ends back to loop head</TD>
+    </TR>
+    <TR>
+      <TD>loc=guardEnd(opd,tok)</TD>
+      <TD>finish up guard</TD>
+      <TD>emit conditional branch after guard<BR>
+        set tag A
+      </TD>
+    </TR>
+    <TR>
+      <TD>loc=altEnd(loc)</TD>
+      <TD>finish up alt</TD>
+      <TD>emit branch to next alt<BR>
+          fixup previous alt branch
+      </TD>
+    </TR>
+  </TABLE>
+</P>
+
+<H4>Tracking Operands</H4>
+
+<P>
+  X expressions combine <B>variables</B> and <B>literal constants</B>
+  to compute values.  
+  The names and constants are transformed by stages between forms 
+  acceptable for the target hardware (in this case Intel 32-bit x86). 
+</P>
+<P>
+  An array of operands is maintained.  
+  The array contains structs for active operands as well as a pool 
+  of available structs for new operands.  
+  The status of a particular operand is determined by its status tag. 
+  Once assigned, an operand is <B>modified in-place</B> via its
+  index and its tag updated accordingly.  
+  When the operand is no longer needed, 
+  the operand is tagged as available and returned to the pool
+  for later use (tag A).
+</P>
+
+<P>
+<PRE>
+                OPERAND TAGS AND TRANSITIONS:
+                
+                              F            A -- available
+   A --- L --------.         / \           L -- literal constant
+                    \        \ /   /\      S -- symbol table index
+                     >------- R --<  X     M -- in memory frame
+                    /        / \   \/      X -- in temporary memory
+   A --- S --- M --'        D   F          R -- in a register
+                             \ /           F -- in general flags
+                              R            D -- in floating flags
+</PRE>
+</P>
+
+<P>
+<PRE>
+                OPERAND CONTENTS:
+
+  tag    A    L      S      M      X      R     R     D     F 
+  ty     ?    b|i|r  b|i|r  b|i|r  b|i|r  b|i   r     b     b 
+  val    ?    token  idx    idx    idx    reg   ?     test  test
+</PRE>
+</P>
+
+<P>
+<PRE>
+                OPERAND TRANSFORMERS:
+                
+  toA  toR  toX  toF  L2R  R2X  X2R  S2M  M2R  F2R  D2R 
+</PRE>
+</P>
+
+<P>
+  A literal constant (e.g. true, 13, 1.01) is tagged L, the type is set 
+  and the text form of the constant, still in the source text. is
+  converted to machine form and recorded as the val field.
+  Real values are punned to MATLAB int32, and need to be punned back to
+  MATLAB single when they are used.
+  When the value is needed, an operand transform <B>L2R</B> is provided.  
+</P>
+<P>
+  Each variable is already in the symbol table (an earlier phase).
+  When the name is encountered in the tree walk, 
+  the type is looked up and copied, 
+  the operand is tagged S, 
+  and the operand value is set to the symbol table index.  
+  When the variable is needed, a transform <B>S2M</B> is provided.
+  The type and val fields remains unchanged, the tag becomes M (the memory 
+  offset in the frame is the same as the symbol table index).
+</P>
+<P>
+  If the value is needed from memory, a transform <B>M2R</B> is provided.  
+  Code is generated to get the value from the frame into a register.  
+  The tag becomes R, the type is unchanged.  
+  If the type is integer or logical,
+  an Intel general register is used and the operand value field is set to
+  the register number; if the type is real, the Intel FPS is used and the
+  value field is ignored.
+</P>
+<P>
+  The result of a comparison is either in the integer flags (tag F) or
+  the FPS flags (tag D).  The test needed is the value.  
+  The Intel branching logic requires that the
+  information gets to tag F before it can be used.  
+  The transform <B>toF</B> insures that a type logical operand is in the flags.
+</P>
+<P>
+  Computer hardware resets the flags after most operations.
+  The motto is "flag: use it or lose it".
+  There is a provision that insures that a D or F flag is
+  never left hanging around (and thereby getting clobbered).
+  Unless the logical value is assigned, 
+  the tag F operand immediately becomes available (tag A) after use.
+</P>
+<P>
+  When a general register is needed and not available, function <B>R2X</B>
+  dumps a busy register into a temporary location in the frame (tag X), 
+  the type is unchanged, the value is the temp index.  
+  The pending request for a register can then be satisfied.  
+  Later, transform <B>X2R</B> recovers the temporarily saved value 
+  and frees the temporary location in the frame for later use.
+</P>
+<P>
+  To avoid thrashing temporary stores, the lookup for getting a register
+  can protect one register (presumably another register it is immediately 
+  going to need).
+</P>
+<P>
+  In an error situation where the failure report must be delayed, the
+  operand is tagged as an error (tag E) and the value is the error
+  message.  There are no examples in xcom.
+</P>
+
+<H4>Emitting Expression Code</H4>
+<P>
+The emitter object exists to emit machine code.
+Each time an operand transitions, corresponding code is sent on
+to the assembler as a <A HREF="Glossary.html#sideeffect">side-effect</A>.
+The details of the emitters are most easily understood by examining
+the emitter code.  Such understanding requires some understanding
+of the underlying hardware.
+</P>
+
+<H4>Control Logic</H4>
+<P>
+  Intel x86 control is provided by branching instructions.  
+  Branches are used for conditional execution and also subprogram calls.
+</P>
+<P>
+  The X 'if-fi' requires a set of forward branches.  After each failed
+  guard the next guard must be tried.  After each successful case, the
+  statement following the 'if-fi' must be reached.  If all guards fail,
+  the X program must abort.  The branches following the guards are
+  conditional; the branches following the statements are unconditional.
+  <PRE>
+   --> if     guard +--> stmts -.
+          ,------<--'           |
+       :: `-> guard +--> stmts -.
+          ,------<--'           |
+       :: `-> guard +--> stmts -.
+          ,------<--'           |
+       :: `-> guard +--> stmts -.
+          ,------<--'           |
+          `-> abort             |
+       fi                       |
+      ,----------<--------------'
+      ` next stmt
+  </PRE>
+</P>
+<P>
+  The X 'do-od' requires some of the same forward branches plus a set of
+  backward branches.  After each failed guard the next guard must be
+  tried.  After a successful case, the loop must  be repeated.  If all
+  cases fail, the statement after the do-od must be reached.
+  <PRE>
+      ,----------<--------------.
+      |                         |
+  --> `do     guard +--> stmts -'
+          ,------<--'           |
+       :: `-> guard +--> stmts -'
+          ,------<--'           |
+       :: `-> guard +--> stmts -'
+          ,------<--'           |
+       :: `-> guard +--> stmts -'
+       od           |
+      ,----------<--'
+      `-> next stmt
+  </PRE>
+  Forward branches must be placed in the code stream before the relative
+  offset to the destination is known.  This is accomplished by leaving a
+  "hole"  for the offset field and then "fixing it up" later.  Backward
+  branches can be filled in immediately or can use the "fixup" mechanism.
+</P>
+<H4>Fixups</H4>
+<P>
+  Two integers suffice to determine a fixup action: the index of the "hole"
+  and the index of the branch destination. The program counter is always 
+  left pointing at the next unused byte.  A relative branch therefore is 
+  relative to the start of the next instruction.  For a forward branch, 
+  which is recorded as soon as the destination is known, the implicit
+  destination is the program counter (which points at the next code,
+  whatever it is going to be).  The value of the program counter at any
+  time is supplied by assembler method getPc. 
+  The value of EIP, the hardware program counter might be anything,
+  but since everything is self-relative, it does not matter.
+</P>
+<H4>Code Selection</H4>
+<P>
+  Code selection is the process of choosing a sequence of machine
+  instructions to implement the semantic actions.
+  The choices are usually straightforward; they can be seen in EmitX86.m.
+  One choice that may seem strange is forcing real values back into
+  memory after each operation.
+  One consequence is that at most two of the eight FPS registers are used.
+  One advantage is that <B>xcom</B> can never cause FPS stack overflow.
+  A better reason is to keep the arithmetic consistent.
+  The FPS carries 80 bits; <B>xcom</B> variables are 32 bits.
+  The results in <B>xcom</B> do not, therefore, depend on the details
+  of the FPS management.
+  The real reason is that it makes the emitter code easier to understand.
+</P>
+
+<P>
+  The assembler contains logic to error on FPS overflow, but it never
+  happens.
+</P>
+
+<H4>Targetting Other Hardware</H4>
+<P>
+  The xcom compiler, in one form or another, has been implemented for a
+  dozen different CPUs.  
+  Soon enough, another important "box" will come along, and the 
+  emitter will have to be retargetted once again.
+  Industrial strength compilers typically impose another layer of
+  abstraction between the emitter and assembler (a so-called 
+  <A HREF="http://en.wikipedia.org/wiki/UNCOL">UNCOL</A>)
+  so that the inevitable retargeting is less painful.
+</P>
+
+<H4>Runtime Errors</H4>
+<P>
+  When something bad happens in the runtime,
+  the compiler is obligated to give the X user enough information to fix
+  the problem.  
+  Divide by zero is a common case.
+</P>
+<P>
+  What the user needs is a message about what happened and the
+  location (say file, line and column) of the trouble in the X program.
+  There are usually not very many such trouble spots; 
+  they can be numbered from 1 to N.
+  In xcom, the location and message are precomputed "just in case",
+  and the messages are tabulated, 1 to N in an xcom table.
+  The runtime merely needs to report the table index back to xcom to
+  enable xcom to make a reasonable report.  There is a special early exit 
+  called bailout in the assembler for this purpose.
+</P>
+<P>
+  The alternative is to report errors directly from the emitted code.
+  This is far too messy a process to inflict on students.  MATLAB already
+  knows how to do it, so let it.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

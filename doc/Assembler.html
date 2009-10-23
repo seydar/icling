@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Assembler.html
+     PURPOSE:   Describe assembly of CPU instructions
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+-->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Assembler
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Assembler.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Assembly of CPU Instructions</H3>
+</CENTER>
+
+<H4>Assemblers</H4>
+<P>
+    Machine code is patterns of bits laid out in executable memory.  
+    For example, the following snippet of xcom output.
+    <BIG>
+        <PRE>
+            >> xcom -asmDump x:=1
+            x86 code dump, 24 bytes code=0xe754220
+            5589e58b7508b801000000898600000000b800000000c9c3
+            x := 1
+        </PRE>
+    </BIG>
+    One can, in principle, construct such bit patterns by hand.
+    In fact, more mnemonic forms are presented by an <B>assembler</B>,
+    software typically prepared and maintained by the manufacturer.
+    Compilers commonly output a text file containing the mnemonic
+    instructions and leave the rest up to the manufacturer.  Such
+    output might look like this:
+    <BIG>
+        <PRE>
+            >> xcom -asmTrace x:=1
+            Asmx86:    1 pushR EBP (save x86 frame pointer)
+            Asmx86:    2 movRR EBP,ESP
+            Asmx86:    4 movRP ESI,8 (point at X frame)
+            Asmx86:    7 movRC EAX,=1=0x1
+            Asmx86:   12 movMR 0,EAX (x)
+            Asmx86:   18 movRC EAX,=0=0x0 (no error)
+            Asmx86:   23 leave
+            Asmx86:   24 ret
+        </PRE>
+    </BIG>
+    Passing the buck to the manufacturer works, 
+    but is rather slower than could be achieved by more direct means.
+    Besides, the approach of this course is to do it all.
+</P>
+
+<H4>Smart Assemblers</H4>
+<P>
+    It is possible to implement an assembler that does not
+    do <EM>exactly</EM> what it is told.  
+    The assembler, as an optimizer, 
+    can apply the <A HREF="CodeOptimization.html">as if</A> rule,
+    actually laying out code that has the same effect as demanded by its
+    input, but choosing more efficient code sequences.
+    <A HREF="http://en.wikipedia.org/wiki/Peephole_optimization">
+    Peephole optimization</A> is one example of this kind of "smarts".
+</P>
+
+<H4>Intel x86</H4>
+<P>
+    The x86 line of Intel CPUs is a
+    <A HREF="http://en.wikipedia.org/wiki/Complex_instruction_set_computer">
+    CISC</A> design; 
+    it is the most successful general purpose computer chip ever manufactured.  
+    It is remarkable that one design has evolved from a 4-bit uni-processor to 
+    a 64-bit multi-processor, 
+    largely keeping backward compatibility at each stage.
+</P>
+<P>
+    Here is a <A HREF="IntelX86.html">description</A> the small part of 
+    the Intel x86 that is actually used by xcom.
+    That is not to say that the x86 is elegant,
+    or easy to use, or efficient.  
+    The dominance of the x86 design has led to much documentation and 
+    lamentation.
+</P>
+
+<H4>Execution</H4>
+
+<P>
+    The <B>xcom</B> system has its own x86 <B>assembler</B>.  
+    It is an object.
+    It has a method for each necessary instruction (many fewer than
+    available in the full hardware).  
+    Each method builds and places corresponding bit patterns into an 
+    internal array.  
+    When the translation is finished, and the array is full,
+    the xcom assembler offers one more method which immediately
+    executes the bits.  This is <B>load&amp;go</B>.
+    When one needs more instructions, the assembler needs to be 
+    <A HREF="ChangingAsm.html">changed</A>.
+</P>
+
+<P>
+    The <B>xcom</B> system has its own 32-bit x86 
+    instruction-by-instruction <A HREF="Emulator.html">emulator</A>.  
+    It walks the assembler output,
+    emulating each necessary instruction
+    The emulator can either zip through the compiled code, 
+    printing two lines per instruction executed,
+    or it can be run interactively, 
+    stepping forward and backward in the instruction trace.
+    When one needs more instructions, the emulator needs to be 
+    <A HREF="ChangingEmulator.html">changed</A>.
+</P>
+
+
+<H4>References</H4>
+<P>For quick reference, it is often enough to look at:
+  <UL>
+    <LI>Brief summary of Intel <A HREF="x86.html">x86</A> instructions.</LI>
+    <LI>Brief summary of Intel <A HREF="x87.html">x87</A> instructions.</LI>
+  </UL>
+</P>
+
+<P>
+Historically important documents are made available by
+<UL>
+<LI>
+<A HREF="http://www.x86.org/intel.doc/486manuals.htm">
+ Dr.Dobb's Journal</A>.
+</LI>
+</UL>
+</P>
+
+<P>
+The official documents from Intel:
+<UL>
+<LI>
+<A HREF="http://developer.intel.com/design/pentium/manuals/24319101.pdf">
+Architecture Software Developer's Manual Vol 2</A>
+Instruction Set Reference (566 pp)
+</LI>
+<LI>
+Intel 64and IA-32 Architectures Software Developer's Manual
+<UL>
+<LI>
+<A HREF="http://www.pentium.dk/design/processor/manuals/253666.pdf">Vol 2A</A>
+Instruction Set Reference A-M (758 pp)
+</LI>
+
+<LI>
+<A HREF="http://www.pentium.dk/design/processor/manuals/253667.pdf">Vol 2B</A>
+Instruction Set Reference N-Z (618 pp)
+</LI>
+</UL>
+</UL>
+</P>
+
+<H4>Other CPUs</H4>
+<P>
+Over the years, 
+the author and students of the xcom system have 
+prepared subset assemblers for the 
+<A HREF="http://en.wikipedia.org/wiki/IBM_360">IBM S/360</A>,
+<A HREF="http://en.wikipedia.org/wiki/VAX">Digital VAX</A>,
+<A HREF="http://en.wikipedia.org/wiki/DEC_Alpha">Digital Alpha</A>,
+<A HREF="http://en.wikipedia.org/wiki/Motorola_68000">Motorola 68000</A>, 
+and Intel 486.
+It is a necessary step in moving the system forward in time.
+As of this writing, the 64-bit version of Intel X86 (A64) looms.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

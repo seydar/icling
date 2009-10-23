@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Emulator.html
+     PURPOSE:   Intel x86 Emulator
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Symbol Tables and Type
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Emulator.html&nbsp;&nbsp;&nbsp;  
+<EM>Authors</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+
+<CENTER>
+<H3>Intel x86 Eumlator</H3>
+</CENTER>
+<H4>Preliminary</H4>
+
+<P>
+In MATLAB in the mxcom directory, try
+<BIG>
+<PRE>
+  >> help Emulatex86.m
+</PRE>
+</BIG>
+and
+<BIG>
+<PRE>
+  >> xcom -exeTrace x:=1
+</PRE>
+</BIG>
+and
+<BIG>
+<PRE>
+  >> xcom -interactive x:=1
+</PRE>
+</BIG>
+</P>
+
+<H4>Overall Design</H4>
+<P>
+  The emulator exists to allow the compiler writer to examine emitted
+  code <EM>in vivo</EM>, providing a way to debug the generated code.
+  It is limited to a single X program at a time 
+  since the implementation of the
+  emulation of the calling sequence would be more complex than valuable.
+  Since any subprogram is also a program, this should not be a serious
+  limitation.
+</P>
+
+<P>
+  The emulator is faced with the same decisions made by the Intel hardware.
+  The only significant difference is that the emulator 
+  <B>prints two lines of text</B>, 
+  one giving the information about the instruction that is getting executed, 
+  and the other about the state of the registers after execution.
+  And, of course the emulator is a bit slower than the hardware.
+  Here is a sample. The 4<SUP>th</SUP> instruction of 
+<BIG>
+<PRE>
+  x:=1 
+</PRE>
+</BIG>
+moves a constant 1 into register EAX.  
+The line of 8 numbers is the value of the 8 registers.
+</P>
+<PRE>
+   4: 0xe5be306: movRC EAX,=1
+         1          0          0          0   na    na  0x0228e780   na 
+</PRE>
+<P>
+  The current, and any imaginable future, state of the emulator is that
+  a <B>small percentage</B> of the Intel x86 is implemented.  
+  It should error if it encounters an unimplemented instruction.
+  If it does, you will have to <A HREF="ChangingEmulator.html">fix</A> it.
+</P>
+<P>
+  The emulator has two modes of operation.  
+  The <B>xcom</B> flag -exeTrace requests emulation until a return 
+  (RET = 0xC3) is found.
+  The <B>xcom</B> flag -interactive emulates the first instruction, 
+  then waits for input from the user.
+  The user choses a number of steps (positive or negative).
+  The emulator silently does the steps, printing the last one and 
+  asking for input again.
+  Given the value <B>inf</B> for steps, it will run to completion.
+</P>
+
+<P>
+  Note that the emulator is able to go forward and <B>backward</B>.
+  You can step ahead a chunk, then step back if you missed something.
+  This trick is accomplished by silently saving every possible line of 
+  trace information as a history list.  Stepping back just goes to
+  the right place in the history list and displays the information.
+  Stepping forward extends the history list if necessary, 
+  then reports the next entry.  
+  Presumably this algorithm will get in trouble if the memory demand
+  of the history list gets very large.  
+  But that has not happened yet.
+</P>
+
+<P>
+  Intel x86 instructions are decoded left-to-right.  
+  Usually the granularity is one byte, 
+  but for some very frequently used instructions,
+  only the first 5 bits need to be looked at.
+  The emulator has a main loop, executed once per x86 instruction.
+  At the top of the loop the initial bits of the code stream
+  (as pointed to by EIP) are examined.
+</P>
+<P>
+  Based on the gathered data, a large switch is executed.
+  Each case holds one or more instruction implementations.
+  Each implementation updates the emulated state 
+  (some X arrays and variables),
+  prints the two required lines, and drops to the bottom of loop.  
+  Etc.
+</P>
+
+<H4>MODREG</H4>
+<P>
+  One consistent pecularity of the x86 is called mod-reg.  
+  There are three fields in a byte, called m, r/m and reg.
+  The m is (loosely) a mode, r/m is often a register but 
+  can be other things, reg is almost always a register.
+  The emulator encapsulates the unpacking of this
+  kind of field in a few M functions.
+<BIG>
+  <PRE>
+    function m  = UN_MOD(mr)
+    function rm = UN_R_M(mr)
+    function r  = UN_REG(mr)
+    function [r, rm, m] = UN_MOD_REG(mr)
+  </PRE>
+</BIG>
+</P>
+
+<H4>Hardware Computations</H4>
+<P>
+  Computer arithmetic used to be different for every manufacturer.
+  Integers were implemented as decimal, 
+  or ones-complement or twos-complement.
+  Floating point had a dozen formats on the popular machines.
+  Nowadays, however, IEEE floating point and 2's complement are standard.
+</P>
+<P>
+  One of the jobs of the emulator is to get exactly the same results
+  that the hardware gets for the same operation.  
+  The MATLAB integer arithmetic (8 types in all) does not do the job.
+  For example 
+  <BIG><PRE>   int8(9)/int8(5) == int8(2) </PRE></BIG>
+  and
+  <BIG><PRE>   int8(300) == 127 </PRE></BIG>
+  The easiest way to understand MATLAB integers is to think of them as
+  just small floating point values.  The max corresponds to IEEE inf.
+  Like inf, the maximum value is unchanged when something is 
+  added to it.  Unlike inf, you can subtract something from it.
+  <BIG><PRE>   int8(300)+1-1 == int8(126) </PRE></BIG>
+  Whenever you do anything that gives a non-integral result,
+  the value is rounded.
+  To make things a little more complicated, the hardware sometimes
+  treats a sequence of bits as signed, and sometimes as unsigned.
+  All of this detail is implemented in MATLAB function arith.m.
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

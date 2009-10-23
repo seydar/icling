@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      TakeHomeFinal.html
+     PURPOSE:   Final Exam for 10-lecture course
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.01.30 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Final Exam for 10-lecture Course
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> TakeHomeFinal.html&nbsp;&nbsp;&nbsp;  
+<EM>Authors</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<H3>Take Home Final for 10-Lecture Course</H3>
+
+<H4>X</H4>
+<P>
+  <OL>
+    <LI>
+      Where does the basic design for X come from?
+    </LI>
+    <LI>
+      Write and run a short X program to compute 
+      the average of two real numbers.
+    </LI>
+    <LI>
+      Write and run another short X program to test the first program.
+    </LI>
+    <LI>
+      What are the primitive concepts of X?
+    </LI>
+    <LI>
+      What common programming language primitives are omitted?
+    </LI>
+    <LI>
+      Describe the X subprogram call.
+    </LI>
+  </OL>
+</P>
+
+<H4>Grammars</H4>
+<P>
+  <OL>
+    <LI>Define the term <EM>Context-free Grammar</EM>.</LI>
+    <LI>Write a CFG to describe exact change for a dime.</LI>
+    <LI>Repeat the problem, using a different grammar notation</LI>
+    <LI>Repeat the problem, using a different grammar notation</LI>
+    <LI>Define the term <EM>Finite Automaton</EM> in terms of a CFG.</LI>
+    <LI>Write a FA grammar for change for a dime.</LI>
+    <LI>
+      Describe briefly how a CFG determines order of expression evaluation.
+    </LI>
+  </OL>
+</P>
+
+<H4>Lexing</H4>
+<P>
+  <OL>
+    <LI>
+      Describe the concept of a lexeme.
+    </LI>
+    <LI>
+      Describe the concept of a token.
+    </LI>
+    <LI>
+      There is an argument that implies doing all the lexing before
+      using any of the tokens is efficient.  What is the argument?
+    </LI>
+  </OL>
+</P>
+
+<H4>Parsing</H4>
+<P>
+  <OL>
+    <LI>
+      What are the roles of the CFG and IOG in parser construction?
+    </LI>
+    <LI>
+      Describe the process of deriving the IOG from the CFG.
+    </LI>
+    <LI>
+      The bottom-up parser does not need the IOG.  Why?
+    </LI>
+    <LI>
+      What is the output of the parser?
+    </LI>
+  </OL>
+</P>
+
+<H4>Trees</H4>
+<P>
+  <OL>
+    <LI>
+      How is the tree built?
+    </LI>
+    <LI>
+      Describe the difference between a syntax tree and an AST.
+    </LI>
+    <LI>
+      Using X.cfg, write down a syntax tree for "<TT>x:=1</TT>"
+    </LI>
+    <LI>
+      Using X.cfg, write down an AST for "<TT>x:=a*2-2/b</TT>"
+    </LI>
+    <LI>
+      The trees in xcom are read-only. 
+      Why might one like them to be writable?
+    </LI>
+  </OL>
+</P>
+
+<H4>Symbols</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the compiler symbol table?
+    </LI>
+    <LI>
+      What are the methods of the symbol table object?
+    </LI>
+    <LI>
+      What is the relation between the symbol table and run-time frame?
+    </LI>
+    <LI>
+      What error will the X program "x:=y" give?
+    </LI>
+    <LI>
+      What error will the X program "x:=rand+1" give?
+    </LI>
+  </OL>
+</P>
+
+<H4>Generator</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the generator?
+    </LI>
+    <LI>
+      How does it work?
+    </LI>
+  </OL>
+</P>
+
+<H4>Emitter</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the emitter?
+    </LI>
+  </OL>
+</P>
+
+<H4>Assembler</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the assembler?
+    </LI>
+    <LI>
+      Using the mnemonics of xcom, 
+      describe the following instructions as a state change on the CPU.
+      <OL>
+        <LI>addRR EAX,ECX</LI>
+        <LI>faddp</LI>
+        <LI>movMR x,EAX</LI>
+        <LI>movRM EAX,y</LI>
+        <LI>bge n</LI>
+      </OL>
+    </LI>
+  </OL>
+</P>
+
+<H4>Emulator</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the emulator?
+    </LI>
+    <LI>
+      The emulator can step ahead and back any number of steps.
+      How is this done?
+    </LI>
+  </OL>
+</P>
+
+<H4>Optimization</H4>
+<P>
+  <OL>
+    <LI>
+      What is the "as if" rule?
+    </LI>
+    <LI>
+      Give an example of constant folding.
+    </LI>
+    <LI>
+      Give an example common subexpression elimination.
+    </LI>
+    <LI>
+      Give an example of hoisting.
+    </LI>
+    <LI>
+      Why is the X code <TT>i := r2i(z); j := i+1; </TT> likely 
+      to lead to a successful peephole optimization?
+    </LI>
+  </OL>
+</P>
+
+<H4>Runtime</H4>
+<P>
+  <OL>
+    <LI>
+      What is the purpose of the runtime?
+    </LI>
+    <LI>
+      Describe the run-time frame:
+      <OL>
+        <LI>as a place to keep three types of X variables</LI>
+        <LI>in relation to input and output</LI>
+        <LI>in relation to subprogram linkage</LI>
+      </OL>
+    </LI>
+  </OL>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

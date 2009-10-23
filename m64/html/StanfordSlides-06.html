@@ -1,0 +1,164 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-06.html</p>
+
+         <h2>1.4 GEM Implementation<a name="16"></a></h2>
+         <p>The (GEM) machine itself is implemented in C file iog.c.  Function <tt>iog</tt> is called from MATLAB.
+         </p>
+         <p>The following 80 or so lines of C code execute IOGs.  The compiled C code takes a few nanoseconds to execute a step.</p>
+         <p>The MEX file iog.c is an example of no-frills code that runs on the edge of catastophe.  The slighest user error can bring
+            all of MATLAB down in a rubble of bits.  It is meant to illustrate an algorithm, as contrasted to being actually used. A more
+            robust version can be found in file iog2.c.
+         </p><pre class="codeinput">dbtype <span class="string">iog.c</span> <span class="string">113:190</span>
+</pre><pre class="codeoutput">
+113   /* execute grammar */
+114   static void
+115   gem(void) {
+116     for (;;) {
+117       if (traceit) TRACE();                 /* iog(i,g,'-traceGem') */
+118       if (pss&gt;=STACKLIM) error("PARSE stack overflow");
+119       if (ess&gt;=STACKLIM) error("BACK stack overflow");
+120       switch (mode) {
+121         /* executing rules */
+122         case PARSE:
+123           switch (*p) {
+124           ALPHA                             /* call new rule */
+125             ps++; *ps = p;                    /*   save return address */
+126             p = p0; mode = SEARCH; break;     /*   search from beginning */
+127           case '\'':                        /* input */
+128             p++;                              /*   skip over 1rst ' */
+129             if (*p == *i) {i++; p++; p++;}    /*   read-match */
+130             else {mode = BACK; p--; p--;}     /*   read-mismatch */
+131             break;
+132           case '"':                         /* output */
+133             p++; o++;                         /*   skip over 1rst " */
+134             *o = *p;                          /*   move literal to output*/
+135             p++; p++; break;                  /*   skip over 2nd " */
+136           case ';':                         /* rule end (parsing) */
+137             p--;                              /*   back up over ; */
+138             es++; *es = p;                    /*   save backup pointer */
+139             if (pss &lt; 0) return;              /*   empty stack: success */
+140             p = *ps; ps--;                    /*   return from rule */
+141             p++; break;                       /*   skip over rule name */
+142           default:                          /* bad char in grammar */
+143             error("Unexpected character (PARSE)");
+144           }
+145           break;                            /* end of parse step */
+146           
+147         /* backtracking */
+148         case BACK:
+149         switch (*p) {
+150           ALPHA                             /* un-return from rule */
+151             ps++; *ps = p;                    /* save return address */
+152             p = *es; es--; break;             /* end of previous rule */
+153           case '\'':                        /* input */
+154             i--;                              /* un-get input */
+155             p--; p--; p--; break;             /* un-skip literal */
+156           case '"':                         /* output */
+157             o--;                              /* un-put output */
+158             p--; p--; p--; break;             /* un-skip literal */
+159           case '=':                         /* rule begin (backtracking) */
+160             mode = SEARCH;                    /* forward again */
+161             p++; break;                       /* skip by = */
+162           default:
+163             error("Unexpected character (BACK)");
+164           }
+165           break;                            /* end of back step */
+166           
+167         /* searching for a rule */
+168         case SEARCH:
+169           switch (*p) {
+170           ALPHA                             /* phrase name */
+171             p++; break;                       /* skip over name */
+172           case '\'': case '"':              /* input/output */
+173             p++; p++; p++; break;             /* skip over 'x' or "x" */
+174           case ';':                         /* rule coming */
+175             p++;                              /* skip over ; */
+176             if (p-p0==pN) {                   /* end of code */
+177               if (pss == 0) error("Unparsable input");
+178               p = *ps; ps--;               /* back out one rule */
+179               mode = BACK;                    /* reverse direction */
+180               p--; break;                     /* un-skip over ; */
+181             }
+182             if (*p==**ps) mode = PARSE;       /* lhs is phrase name */
+183             p++; p++; break;                  /* skip over lhs = */
+184           default:
+185             error("Unexpected character (SEARCH)");
+186           }
+187           break;
+188       }
+189     }
+190   }
+
+</pre><table border=1><tr><td><a href="StanfordSlides-05.html">PREV</a></td><td><a href="StanfordSlides-07.html">NEXT</a></td></tr></table>
+</body></html>

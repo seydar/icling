@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingCfg.html
+     PURPOSE:   How to change the context-free grammar object.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Cfg Object
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingCfg.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the Cfg Object</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+<P>
+Type
+<PRE>
+>> help Cfg       % one page help for Cfg
+>> load cfg cfg   % fetch the precomputed X Cfg object into variable cfg.
+>> cfg            % see the public fields and methods of Cfg
+>> cfg.dump()     % see some of the information in Cfg
+</PRE>
+</P>
+
+<P>
+  Read about <A HREF="Grammar.html">context-free grammars</A>.<BR>
+  Read about <A HREF="Cfg.html">context-free grammar implementation</A>.
+</P>
+
+<P>
+Typically the file Cfg.m <EM>does not have to be changed</EM> to make a
+small change to X or X.cfg.  Think twice before you do anything to it.  
+</P>
+
+<H4>The Input Format</H4>
+<P>
+The "everyday cfg" format was chose primarily to avoid complicated
+processing of the text of CFGs.
+</P>
+
+<H4>Adding a new Class Symbols</H4>
+<P>Symbols <B>id</B>, <B>integer</B> and <B>real</B> are not 
+reserved words.
+They represent classes of symbols, 
+with each symbol containing more information (its text).
+Neither is <B>eof</B> reserved, it is just unprintable.
+One might want to add yet another such symbol (say <B>string</B>).
+It will have to be added to the "special" list in Cfg.m.
+</P>
+
+<H4>Running the Cfg table builder for xcom</H4>
+<P>
+The Cfg module supports two parsing methods; top-down and bottom-up.
+You will read more about them later.
+At the moment the concern is that the bottom-up support takes time.
+If you are not going to use the bottom-up tables (usual case),
+then you can get the simpler top-down only tables.
+Try
+<PRE>
+>> makeCfg -noLR X.cfg
+</PRE>
+to check for cfg errors.  Usually there will be none.
+You can look at the results by calling the Cfg method directly
+<PRE>
+>> help Cfg                       % for list of flags
+>> c = Cfg(xread('X.cfg'), flag), % for the some flag (e.g. '-shiftDump')
+>> c                              % just to see what Cfg makes
+</PRE>
+When you want to change the MAT file that xcom will access, try
+<PRE>
+>> makeCfg -saveMat -noLR X.cfg
+</PRE>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

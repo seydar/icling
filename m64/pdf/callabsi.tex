@@ -1,0 +1,18 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    callabsi.x
+}\\
+{\tt\char18}{\em{} PURPOSE: test call of absi.x
+}\\
+shouldbe0,\ shouldbe6,\ shouldbe101,\ shouldbe7\ $\leftarrow$\ 1,\ 1,\ 1,\ 1;\\
+shouldbe7\ $\leftarrow$\ absi\ $\leftarrow$\ $-$7;\\
+shouldbe101\ $\leftarrow$\ absi\ $\leftarrow$\ $-$101;\\
+shouldbe6\ $\leftarrow$\ absi\ $\leftarrow$\ 6;\\
+shouldbe0\ $\leftarrow$\ absi\ $\leftarrow$\ 0;\\
+\end{tabbing}
+\end{document}

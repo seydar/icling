@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML>
+<BODY>
+<PRE>
+/* FILE:    peek.c 
+   PURPOSE: look at gcc code generation solution
+   METHOD:  compile the C and dump the x86 assembler
+            32-bit and 64-bit versions
+*/
+
+void
+peek(void) {
+  double x=1, y=3, z;
+  z = x+y;
+}
+
+
+/*
+% cat /proc/version
+Linux version 2.6.24.3-34.fc8 (mockbuild@xenbuilder1.fedora.redhat.com) 
+(gcc version 4.1.2 20070925 (Red Hat 4.1.2-33)) #1 SMP 
+Wed Mar 12 18:17:20 EDT 2008
+
+% gcc -g -c -O0 peek.o
+% objdump -d peek.o
+
+peek.o:     file format elf32-i386
+
+Disassembly of section .text:
+
+00000000 <peek>:
+   0:   55                      push   %ebp
+   1:   89 e5                   mov    %esp,%ebp
+   3:   83 ec 20                sub    $0x20,%esp
+   6:   d9 e8                   fld1   
+   8:   dd 5d e8                fstpl  -0x18(%ebp)
+   b:   dd 05 00 00 00 00       fldl   0x0
+  11:   dd 5d f0                fstpl  -0x10(%ebp)
+  14:   dd 45 e8                fldl   -0x18(%ebp)
+  17:   dc 45 f0                faddl  -0x10(%ebp)
+  1a:   dd 5d f8                fstpl  -0x8(%ebp)
+  1d:   c9                      leave  
+  1e:   c3                      ret    
+
+  
+% cat /proc/version
+Linux version 2.6.22.8-mw017 (root@bat1826glnxa64) (gcc version 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)) #1 SMP Tue Sep 25 13:15:57 EDT 2007
+
+% gcc -g -c -O0 peek.o
+% objdump -d peek.o
+
+peek.o:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <peek>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 b8 00 00 00 00 00    mov    $0x3ff0000000000000,%rax
+   b:   00 f0 3f
+   e:   48 89 45 e8             mov    %rax,0xffffffffffffffe8(%rbp)
+  12:   48 b8 00 00 00 00 00    mov    $0x4008000000000000,%rax
+  19:   00 08 40
+  1c:   48 89 45 f0             mov    %rax,0xfffffffffffffff0(%rbp)
+  20:   66 0f 12 45 e8          movlpd 0xffffffffffffffe8(%rbp),%xmm0
+  25:   f2 0f 58 45 f0          addsd  0xfffffffffffffff0(%rbp),%xmm0
+  2a:   f2 0f 11 45 f8          movsd  %xmm0,0xfffffffffffffff8(%rbp)
+  2f:   c9                      leaveq
+  30:   c3                      retq
+
+*/
+
+
+</PRE>
+</BODY>
+</HTML>

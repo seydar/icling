@@ -1,0 +1,503 @@
+% FILE:		    Notation.tex
+% PURPOSE:  	notation for grammars
+% COPYRIGHT:  W.M.McKeeman 2007
+
+\input xhead
+
+\begin{document}
+
+\begin{center}
+  \begin{small}
+    \noindent --contents of Notation Supporting Grammars--
+    \begin{quote}
+      \raggedright
+      Conventions\\
+      Typography\\
+      Propositions and Predicates\\
+      Sets\\
+      Ordered Pairs and Tuples\\
+      Sequences\\
+      Relations\\
+      Ordered Sets\\
+      Partial Order\\
+      Simple Order\\
+    \end{quote}
+  \end{small}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+      {\large \bf Notation Supporting Grammars} 
+\end{center}
+\vspace{1em}
+
+\setcounter{page}{1}
+
+\begin{quote}
+\raggedleft
+                        $\neg$ Real programmers do not use Greek letters.\\
+                        {\em Anonymous}
+\end{quote}
+
+\subsubsection{Conventions}
+
+The theory of compilers can be expressed in terms of logic, sets, and 
+relations.
+When a symbol or formula is defined in terms of previously established 
+material, the form
+
+\begin{displaymath}
+new \eqldef old
+\end{displaymath}
+
+\noindent is used.  Otherwise `$=$' means equality for whatever type of 
+operands it has.  Sometimes a definition is not complete without further 
+constraints on its components.  In this case the constraint is also 
+decorated with $\defdef$.
+For example
+
+\begin{displaymath}
+e1 \subseteqdef e2
+\end{displaymath}
+
+\noindent means that $e1$ is constrained to be a subset of $e2$ in 
+addition to whatever information has been previously given.
+
+Conventions for operator binding reveal the meaning of an expression 
+without a blizzard of parentheses.  We know that
+
+\begin{displaymath}
+a+b/c
+\end{displaymath}
+
+\noindent
+means $a+(b/c)$, not $(a+b)/c$ because we have been taught that division 
+binds more tightly than addition.  
+Conventions such as this are used both in mathematical notation and in 
+programming languages.  Arithmetic operators in the mathematical notation 
+used here are presumed to bind more tightly than all others.  
+When operators of equal strength are used, operands group left-to-right.  
+The use of binding strength on these pages is informal; 
+the purpose is to ease the task for an intelligent reader rather 
+than to enable formal analysis.
+
+Do not confuse the definitions below with axiom systems or any other kind 
+of mathematics within which there is an expectation of formal derivations.  
+These are descriptions, useful for communication, but not intended for 
+proofs.
+
+\subsubsection{Typography}
+
+Fonts are used to imply the class of thing being represented.  
+In particular, computer input is monowidth, variables are lower case italic, 
+sets are upper case italic.  
+Sequences are lower case Greek letters.  
+Relations are upper case Greek letters.  
+Caligraphic script is used for higher level constructs.  
+The following glyphs are used for Greek.
+
+\begin{tabbing}
+xxxxxxx\=XX\=XX\=XXXXXXXX\=XX\=XX\=XXXXXXXX\=XX\=XX\=XXXXXXXX\kill
+\>$\alpha$\>A\>alpha      \>$\iota$\>I\>iota    \>$\rho$\>P\>rho	\\
+\>$\beta$\>B\>beta        \>$\kappa$\>K\>kappa  \>$\sigma$\>$\Sigma$\>sigma\\
+\>$\gamma$\>$\Gamma$\>gamma\>$\lambda$\>$\Lambda$\>lambda  \>$\tau$\>T\>tau\\
+\>$\delta$\>$\Delta$\>delta\>$\mu$\>M\>mu   \>$\upsilon$\>$\Upsilon$\>upsilon\\
+\>$\epsilon$\>E\>epsilon  \>$\nu$\>N\>nu        \>$\phi$\>$\Phi$\>phi	\\
+\>$\zeta$\>Z\>zeta        \>$\xi$\>$\Xi$\>xi    \>$\chi$\>X\>chi	\\
+\>$\eta$\>H\>eta          \>o\>O\>omicron       \>$\psi$\>$\Psi$\>psi	\\
+\>$\theta$\>$\Theta$\>theta\>$\pi$\>$\Pi$\>pi   \>$\omega$\>$\Omega$\>omega
+\end{tabbing}
+
+\subsubsection{Propositions and Predicates}
+\newcounter{PropositionalOperators}
+\stepcounter{table}
+\setcounter{PropositionalOperators}{\value{table}}
+
+The operators for the propositional calculus are given, in order of 
+binding strength, in Table~\thetable. Logical negation is most tightly 
+bound.
+\begin{center}
+$\begin{array}{ll}
+\Leftrightarrow	& \mbox{logical equivalence}	\\
+\Rightarrow	& \mbox{logical implication}	\\
+\vee		& \mbox{logical or}		\\
+\wedge		& \mbox{logical and}		\\
+\neg		& \mbox{logical negation} 
+\end{array}
+$
+
+Table~\thetable: Propositional Operators \end{center}
+
+\newcounter{PropositionExamples}
+\stepcounter{table}
+\setcounter{PropositionExamples}{\value{table}}
+
+\noindent One can write formulas such as the following tautology
+
+\begin{displaymath}
+\neg(p \vee q) \Leftrightarrow (\neg p \wedge \neg q) 
+\end{displaymath} 
+\begin{center}
+Table~\thetable: DeMorgan's Law
+\end{center}
+
+\newcounter{LogicExamples}
+\stepcounter{table}
+\setcounter{LogicExamples}{\value{table}}
+
+The extension of the propositional calculus to the predicate calculus 
+introduces the two quantifiers `$\forall$' (read as `for all') 
+and `$\exists$' (read as `there exists').  
+They are like declarations in programming languages in that they introduce 
+new variables of a specific type for part of a logical expression.  
+The form of quantification is given by example in Table~\thetable.  
+The scope of the bound variables is the predicate to the right of the 
+separating dot.
+Parentheses are used if the scope of operators or quantifiers is unclear.  
+If the universe of quantification is obvious from the context, it is implicit.  
+Otherwise an explicit set membership will be included as part of the predicate.  
+A variable bound by no quantifier is called {\em free}.  
+Such a variable is implicitly universally quantified.
+
+\begin{displaymath}
+\forall x.\ Prime(x) \Leftrightarrow 1 < x \wedge 
+\neg \exists y.\ 1 < y \wedge y < x \wedge (x/y)*y=x 
+\end{displaymath}
+
+\begin{center}
+Table~\thetable: Example Predicate
+\end{center}
+
+\subsubsection{Sets}
+
+\newcounter{SetDefinitions}
+\stepcounter{table}
+\setcounter{SetDefinitions}{\value{table}}
+
+\noindent Sets consist of elements taken from some universe.  
+The universe might be a specific finite set, or it might be countably 
+infinite like the integers.  
+Knowing the universe is often part of understanding a 
+formula in set theory.  Let $A$ and $B$ be sets and $P$ be a 
+predicate. 
+
+\begin{samepage}
+\begin{center}
+$
+\begin{array}{ll}
+\{\}                & \mbox{empty set}                      \\
+\universe           & \mbox{universe}                       \\
+\{1, 2, 3\}         & \mbox{explicit finite set}            \\
+a \in A             & \mbox{set membership, $a$ is in $A$}  \\
+\{x\ |\ P(x)\}      & \mbox{set of $x$ such that $P(x)$}    \\
+{\rm choice}(A)     & \mbox{nondeterministic selection}     \\
+{\rm size}(A)       & \mbox{size of set $A$}
+\end{array}
+$
+
+Table~\thetable: Set Primitives
+\end{center}
+\end{samepage}
+
+\newcounter{SetOps}
+\stepcounter{table}
+\setcounter{SetOps}{\value{table}}
+
+\begin{center}
+$
+\begin{array}{lll}
+A = B &\eqldef x \in A \Leftrightarrow x \in B
+				& \mbox{set equivalence}		\\
+A \subseteq B &\eqldef x \in A \Rightarrow x \in B
+				& \mbox{subset}				\\
+A \subset B &\eqldef A \subseteq B \wedge B \not\subseteq A
+				& \mbox{proper subset}			\\
+A \cup B &\eqldef \{x\ |\ x \in A \vee x \in B\}	& {\rm union}	\\
+A \cap B &\eqldef \{x\ |\ x \in A \wedge x \in B\}	& {\rm intersection}\\
+A - B &\eqldef \{x\ |\ x \in A \wedge x \not\in B\}	& {\rm difference}\\
+\overline{A} &\eqldef \{x\ |\ x \in \universe \wedge x \not\in A\} 
+				& \mbox{complement w.r.t. universe}	\\
+2^A &\eqldef \{B\ |\ B \subseteq A\}	& \mbox{powerset}		\\
+\end{array}
+$
+\end{center}
+
+\begin{center}
+Table~\thetable: Set Operators
+\end{center}
+
+\noindent
+The operators above are presented in relative binding strength.  
+The set operators bind more strongly than logical operators, 
+and less strongly than arithmetic operators.  
+The function `choice' is undefined if it is applied to an empty set; 
+it is some value from the set otherwise.
+
+\subsubsection{Exercises}
+Each of the following formulas is either true or false.  
+If it is false, find a modification that makes it true.
+
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item ${\rm size}(2^A) = 2^{{\rm size}(A)}$
+
+\item $((A-B)\cap B) = \{\}$
+
+\item ${\rm choice}(\universe) \in \universe$
+
+\item ${\rm choice}(A) \in A$
+	
+\item ${\rm size}(A-\{{\rm choice}(A)\}) = {\rm size}(A)-1$
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+\subsubsection{Ordered Pairs and Tuples}
+
+One of the most useful concepts is that of {\em pair}.  
+It allows us to express associations of many kinds.  
+There is an obvious generalization to {\em tuple\/} which is also 
+sometimes of use.
+
+\newcounter{PairDefinitions}
+\stepcounter{table}
+\setcounter{PairDefinitions}{\value{table}}
+
+\vspace{0.2in}
+
+\noindent Let $C$ and $D$ be sets, $c$ and $d$ be elements:
+
+\begin{center}
+$
+\begin{array}{lll}
+
+\langle c, d\rangle		&& \mbox{ordered pair}			\\
+
+C \times D &\eqldef \{\langle c,d\rangle\ |\ c \in C \wedge d \in D\}
+			& \mbox{cross product}
+\end{array}
+$
+\end{center}
+
+\begin{center}
+Table~\thetable: Ordered Pairs
+\end{center}
+
+\subsubsection{Sequences}
+
+Nearly everything in computing comes in sequences.  
+Partly it is in the nature of machinery moving in time, 
+time providing the sequencing.  Sometimes it in the nature of space,
+with ``next to'' providing the sequencing.
+
+\newcounter{SequenceDefinitions}
+\stepcounter{table}
+\setcounter{SequenceDefinitions}{\value{table}}
+
+Unless otherwise indicated, lower case Greek letters denote sequences.  
+Let d be an element (a sequence of length one), $\alpha$, $\beta$ be 
+sequences, $A$ and $B$ be sets of sequences.
+
+$
+\begin{array}{lll}
+
+\lambda	                        && \mbox{empty sequence}                \\
+\alpha\beta                     && \mbox{catenation of sequences}       \\
+\alpha\lambda = \lambda\alpha & \eqldef \alpha 
+                              & \mbox{catenation of $\lambda$}          \\
+A\circ B &\eqldef \{\alpha\beta\ |\ \alpha\in A \wedge \beta\in B\}		
+                                & \mbox{catenation of sets of sequences} \\
+
+{\rm length}(\lambda) & \eqldef 0 & \mbox{length of empty sequence}     \\
+{\rm length}(\alpha\beta) &\eqldef {\rm length}(\alpha)
+                                      +  {\rm length}(\beta)
+                        & \mbox{length of sequence }                    \\
+\alpha_n
+&\eqldef {\rm d} |\ \alpha=\beta{\rm d}\gamma\wedge
+{\rm length}(\beta{\rm d})=n &\mbox{subscript selection}  \\
+
+A^0 &\eqldef \{\lambda\}        & \mbox{sequences of length 0}          \\
+A^n &\eqldef A\circ A^{n-1}		
+                                & \mbox{sequences of positive length $n$} \\
+A^* &\eqldef \bigcup_{i=0}^{\infty} A^i & \mbox{all finite sequences}   \\
+A^{\scriptscriptstyle +} &\eqldef \bigcup_{i=1}^{\infty} A^i
+                                & \mbox{non-empty finite sequences}     \\
+A^{1/*} &\eqldef \{{\rm d}\ |\ \beta{\rm d}\gamma\in A\}
+                                & \mbox{elements in sequences in $A$}
+\end{array}$
+
+\begin{center}
+Table~\thetable: Notation for Sequences
+\end{center}
+
+\noindent
+The notation $A^*$ means all finite sequences of elements taken from $A$.
+The inverse, $B^{1/*}$, is the elements which make up the sequences in $B$.  
+The importance of sequences is that we regard a language as a set of 
+sequences of words.  
+If $A$ is a dictionary, then $A^*$ is everything you can ever say 
+(meaningful or not).
+
+\subsubsection{Exercises}
+
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item Is ${\rm size}(A \times B) = {\rm size}(A)*{\rm size}(B)$? 
+
+\item Is $A \subseteq (A^*)^{1/*}$?
+
+\item What is $\{\}^*$?
+
+\item What is $\{\}^{\scriptscriptstyle +}$?
+
+\item What is ${\rm size}(\{{\rm d}\}^7)$?
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+\subsubsection{Relations}
+
+Relations are an abstraction applied both to pairs and to sequences.  
+Relations have a useful calculus of their own.  
+The answer we seek is often expressed as a relation.  
+A relation is a set of ordered pairs.  
+
+\newcounter{RelationDefinitions}\stepcounter{table}
+\setcounter{RelationDefinitions}{\value{table}}
+
+Let $A$ be a set, $\Phi$ and $\Psi$ be relations.
+
+$\begin{array}{lll}
+{\cal D}(\Phi) &\eqldef \{x\ |\ \langle x,y\rangle \in \Phi\} & \mbox{domain}\\ 
+{\cal R}(\Phi) &\eqldef \{y\ |\ \langle x,y\rangle \in \Phi\} & \mbox{range}\\ 
+A\Dstrict\Phi &\eqldef \{\langle x,y\rangle\ 
+   |\ \langle x,y\rangle \in \Phi \wedge x \in A\} & \mbox{domain restriction}\\ 
+\Phi\Rstrict A &\eqldef \{\langle x,y\rangle\ 
+   |\ \langle x,y\rangle \in \Phi \wedge y \in A\} & \mbox{range restriction}\\ 
+\Psi \circ \Phi &\eqldef \{\langle x, z\rangle\ 
+   |\ \exists y.\ \langle x, y\rangle
+   \in \Psi \wedge \langle y, z\rangle \in \Phi\}
+				& \mbox{composition}		\\
+\Phi^0 &\eqldef \{\langle x, x\rangle\ |\ x \in \universe\} 
+           & \mbox{identity relation}\\ 
+\Phi^{-1} &\eqldef \{\langle y, x\rangle\ |\ \langle x, y\rangle\in\Phi\}
+				& \mbox{inverse relation}		\\
+\Phi^n &\eqldef \Phi \circ \Phi^{n-1} 
+                                & \mbox{transitive extension ($n>0$)}\\
+\Phi^* &\eqldef \bigcup_{i=0}^{\infty} \Phi^i 
+                                & \mbox{zero or more steps}          \\
+\Phi^{\scriptscriptstyle+} &\eqldef \bigcup_{i=1}^{\infty} \Phi^i
+	                        & \mbox{one or more steps}           \\
+\Phi(x) &\eqldef {\rm choice}({\cal R}(\{x\}\Dstrict \Phi))
+	& \mbox{function application}
+\end{array}
+$
+
+\begin{center}
+Table~\thetable: Relations
+\end{center}
+
+When a relation is also a function, application is deterministic.  
+The superscript `$*$' has two reasonable interpretations.  
+Since any relation is also a set, `$*$' could be used to signify a 
+sequence of pairs.  In fact it is used instead for the reflexive 
+transitive completion of the relation; a matter of iterating on composition.
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item Is $A\Dstrict\Phi = (A\times \universe) \cap \Phi$?
+
+\item Is $\Phi\Rstrict A = \Phi \cap (\universe\times A)$?
+
+\item Let $P$ be the universe of living people, $M$ be all men, 
+$W$ be all women.  $P=M\cup W$.  
+Let $Married \subseteq M\times W$.\footnote{ If current legalisms get 
+in your way for this exercise, understand the relation $Married$ in the 
+traditional sense.} \begin{enumerate}
+
+\item What are ${\cal R}(Married)$ and ${\cal D}(Married)$?
+
+\item What do you call $x$ where ${\rm size}({\cal R}(\{x\} \Dstrict
+Married)) > 1$?
+
+\item What do you call $M - {\cal D}(Married)$?
+
+\item Suppose $y\in W$.  What is $Married^{-1}(y)$?
+\end{enumerate}
+
+\item Continuing the previous exercise, let $Mother\subseteq P\times W$ 
+and $Father\subseteq P\times M$. 
+
+\begin{enumerate}
+\item Let $c=\choice(P)$.  When is $Mother(c)$ defined?
+
+\item What is $Mother^{-1}\cup Father^{-1}$?
+
+\item What is $\overline{{\cal D}(Mother\cup Father)}$?
+
+\item What is $Mother\cap Father$?
+
+\item What is $Mother^{-1}$?
+
+\item What is $Mother^{2}$?
+
+\item What is $Mother^*$?
+
+\end{enumerate}
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+%\item{[1,1]} For some set $A$ and $rel \subset A\times A$, under what 
+%circumstances are 
+%\begin{enumerate} 
+%\end{enumerate}
+
+%{\rm max}(A)		&& \mbox{maximum element (for ordered $A$)}	\\
+%{\rm min}(A)		&& \mbox{minimum element (for ordered $A$)}	\\
+%\item {[1,1]} ${\rm max}(A) \geq  {\rm choice}(A)$
+%\item {[1,1]} ${\rm max}(A) \leq  {\rm max}(A\cup B)$
+
+
+\subsubsection{Ordered Sets}
+
+\newcounter{OrderDefinitions}\stepcounter{table}
+\setcounter{OrderDefinitions}{\value{table}}
+
+Suppose $R$ is a relation on $A\times A$.  
+$R$ is a an ordering if it antisymmetric and transitive.  
+For convenience, we use the infix operator $<$ to describe orderings in 
+general.  There are two cases of interest.
+
+\subsubsection{Partial Order}
+
+$
+\begin{array}{l}
+\forall a\ b \in A.\ \neg (a < b \wedge b < a)            \\
+\forall a\ b\ c \in A.\ a < b \wedge b < c \Rightarrow a < c \end{array} 
+$
+
+\subsubsection{Simple Order}
+
+A simple order is a partial order where in addition
+
+$
+\begin{array}{l}
+\forall a\ b \in A.\ a < b \vee a = b \vee b < a \\
+ {\rm min}(A) \eqldef {\cal D}(R) - {\cal R}(R)  \\
+ {\rm max}(A) \eqldef {\cal R}(R) - {\cal D}(R) 
+\end{array} 
+$
+
+\subsubsection{Exercises}
+\begin{enumerate}\setcounter{enumi}{\value{RunningExercise}}
+
+\item Suppose $P$, $M$ and $W$ refer to the living and the dead.  
+Describe Adam and Eve.
+
+\setcounter{RunningExercise}{\value{enumi}}
+\end{enumerate}
+
+\end{document}

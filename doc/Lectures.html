@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      Lectures.html
+     PURPOSE:   Outline of the lectures: short course in compilers
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.10.01 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lectures -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Lectures.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>A Short Course in Compilers</H3>
+<H4>Course Materials</H4>
+<P>
+These lectures are designed for a 10-session class.
+It is assumed that the students know MATLAB and introductory level
+college mathematics.
+</P>
+
+<P> The planned course format is an hour of lecture followed by an hour 
+  of in-class lab work. 
+  There is not enough time to go into everything in a 10 meeting format.
+  Much of the material is designed for home study.
+  The student is encouraged to read the rest of the material
+  after each class.
+</P>
+
+<P>  
+  The overheads (links below) are designed for a classroom setting.  
+  They are useful mostly as bullets which show the
+  order of classroom lecture subtopics.  
+  The overheads can be ignored during home study.
+</P>
+
+<P>
+  If a <A HREF="Projects.html">project</A> is going to be attempted, 
+  it should be done simultaneously.  
+</P>
+
+<H4>Order of Presentation</H4>
+<P>
+  Most compilers, including <A HREF="Structure.html"><TT>xcom</TT></a>, 
+  have a <B>front end</B> and a 
+  <B>back end</B> corresponding the <B>analysis</B> and <B>synthesis</B>.
+  This presentation of the front end follows the data flow in the 
+  compiler, lex to parse to tree to symbols.  
+  The presentation of the back end is in reverse order, 
+  assember to emitter to generator.
+  This order is just one example of the old Polish proverb 
+  <EM>When crossing a swamp, keep one foot on solid ground</EM>.
+  At each end of the compiler we have simplicity: ASCII text in, 
+  hardware instructions out.
+  The data at each end can be understood on its own.  
+  The further we move towards the middle,
+  the more new knowledge is in play.  
+</P>
+
+<P>Both ends to the middle is appropriate for <TT>xcom</TT> for another
+  reason; the front end components transform inputs into explicit outputs,
+  but the back end does not.
+  In the front end there is a lex pass, a parse pass, a tree building pass, 
+  and a symbol table pass.  
+  Each front end component leaves behind an intermediate data structure.
+  The back end components run simultaneously, 
+  each calling for services in the next component <EM> on the fly</EM>.
+  This is not fundamental -- intermediate forms could have been invented
+  and the back end could also have proceeded in passes.  But it does not.
+</P>
+
+
+<H4>Lecture 1 <SMALL><A HREF="Short1.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+  <LI> (10 min) 
+  <A HREF="http://www.mathworks.com/company/newsletters/news_notes/win03/developers.html">
+      Hello</A>, 
+      <A HREF="Pedagogy.html">Course Objectives</A>,
+       Schedule
+  </LI>
+  <LI> (10 min) Getting a <A HREF="InstallXcom.html">personal copy</A> 
+      of xcom.
+  </LI>
+  <LI>(05 min) <A HREF="ProgrammingModel.html">OO Programming Model</A>
+  <LI>(25 min) <A HREF="X.html">Learning X</A> </LI>
+  </LI>
+</UL>
+
+<H4>Lab 1</H4>
+<UL>
+  <LI>(05 min) Students as <A HREF="xcomQE.html">QE</A></LI>
+  <LI>(10 min) Read the <A HREF="ReferenceX.pdf">X Reference Manual</A> </LI>
+  <LI>(25 min) Practice <A HREF="ExerciseX.html">Writing X</A> and 
+    <A HREF="CommandLine.html">Running <B>xcom</B></A> 
+  </LI> 
+  <LI>(10 min) Using <A HREF="labs/lab1.html">xcom flags</A> 
+  for dumps and traces  
+  </LI> 
+  </UL>
+
+  <H4>Lecture 2 <SMALL><A HREF="Short2.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+  <UL>
+  <LI>(15 min) <A HREF="Structure.html">Structure</A> of xcom </LI>
+  <LI>(40 min) <A HREF="Grammar.html">Grammars</A> 
+      for programming languages 
+    <UL>
+      <LI><A HREF="Notation.pdf">Notation</A></LI>
+      <LI>
+        <A HREF="ContextFreeGrammar.pdf">Context-free Grammars</A>
+      </LI>
+      <LI><A HREF="Xcfg.html">CFG for X</A></LI>
+    </UL>
+  </LI>
+</UL>
+
+<H4>Lab 2</H4>
+<UL>
+  <LI>(10 min) Read about changing the
+    <A HREF="ChangingCfg.html">Cfg</A> object 
+  </LI>
+  <LI>
+    (50 min) <A HREF="labs/lab2.html">Modify a Cfg</a>  
+  </LI>
+</UL>
+
+<H4>Lecture 3 <SMALL><A HREF="Short3.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+  <LI>
+    (10 min) <A HREF="Lexing.html">Lexing</A> 
+    a text.
+  </LI>
+  <LI>
+    (10 min) Changing the xcom <A HREF="ChangingLexer.html">Lexer</A>     
+  </LI>
+  <LI>
+    (10 min) <A HREF="RegularExpressions.pdf">Regular Expressions</A> 
+  </LI>
+  <LI>
+    (20 min) <A HREF="RegularExpressionGrammar.pdf">Regular Expression Grammars</A> 
+  </LI>
+</UL>
+
+<H4>Lab 3</H4>
+<UL>
+  <LI>
+      (60 min) <A HREF="labs/lab3.html">Examine, test and extend</A> the lexer.
+  </LI>
+  <LI>Challenge: Do the <A HREF="RegularExpressions.pdf">exercises</A>
+    for regular expressions (<A HREF="labs/ans3-2.html">hints</A>).
+  </LI>
+  <LI>
+    Challenge: write a faster lexer.  Hint: use MATLAB profiler.
+  </LI>
+</UL>
+
+<H4>Lecture 4 <SMALL><A HREF="Short4.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+<LI>
+ (10 min) Changing the xcom top-down <A HREF="ChangingParser.html">Parser</A>
+</LI>
+<LI>
+ (40 min) <A HREF="Parsing.html">Parsing</A> a programming language 
+</LI>
+</UL>
+
+<H4>Lab 4</H4>
+<UL>
+  <LI>
+    (60 min) <A HREF="labs/lab4.html">Examine, implement and 
+    test </A> parsers.
+  </LI>
+  <LI>
+    Challenge: Add <A HREF="Warmup.html">abs</A> to X (in Parser.m) 
+  </LI> 
+  <LI>Challenge: compare speeds of bottom up vs. top down parsing</LI>
+</UL>
+
+<H4>Lecture 5 <SMALL><A HREF="Short5.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+  <LI>(20 min) <A HREF="SyntaxTree.html">Syntax Trees</A> </LI>
+  <LI>(20 min) <A HREF="Symbols.html">Symbol Tables</A> </LI>
+  <LI>
+    (10 min) Changing the xcom <A HREF="ChangingSymbols.html">symbol table</A> 
+  </LI>
+</UL>
+
+<H4>Lab 5</H4>
+<UL>
+  <LI> (60 min) <A HREF="labs/lab5.html">Examine and test</A>
+      syntax trees and symbols tables.
+  </LI>
+  <LI>
+    Challenge: Adding <A HREF="Warmup.html">abs</A> 
+    to X (in Symbols.m)
+  </LI> 
+  <LI>
+    Challenge: Rewrite Symbols.m so that it uses 
+    <A HREF="Glossary.html#hash">hash lookup</A>.
+  </LI>
+</UL>
+
+<H4>Lecture 6 <SMALL><A HREF="Short6.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+  <LI>(20 min) <A HREF="Assembler.html">Machine Language</A> </LI>
+  <LI>(20 min) <A HREF="Runtime.html">Runtime</A> </LI>
+  <LI>
+    (05 min) <A HREF="ChangingRuntime.html">Changing Runtime</A> 
+    
+  </LI>
+  <LI>(05 min) <BIG><TT>>> xcom -interactive x/pi.x</TT></BIG> </LI>
+  <LI>
+    (05 min) 
+    Changing the <A HREF="ChangingEmulator.html">Intel emulator</A> 
+  </LI>
+</UL>
+
+<H4>Lab 6</H4>
+<UL>
+  <LI>(60 min) <A HREF="labs/lab6.html">Examine and test</A>
+      the use of the computing hardware.
+  </LI>
+  <LI>
+    Challenge: add <A HREF="Warmup.html">abs</A> 
+    to X (in AsmX86.m)
+  </LI> 
+  <LI>Challenge: Implement AsmA64.m</LI>
+</UL>
+
+<H4>
+  Lecture 7 <SMALL><A HREF="Short7.pdf" TARGET="overheads">(overheads)</A>
+</H4>
+<UL>
+  <LI> (10 min)
+    Summary: the <A HREF="BigPicture.html">Big Picture</A>
+ </LI>
+  <LI> (20 min)
+    <A HREF="Emitter.html">Emitting CPU Instructions</A> 
+  </LI>
+  <LI> (30 min)
+    <A HREF="Generator.html">Synthesis of Sequential Semantics</A> 
+  </LI>
+</UL>
+
+<H4>Lab 7</H4>
+<UL>
+  <LI> (05 min) 
+    Read about changing the xcom 
+    <A HREF="ChangingEmitter.html"> code emitter</A> 
+  </LI>
+  <LI> (05 min)
+    Read about changing the xcom 
+    <A HREF="ChangingGenerator.html"> generator</A> 
+  </LI>
+  <LI>(50 min) <A HREF="labs/lab7.html">Examine and test</A>
+      code selection.
+  </LI>
+  <LI>
+    Challenge: Add <A HREF="Warmup.html">abs</A> 
+    to X (in EmitX86.m and Generator.m)
+  <LI>Challenge: Implement EmitA64.m (Intel 64-bit)</LI>
+</UL>
+
+<H4>Lecture 8 <SMALL>
+    <A HREF="../m/html/Stanford-01.html" TARGET="overheads">(overheads)</A>
+</SMALL></H4>
+<UL>
+  <LI> (50 min)
+    A <A HREF="ExecutableGrammar.html">tiny compiler compiler</A>.
+  </LI>
+</UL>
+
+<H4>Lab 8</H4>
+<UL>
+  <LI>(60 min) Experiment with <A HREF="labs/lab8.html">GEM</A>
+  </LI>
+</UL>
+
+<H4>Lecture 9 <SMALL><A HREF="Short9.pdf" TARGET="overheads">(overheads)</A></SMALL></H4>
+<UL>
+  <LI>(20 min)
+    <A HREF="Interpreters.html">Tradeoffs</A> 
+    between interpreters, JITs and production compilers 
+  </LI>
+  <LI>
+    (30 min) Conventional 
+    <A HREF="CodeOptimization.html">Optimization</A> 
+    Strategies 
+  </LI>
+</UL>
+
+<H4>Lab 9</H4>
+<UL>
+  <LI>
+    Add an instruction to the mxcom emulator:
+    <PRE>
+      >> edit mxcom/m/EmulateX86</PRE>
+    See the Intel X86 <A HREF="x86.html">reference</A> for details.
+  </LI>
+  <LI>
+    Challenge: Compare the speed of a C compiler at various levels of 
+    optimization.
+    Compare the speed of the compiled C code for each.
+  </LI>
+  <LI>Challenge: Implement Constant Folding for X as a peephole.</LI>
+</UL>
+
+<H4>Lecture 10</H4>
+<UL>
+  <LI><A HREF="FiniteAutomata.pdf">Finite Automata</A> 
+    (20 min)
+  </LI>
+  <LI><A HREF="Bottomup.html">LR Parsing</A> (30 min)</LI>
+</UL>
+
+<H4>Lab 10</H4>
+<UL>
+  <LI>
+    <A HREF="labs/lab10.html" ALT="lab10.html">Using LR tables by hand</A>
+  </LI>
+</UL>
+
+<H4>Final Exam</H4>
+<UL>
+  <LI>The <A HREF="final/TakeHomeFinal.html" TARGET="questions">questions</A>.</LI>
+  <LI>The <A HREF="final/Answers.html" TARGET="Answers">answers</A>.</LI>
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+
+<!--
+<LI><A HREF="TermProject.html">Choosing a Term Project</A> (20 min)</LI>
+-->

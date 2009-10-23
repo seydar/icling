@@ -1,0 +1,219 @@
+% FILE:		    RecursiveParsing.tex
+% PURPOSE:  	The theory and how-to of top-down parsing
+% COPYRIGHT:  W.M.McKeeman 2007
+
+\input bookhead
+\begin{document}
+
+\begin{center}
+\begin{small}
+
+\noindent --contents of Recursive Parsing--
+\begin{quote}
+\raggedright
+The {\em Proposition} example again\\
+left recursion removal\\
+recursive parser construction\\
+MATLAB parser for {\em Proposition}\\
+\end{quote}
+
+\noindent --requires--
+\begin{quote}
+\raggedright
+  Context-free Grammars\\
+  Regular Expression Grammars\\
+  Input-output Grammars
+\end{quote}
+
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+\noindent {\large \bf Recursive Parsing}
+
+\vspace{1em}
+
+\noindent Recalling the original \cfg\ for {\em Proposition\/} from
+the section on context-free grammars
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxx\=Propositionxx\=xxx\=\kill
+\>Proposition \>\la\> Disjunction {\rm eof}              \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction     \\
+\>Disjunction \>\la\> Conjunction                        \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation      \\
+\>Conjunction \>\la\> Negation                           \\
+\>Negation    \>\la\> $\neg$ Boolean                     \\
+\>Negation    \>\la\> Boolean                            \\
+\>Boolean     \>\la\> {\rm t}                            \\
+\>Boolean     \>\la\> {\rm f}                            \\
+\>Boolean     \>\la\> {\rm(} Disjunction {\rm)}
+\end{tabbing}
+\end{em}
+\end{samepage}
+
+\noindent
+one can append the rule numbers as output symbols.  
+In this case there is no difficulty distinguishing $V_O$
+since the digits $0\ldots 9$ are not in $V_I$.
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxx\=Propositionxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>Proposition \>\la\> Disjunction {\rm eof}           \>{\rm 0}    \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction  \>{\rm 1}    \\
+\>Disjunction \>\la\> Conjunction                     \>{\rm 2}    \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation   \>{\rm 3}    \\
+\>Conjunction \>\la\> Negation                        \>{\rm 4}    \\
+\>Negation    \>\la\> $\neg$ Boolean                  \>{\rm 5}    \\
+\>Negation    \>\la\> Boolean                         \>{\rm 6}    \\
+\>Boolean     \>\la\> {\rm t}                         \>{\rm 7}    \\
+\>Boolean     \>\la\> {\rm f}                         \>{\rm 8}    \\
+\>Boolean     \>\la\> {\rm(} Disjunction {\rm)}       \>{\rm 9} 
+\end{tabbing}
+\end{em}
+\end{samepage}
+
+\noindent
+Apply the transformation for \cfg\ left recursion removal,
+\begin{tabbing}{ll}
+xxxxxxxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+given:
+  \> $A\la\alpha\in \Pi\wedge A\la A \beta\in\Pi$ \\
+add:
+  \> $A\la\alpha(\beta)^*$\\
+remove:
+  \> $A\la\alpha, A\la A\beta$
+\end{tabbing}
+
+dragging the output symbols along with the rest.
+
+\begin{samepage}
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxx\=Propositionxx\=xxx\=\kill
+\>Proposition \>\la\> Disjunction {\rm eof} {\rm 0}                      \\        
+\>Disjunction \>\la\> Conjunction {\rm 2} ($\vee$ Conjunction {\rm 1})*  \\
+\>Conjunction \>\la\> Negation {\rm 4} ($\wedge$ Negation {\rm 3})*      \\
+\>Negation    \>\la\> $\neg$ Boolean {\rm 5} $|$ Boolean {\rm 6}         \\
+\>Boolean     \>\la\> {\rm t} {\rm 7} $|$ {\rm f} {\rm 8} $|$ {\rm(} Disjunction {\rm)} {\rm 9} 
+\end{tabbing}
+\end{em}
+\end{samepage}
+
+\noindent 
+The above grammar is a template for a recursive parser 
+for {\em Proposition}.  
+Each phrase name gives rise to a corresponding function.  
+Each such function relies on the functions it calls to ``do their job.''  
+There is a variable {\tt next} which has the pending input symbol.  
+There is a function {\tt scan} which steps ahead in the input.  
+There is a function {\tt shift} which
+reports that an input symbol has been shifted and calls {\tt scan}.
+There is a function {\tt reduce} that reports that a grammar rule 
+has been applied.
+  
+Here is the code in MATLAB, 
+with \verb+~+ for $\neg$, \verb+|+ for $\vee$ and \verb+&+ for $\wedge$.
+
+\vspace{1em}
+\hrule
+\begin{verbatim}
+function sr = Proposition(src)
+
+  EOF  = 0;  src = [src EOF];   % append artificial EOF
+  next = ''; ip  = 1; scan();   % initialize next
+  sr   = ''; op  = 1;           % next avail output position
+    
+  Disjunction();
+  
+  switch next
+    case EOF; reduce('0');
+    otherwise; error('missing EOF'); 
+  end
+  
+  return;              % end of main function
+  
+  % ------------- nested functions ------------
+  function Disjunction()
+    Conjunction(); reduce('2');
+    while next == '|'
+      shift(); Conjunction(); reduce('1');
+    end
+  end
+
+  function Conjunction()
+    Negation(); reduce('4');
+    while next == '&'
+      shift(); Negation(); reduce('3');
+    end
+  end
+
+  function Negation()
+    switch next
+      case '~'; shift(); Boolean(); reduce('5');
+      otherwise; Boolean(); reduce('6');
+    end
+  end
+
+  function Boolean()
+    switch next
+      case 't'; shift(); reduce('7');
+      case 'f'; shift(); reduce('8');
+      case '('; shift(); Disjunction();
+        switch next
+          case ')'; shift(); reduce('9');
+          otherwise; error('missing )');
+        end
+      otherwise; error(['unexpected operand ' next]);
+    end
+  end
+
+  function shift()
+    emit(next); scan();
+  end
+
+  function reduce(r)
+    emit(r);
+  end
+
+  function scan()
+    next = src(ip); ip = ip+1;
+  end
+
+  function emit(s)
+    sr(op) = s; op = op+1;
+  end
+end
+\end{verbatim}
+\hrule
+\vspace{1em}
+
+\noindent The result of \verb+Proposition('(f|t)')+
+is \verb+(f8642|t7641)96420+
+\vspace{1em}
+\noindent To summarize, two shifts, four reduces, two more shifts, 
+four more reduces, another shift, 5 reduces.
+
+As it turns out, the  
+parenthesis-free notation (PFN or reverse Polish) of Lukasiewicz 
+is embedded in the reduce sequence.  If each input symbol consumed by 
+a reduction is printed under the rule that consumed it we get
+
+\begin{verbatim}
+    8  6  4  2  7  6  4  1  9  6  4  2  0
+    f           t        |  ()          eof
+\end{verbatim}
+\noindent discarding the parentheses (which is the point, after all)
+only the \verb+ft|+ symbols and the eof remain.  This small fact is the
+basis for compilers that go directly from the shift/reduce sequence to 
+executable code.
+
+\subsubsection{Exercise} Why does the PFN show up in the reduce sequence?
+
+\end{document}
+

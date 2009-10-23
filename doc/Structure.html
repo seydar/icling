@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Structure.html
+     PURPOSE:   About the structure of compilers
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Compiler Structure
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH=50></TD><TD WIDTH=600>
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Structure.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Structure of the xcom Compiler</H3>
+</CENTER>
+
+<H4>Components</H4>
+<P>Compilers, generally speaking, divide into a front-end, back-end and
+runtime.  
+An intermediate representation (IR) is passed from the front-end 
+to the back-end.  In xcom all these algorithms are 
+<A HREF="ProgrammingModel.html">imbedded in objects</A>.
+Each <B>object</B>, once constructed, holds the information it has gathered.
+Each such object is passed to any other object needing the contained
+information.
+Each object provides its information either by public fields or a public
+access methods.
+</P>
+
+<P>
+<TABLE BORDER="1" ALIGN="CENTER" CELLPADDING="3">
+<TR><TD COLSPAN=9 ALIGN="CENTER">xcom</TD></TR>
+<TR>
+ <TD COLSPAN=5 ALIGN="CENTER"><A HREF="Analysis.html">Analysis</A></TD>
+ <TD COLSPAN=3 ALIGN="CENTER"><A HREF="Synthesis.html">Synthesis</A></TD>
+ <TD>&nbsp;</TD>
+</TR>
+<TR>
+ <TD><A HREF="Grammar.html">Cfg</A></TD> 
+ <TD><A HREF="Lexing.html">Lexer</A></TD>
+ <TD><A HREF="Parsing.html">Parser</A></TD>
+ <TD><A HREF="SyntaxTree.html">Tree</A></TD>
+ <TD><A HREF="Symbols.html">Symbols</A></TD>
+ <TD><A HREF="Generator.html">Generator</A></TD>
+ <TD><A HREF="Emitter.html">Emitter</A></TD>
+ <TD><A HREF="Assembler.html">Assembler</A></TD>
+ <TD><A HREF="Runtime.html">Runtime</A></TD>
+</TR>
+</TABLE>
+</P>
+
+<H4>Analysis</H4>
+<P>
+<UL>
+<LI><B>Cfg object</B> -- read the context-free grammar 
+for the input language and build tables.  
+</LI>
+<LI><B>Lexer object</B>  -- build a <B>lexeme sequence</B>
+from the source program.
+</LI>
+<LI><B>Parser object</B> -- select the meaningful lexemes and 
+construct a <B>shift/reduce sequence</B>.
+</LI>
+<LI><B>Tree object</B> -- build <B>tree</B> 
+from the shift/reduce sequence.
+</LI>
+<LI><B>Symbols object</B> -- walk the tree to build 
+a <B>symbol table</B> pairing names to attributes.
+</LI>
+</UL>
+</P>
+
+<H4>Synthesis</H4>
+<P>
+<UL>
+<LI><B>Generator object</B> --
+pass information from one part of the IR to another
+and detemine the execution sequence.
+</LI>
+<LI><B>Emitter object</B> -- choose the instructions.
+</LI>
+<LI><B>Assembler object</B> --
+assemble, format the executable, and launch the user program.
+</LI>
+</UL>
+</P>
+
+<H4>Runtime</H4>
+<P>
+<UL>
+<LI><B>getCfun.c</B> -- implement builtin functions, link X-to-X calls.</LI>
+<LI><B>runX86.c</B> -- execute compiled user programs, 
+     report runtime errors.
+</LI>
+</UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

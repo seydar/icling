@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Parsing.html
+     PURPOSE:   About parsing algorithms
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Parsing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Parsing.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Parsing</H3>
+</CENTER>
+
+<P><B>Phrase Structure</B></P>
+<P>
+  The <B>parser</B> accepts a
+  <A HREF="Lexing.html">token stream</a>,
+  discards whitespace and comments,
+  and builds a <B>shift/reduce sequence</B>
+  according to the phrase structure
+  described by the 
+  <A HREF="ContextFreeGrammar.pdf"> context-free grammar</A>.
+  The shift/reduce sequence is a record of tokens used and CFG
+  rules applied.
+</P>
+<P>
+  The shift/reduce sequence is stored as an array in the parser object.
+  A shift is represented by a positive integer (the token index) and a
+  reduce is represented by a negative integer (the rule number).
+  Access to it is supplied by parser methods.
+</P>
+
+<P>
+  There are two competing parsing algorithms
+  called respectively, <B>bottom-up</B> and <B>top-down</B>.
+  Each has their advantages and disadvantages.  
+  In xcom the two kinds of parsers are both implemented
+  and either can be used without changing anything else in xcom.  
+  The buzz-word is <A HREF="Glossary.html#plug">plug-compatible</A>.
+  The performance is about the same.
+</P>
+
+<PRE>
+>> xcom x:=1              % run xcom using top-down parser
+>> xcom -bottomUp x:=1    % run xcom using bottom-up tables
+</PRE>
+
+<P>
+  In the real world, the <B>bottom-up</B> 
+  techniques require supporting software (usually a version of 
+  <A HREF="http://en.wikipedia.org/wiki/Yacc">yacc<A>).
+  The bottom-up technology is well understood and leads to parsers
+  about which one can prove some properties.
+</P>
+
+<P>
+  The <B>top-down</B> techniques can be implemented in 
+  any recursive programming language.  
+  Like any program, a top-down parser can have bugs.  There are also
+  <A HREF="http://en.wikipedia.org/wiki/JavaCC">top-down parser
+  generators</A>.
+</P>
+<P>
+  Experts argue endlessly about which technique is better in what
+  circumstances.  
+</P>
+<P>
+  The following two links provide descriptions of the two techniques.
+</P>
+<UL>
+<LI>
+<A HREF="Topdown.html">Top-down Parsing</A>.
+</LI>
+<LI>
+<A HREF="Bottomup.html">Bottom-up Parsing</A>.
+</LI>
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

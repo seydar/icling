@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Interpreters.html
+     PURPOSE:   Interpreter->JIT->Production Compiler
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Interpreters and Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Interpreters.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Interpreters and Compilers</H3>
+</CENTER>
+
+<H4>Source Interpretation</H4>
+<P>
+  It is possible to obey a program immediately, 
+  without ever producing an intermediate form.
+  The <A HREF="http://nadav.harel.org.il/homepage/hoc/">HOC calculator</A>
+  and Cleve Moler's research version of 
+  <A HREF="http://www.mathworks.com/company/newsletters/news_notes/clevescorner/jan06.pdf">
+  MATLAB </A>
+  are examples.  
+  Direct source interpretation is competitive
+  if there are no loops and recursions in the source code.
+  The reason is that the compiler has to execute at least once anyway,
+  so there is no extra translation cost in direct interpretation.  
+  Any interpreter is reasonably efficient if the interpreted
+  actions take much longer than the interpreter overhead,
+  as was the case of the original MATLAB which 
+  was targetted primarily at matrix operations.
+</P>
+
+<H4>Tree interpretation</H4>
+<P>
+  The X language, however, does have loops and recursion and no big
+  operations.
+  This implies that translation to an efficiently executable
+  code will pay off.  
+  The choice for such an executable code is the 
+  (tree + symbol-table) intermediate representation.
+  The tree-walker can execute the language instead of making code.
+  The symbol table needs an extra field for the value of the variable;
+  the symbol table and run-time frame are thus combined.
+  Loops just cause the loop sub-tree to be rewalked.
+  MATLAB has used a tree interpreter in some toolboxes for many releases.
+</P>
+
+<H4>Pcode interpretation</H4>
+<P>
+  The most common interpreter is modelled after the 
+  <A HREF="http://en.wikipedia.org/wiki/Pascal_(programming_language)">
+  Pascal</A>
+  <A HREF="http://en.wikipedia.org/wiki/P-code_machine">P-code</A>.  
+  In this case the front-end emits an instruction stream that looks 
+  like machine language, including push, pop and branch instructions.
+  The <A HREF="http://en.wikipedia.org/wiki/Burroughs_large_systems">
+  Burrough B5000</A> (1961) was a hardware implementation of such 
+  an interpreter and served as a model for the Pascal simulation (1970).
+  The original 
+  <A HREF="http://nostalgia.wikipedia.org/wiki/Java_programming_language">
+  Java
+  </A>
+  implementation used a byte-code interpreter for a stack machine.
+</P>
+
+<P>
+  The fastest Pcode implementation is based directly on 
+  the shift/reduce sequence (which is already in execution order
+  for expressions).
+  The branching logic (if-fi, do-od) requires stack-like data
+  structures to save fixup points.  
+  <B>hyper</B> (included in this distribution) is 
+  an example of a shift-reduce based compiler (not an interpreter).
+  If one accepts the cost of building a tree, 
+  it is easier to handle the symbol table and branching logic.
+</P>
+
+<P>
+  Typically a Pcode interpreter runs about 40x slower than compiled code.
+  The reason is the the software fetch-execute mechanism simulates the 
+  hardware instruction fetch-execute mechanisms. 
+  It takes about 40 instructions per operation to simulate the hardware.
+  The carefully coded Java JVM was about 25x slower 
+  than compiled code, partly because Java is hard to compile efficiently. 
+  If the operations are on big data (such as arrays), then the 40-instruction
+  overhead is amortized.  
+  The second-generation MATLAB interpreter (Bangert) worked this way; 
+  the assumption was that most operations were on matrices and therefore
+  the software fetch-execute mechanism did not a seriously degrade 
+  performance.
+  Obviously the MathWorks' customers agreed.
+  </P>
+
+<P>
+  One advantage of an interpreter solution is that other things,
+  such as <B>debuggers</B> and <B>threads</B>, are easier to implement.
+</P>
+<H4>JIT</H4>
+<P>
+  The mnemonic 
+  <A HREF="http://en.wikipedia.org/wiki/Just-in-time_compilation">JIT</A> 
+  stands for just-in-time.  
+  The origin of the term is industrial practice.
+  If a needed part is delivered to an assembly work station
+  <EM>just in time</EM> for it to be installed, 
+  the industry profits from reduced inventory and storage costs.
+  In the compiler world, the term implies that the source code is
+  turned into executable form just in time to be executed.
+  Actual implementations of JITs are just-too-late,
+  since the need for the code is discovered when trying to execute it.
+  The customer has to wait for the code to be translated.
+</P>
+
+<P>
+  The tradeoffs for a JIT are therefore
+  <UL>
+    <LI>very fast translation, and therefore</LI>
+    <LI>no serious optimization, and therefore</LI>
+    <LI>reduced quality (slower run-time execution).</LI>
+  </UL>
+</P>
+
+<P>
+  Suppose that each simulated interpreter instruction were implemented as 
+  a function call.
+  The form of the interpreter would be a loop containing a switch, 
+  and each case of the switch would be a single function call.
+  The simplest JIT instead compiles the same function calls in the order 
+  of the interpretable instructions (same effect).
+  This eliminates the interpretable instructions, the loop and the switch, 
+  with the obvious performance improvement.
+  The only tricky part is branch instructions, 
+  which can no longer be implemented as function calls,
+  but rather must be implemented directly in the hardware branch logic.
+</P>
+
+<P>
+  Examination of the resulting JIT output leads immediately to the 
+  conclusion that some of the subroutine calls can be inlined, 
+  again improving speed.
+  This trick can only go so far without introducing <B>code-bloat</B> 
+  as more and larger subroutines are inlined.  
+  The implementor chooses the sweet-spot
+  and makes a mixture of calls and inlined code.
+  This is an excellent tradeoff when turnaround and flexibility are more
+  important than large-scale computations.  
+  One can push the JIT to make ever better code, 
+  but only at the cost of slowing the translation.
+  Again, the implementor must choose a sweet-spot,
+  avoiding <B>heavy-duty optimization</B>.
+</P>
+
+<H4>Hybrid JIT-interpreter</H4>
+<P>
+  There is no reason that execution has to be all-JIT or all-interpreter.
+  The translation mechanism can leave big-operand operators to 
+  the interpreter and put small-operand operators into compiled code.
+  Switching back and forth between JIT and interpreter itself
+  introduces some complexity,
+  so again the implementor needs to pick a sweet-spot.
+  Often a JIT takes Pcode input instead of working directly from the source.
+</P>
+
+<H4>Implementation</H4>
+<P>
+  An interpreted language can be as complicated as required.  
+  That is, the concept of interpreter scales up.
+  Here is a particular implementation in C for a language much richer than X. 
+</P>
+
+<H4>A General Operand</H4>
+<P>
+  There can be many types.  
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+
+<P>
+<TABLE BORDER="1">
+<TR>
+<TD>
+bool
+</TD><TD>
+int8
+</TD><TD>
+int16
+</TD><TD>
+int32
+</TD><TD>
+int64
+</TD><TD>
+intv
+</TD><TD>
+rational
+</TD><TD>
+real32
+</TD><TD>
+real64
+</TD><TD>
+real128
+</TD><TD>
+realv
+</TD><TD>
+complex
+</TD><TD>
+ASCII string
+</TD><TD>
+UTF8 string
+</TD><TD>
+pointer
+</TD>
+</TR>
+</TABLE>
+</P>
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P>
+  The type of a variable is dynamic, changing as in MATLAB, 
+  with each assignment.
+  There are no declarations. 
+  Rather than compile this new X, we want to interpret it. 
+  There is a C type <B>Operand</B> which is used for all operands. 
+  Some, as will be seen, require attached malloc-d store.
+  Assume a 32-bit hardware (<TT>size_t(&amp;a))== 4</TT>).
+</P>
+
+<P>
+  Some of the types above are obvious, some need explanation. 
+  Type intv is a variable sized integer (represented as a sequence of words). 
+  Type realv is a float with variable amounts of accuracy.
+</P>
+
+<P>
+  Suppose we have an enum type 
+</P>
+<PRE>
+typedef enum {
+    ERROR,
+    BOOL,
+    INT8,
+    INT16,
+    INT32,
+    INT64,
+    INTV,
+    RATIONAL,
+    REAL32,
+    REAL64,
+    REAL128,
+    REALV,
+    COMPLEX,
+    ASCII,
+    UTF8,
+    VECTOR,
+    REF
+} DynamicType;
+</PRE>
+<P>
+and a struct type
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+<PRE>
+    typedef struct {
+        union {
+            int8_t  error;             /* like NaN             */
+            int8_t  bool;              /* 0/1 true/false       */
+            int8_t  int8;              /* int,  8 bits         */
+            int16_t int16;             /* int, 16 bits         */
+            int32_t int32;             /* int, 32 bits         */
+            int64_t int64;             /* int, 32 bits         */
+            struct {
+                int32_t len;           /* negative len is sign */
+                uint32_t *digits;      /* alloc-d              */
+            } intv;
+            float  real32;             /* real, 32 bits        */
+            double real64;             /* real, 64 bits        */
+            long double real128;       /* real, 128 bits       */
+            struct {                   /* real, varying length */
+                int32_t len;           /* negative len is sign */
+                int32_t exp;           /* 2^exp factor         */
+                uint32_t *digits;      /* alloc-d              */
+            } realv;                   /* 2^31 32-bit words    */
+            struct {                   /* rational             */ 
+                Operand *num;
+                Operand *denom;
+            } rational;
+            struct {                   /* complex              */ 
+                Operand *rp;
+                Operand *ip;
+            } complex;
+            char *ascii;               /* zero terminated      */
+            char *utf8;                /* zero terminated      */
+            struct {                   /* vector               */
+                int32_t len;
+                Operand *elem;
+            } vector;
+            Operand *ref;              /* lhs and pointers     */
+        } data;
+        DynamicType type;              /* selector             */
+    } Operand;
+</PRE>
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P>
+  An object of type Operand stores any of the fixed size types in 
+  128+8 bits and uses pointers to allocated storage for the rest. 
+</P>
+
+<H4>Operations</H4>
+<P>
+  From the interpreter viewpoint, assignment execution is straightforward. 
+  There are functions
+  <UL>
+    <LI>Operand zary(int op);</LI>
+    <LI>Operand unary(int op, Operand opd);</LI>
+    <LI>Operand binary(int op, Operand lft, Operand rgt);</LI>
+    <LI>void    store(Operand *dest, Operand opd);</LI>
+    <LI>Operand pop(void);</LI>
+    <LI>void    push(int offset);</LI>
+    <LI>void    pushref(int offset);</LI>
+  </UL>
+</P>
+
+<P>
+  Operators are implemented as functions with Operand inputs and output.
+  The functions examine field type in their operand(s) 
+  and call the appropriate C routines to construct the result.
+</P>
+
+<P>
+  Among the unary ops are the type names, 
+  used as casts which force any other type into the named format 
+  if possible, and error otherwise. 
+  The unary push is used for variables; 
+  constants are just initialized variables. 
+  The unary pushref puts a pointer on the stack (used for assignment). 
+  The zary pop is only used for cleanup after an error. 
+  The interpreter has to call all these functions 
+  (and no others) appropriately to do assignments.
+</P>
+
+<P>
+  Type intv is implemented by carrying the long integer as an array of
+  word-size super-digits. 
+  As in normal decimal algorithms, arithmetic on two super-digits may 
+  overflow or underflow, carrying a bit to the digits to the left or right.  
+  A free implementation of this kind is available in the 
+  <A HREF="http://gmplib.org/">BIGNUM</A> package.
+</P>
+
+<P>
+  Type realv is implemented analogously to hardware float. 
+  There is a signed int exponent, 
+  a significand consisting of an array of unsigned ints, 
+  and a signed int length. 
+  The leading word and trailing bit of the significand are never 0. 
+  The value of the realv is the catenation of the values in the significand 
+  as a long integer, 
+  times the sign of the length field, 
+  times 2 raised to the exponent power. 
+  (Test your understanding: how is zero represented?) 
+</P>
+
+<P>
+  The implementation of realv '+' will have to add or subtract pairs of 
+  unsigned ints and detect overflow -- that is: a+b>UINT_MAX. 
+  You can write a>UINT_MAX-b in C to get a safe form of the check. 
+  Arbitrary precision arithmetic carries the need for a shortening 
+  convention or operator,
+  otherwise the length continues to grow during computation. 
+  The user or system must apply a policy for limiting precision of results.
+</P>
+<P>
+  Types complex and rational are represented by pairs of operands 
+  in the expected way. 
+  Because the size of Operand would otherwise be unlimited 
+  (and therefore not C), 
+  the components of rational and complex are in malloc-d storage. 
+  Rational arithmetic in fact demands integer components 
+  and is always reduced by the gcd after every operation.
+</P>
+
+<P>
+  Type <A HREF="Unicode.html"><BIG><TT>utf8</TT></BIG></A> 
+  gets all the worlds languages into computers.
+  It is worth separating it from type 
+  <BIG><TT>ascii</TT></BIG> because the extra generality
+  of Unicode slows down execution for string operations.
+</P>
+
+<P>
+  The main work is in implementing the N^2 combinations of types in 
+  binary(op, lft, rgt). 
+  One might choose to cast the
+  smaller operand up to the larger operand 
+  or forbid mixed operations.
+  Then only N actual operations have to be implemented. 
+  One might (as in Java) interpret "+" as catenate for ASCII and UTF8
+  or alternatively one might convert text to an arithmetic format 
+  if possible as in tcl, awk and javascript.
+</P>
+
+<P>
+  The arithmetic is driven by ops ZARY (no operands), 
+  UNARY, BINARY and STORE with subops following the main ops. 
+  Operands are addressed with hardware type int giving an offset 
+  into the local store.
+</P>
+
+<P>
+  Suppose some variable a (of whatever type) is stored at offset 3 
+  in the execution frame. Then the following pcode evaluates a=a+a. 
+</P>
+
+<PRE>
+UNARY pushref 3
+UNARY push 3
+UNARY push 3
+BINARY add
+BINARY store
+</PRE>
+<P>
+The main loop of the interpreters looks like: 
+</P>
+<PRE>
+while (running) {
+  switch (*pc++) {
+  case ZARY:
+    zary(*pc++);
+    break;
+  case UNARY:
+    unary(*pc++);
+    break;
+  case BINARY:
+    binary(*pc++);
+    break;
+  case GOTO:
+    pc = pc+*pc;
+  case HALT:
+    running = 0;
+  default:
+    illegalop();
+  }
+}
+</PRE>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

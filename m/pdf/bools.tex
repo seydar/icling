@@ -1,0 +1,106 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    bools.x
+}\\
+{\tt\char18}{\em{} PURPOSE: test all logical operators
+}\\
+{\tt\char18}{\em{} METHOD:  The X assert  if boolexp ? fi is used to check answers.
+}\\
+pass\ $\leftarrow$\ 0;\>\>\>{\tt\char18}{\em{} none yet
+}\\
+{\tt\char18}{\em{} test literal constant, store and fetch
+}\\
+b2,\ b1\ $\leftarrow$\ false,\ true;\\
+{\bf if}\>b1\ $\wedge$\ \ $\neg$b2\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$2;\\
+{\tt\char18}{\em{} test multiple assign, |
+}\\
+b6,\ b5,\ b4,\ b3\ $\leftarrow$\ b1\ $\vee$\ b1,\ true\ $\vee$\ b1,\ b1\ $\vee$\ false,\ true\ $\vee$\ false;\\
+{\bf if}\>b3\ $\wedge$\ b4\ $\wedge$\ b5\ $\wedge$\ b6\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+{\tt\char18}{\em{} test multiple assign, &
+}\\
+b10,\ b9,\ b8,\ b7\ $\leftarrow$\ b1\ $\wedge$\ b1,\ true\ $\wedge$\ b1,\ b1\ $\wedge$\ false,\ true\ $\wedge$\ false;\\
+{\bf if}\>\ $\neg$b7\ $\wedge$\ \ $\neg$b8\ $\wedge$\ b9\ $\wedge$\ b10\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+{\tt\char18}{\em{} test bool ~
+}\\
+b13,\ b12,\ b11\ $\leftarrow$\ \ $\neg$(\ $\neg$(\ $\neg$b1)),\ \ $\neg$(\ $\neg$b1),\ \ $\neg$b1;\\
+{\tt\char18}{\em{}xx1:=b11;
+}\\
+{\tt\char18}{\em{}xx2:=b12;
+}\\
+{\tt\char18}{\em{}xx3:=b13;
+}\\
+{\tt\char18}{\em{}xx4:= ~b11;
+}\\
+{\tt\char18}{\em{}xx5:= ~b13;
+}\\
+{\tt\char18}{\em{}xx6:= ~b11 & b12 & ~b13;
+}\\
+{\bf if}\>\ $\neg$b11\ $\wedge$\ b12\ $\wedge$\ \ $\neg$b13\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$3;\\
+{\tt\char18}{\em{} test int relations
+}\\
+b16,\ b15,\ b14\ $\leftarrow$\ 1\ $=$\ 2,\ 1\ $\leq$\ 2,\ 1\ $<$\ 2;\\
+b19,\ b18,\ b17\ $\leftarrow$\ 1\ $<$\ 2,\ 1\ $\geq$\ 2,\ 1\ $\neq$\ 2;\\
+{\bf if}\>b14\ $\wedge$\ b15\ $\wedge$\ \ $\neg$b16\ $\wedge$\ b17\ $\wedge$\ \ $\neg$b18\ $\wedge$\ \ $\neg$b19\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$6;\\
+b16,\ b15,\ b14\ $\leftarrow$\ 1\ $=$\ 1,\ 1\ $\leq$\ 1,\ 1\ $<$\ 1;\\
+b19,\ b18,\ b17\ $\leftarrow$\ 1\ $<$\ 1,\ 1\ $\geq$\ 1,\ 1\ $\neq$\ 1;\\
+{\bf if}\>\ $\neg$b14\ $\wedge$\ b15\ $\wedge$\ b16\ $\wedge$\ \ $\neg$b17\ $\wedge$\ b18\ $\wedge$\ \ $\neg$b19\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$6;\\
+{\tt\char18}{\em{} test real relations
+}\\
+b15,\ b14\ $\leftarrow$\ 1.1\ $\leq$\ 2.2,\ 1.1\ $<$\ 2.2;\\
+b19,\ b18\ $\leftarrow$\ 1.1\ $<$\ 2.2,\ 1.1\ $\geq$\ 2.2;\\
+{\bf if}\>b14\ $\wedge$\ b15\ $\wedge$\ \ $\neg$b18\ $\wedge$\ \ $\neg$b19\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+b15,\ b14\ $\leftarrow$\ 1.1\ $\leq$\ 1.1,\ 1.1\ $<$\ 1.1;\\
+b19,\ b18\ $\leftarrow$\ 1.1\ $<$\ 1.1,\ 1.1\ $\geq$\ 1.1;\\
+{\bf if}\>\ $\neg$b14\ $\wedge$\ b15\ $\wedge$\ b18\ $\wedge$\ \ $\neg$b19\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+b21,\ b20\ $\leftarrow$\ 2.1\ $\leq$\ 1.1,\ 2.1\ $<$\ 1.1;\\
+b23,\ b22\ $\leftarrow$\ 2.1\ $<$\ 1.1,\ 2.1\ $\geq$\ 1.1;\\
+{\bf if}\>\ $\neg$b20\ $\wedge$\ \ $\neg$b21\ $\wedge$\ b22\ $\wedge$\ b23\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+{\tt\char18}{\em{} parens
+}\\
+b27,\ b26\ $\leftarrow$\ (\ $\neg$(\ $\neg$(\ $\neg$(\ $\neg$false)))),\ ((((((((true))))))));\\
+{\bf if}\>b26\ $\wedge$\ \ $\neg$b27\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$2;\\
+{\tt\char18}{\em{} precedence
+}\\
+b31,\ b30,\ b29,\ b28\ $\leftarrow$\ \ $\neg$b1\ $\vee$\ b1\ $\wedge$\ \ $\neg$b1,\ \ $\neg$b1\ $\vee$\ \ $\neg$b1\ $\wedge$\ b1,\ \ $\neg$b1\ $\vee$\ b1\ $\wedge$\ b1,\ b1\ $\vee$\ b1\ $\wedge$\ b1;\\
+{\bf if}\>b28\ $\wedge$\ b29\ $\wedge$\ \ $\neg$b30\ $\wedge$\ \ $\neg$b31\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$4;\\
+passedbools\ $\leftarrow$\ pass;\\
+\end{tabbing}
+\end{document}

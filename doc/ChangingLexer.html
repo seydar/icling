@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingLexer.html
+     PURPOSE:   How to change the xcom lexer
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.10.14 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Lexer
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingLexer.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the xcom Lexer</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>In MATLAB, in the xcom directory, type (or cut from here and paste
+to the MATLAB command line)
+<PRE>
+>> help Lexer.m               % the Lexer help page
+>> xcom -lexDump x:=1         % post-run dump of lexemes from xcom
+</PRE>
+and
+<PRE>
+>> load cfg cfg               % prepare to run Lexer standalone
+>> EOL = 10;                  % ASCII newline
+>> lx = Lexer(cfg, ['x:=1;' EOL 'y:=x']) % 2-line , 11-char program
+>> lx.dump()
+</PRE>
+The variable lx above is a struct containing the fields and methods
+of the Lexer object; each can be accessed separately, as in
+<PRE>
+>> [ln,col] = lx.getLineCol(7)
+</PRE>
+</P>
+
+<P>Read the general description of <A HREF="Lexing.html">lexing</A>.<P>
+
+<H4>Generalities</H4>
+<P>
+The definitions of whitespace, identiers, integer literals, and 
+real literals are common across most programming languages.
+The X comment is conventional except for the leading character,
+which can be changed in one spot if desired.
+Reserved words and operators are tabulated by Cfg.m
+so nothing special has to be done in Lexer.m.
+</P>
+
+<P>
+The Lexer identifiers the kind of the next symbol by examining
+its first characters (usually one is enough).  
+There are only a few cases, each behind an if or elseif in the main loop.
+The cases are independent.
+An identifier or operator identifier is first delimited.
+Then, at the bottom of the loop, the symbol is looked up in the
+reserved word table prepared by Cfg.m.
+If the symbol is in the reserved word table, 
+the lexeme is reported as reserved, otherwise as an id or operator id.
+</P>
+
+<H4>White space</H4>
+<P>
+The lexer does nothing special with white space or comments 
+-- it presumes that the consumer of the lexeme stream will 
+discard meaningless tokens.  
+In xcom, the parser has jackets around its access to tokens, allowing
+it to step over white space and comments.
+</P>
+
+<H4>Adding a Class of Symbols</H4>
+<P>
+The four <EM>classes</EM> of symbols (id, integer, real, whitespace)
+in X require explict code both in Cfg.m and Lexer.m.  
+The names in the grammar are technically reserved words
+(not defined by any rule) so Cfg.m unreserves id, integer and real.
+Lexer.m must have a compensating piece of code to
+construct tokens for each such class of symbols.
+</P>
+
+<P>
+To add another such symbol (say string), both Cfg.m and Lexer.m
+need to handle the additional case.
+The change in Cfg.m is trivial.
+In the Lexer another "elseif" has to be added in the main loop,
+looking for the initial character of the string.
+The string delimiters are, of course, part of the string,
+so as to preserve the invariant that catenation of the sequence 
+of lexemes yields the original source text.
+</P>
+
+<H4>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

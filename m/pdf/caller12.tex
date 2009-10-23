@@ -1,0 +1,22 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    caller12.x
+}\\
+{\tt\char18}{\em{} PURPOSE: minimal subprogram test for xcom
+}\\
+{\tt\char18}{\em{} METHOD:  xcom x/called12.x x/caller12.x
+}\\
+x\ $\leftarrow$\ 1;\\
+x\ $\leftarrow$\ called12\ $\leftarrow$\ 200,\ 99$+$1;\\
+{\tt\char18}{\em{} assert called12 returns sum of args+17
+}\\
+{\bf if}\>x\ $=$\ 100$+$200$+$17\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+\end{tabbing}
+\end{document}

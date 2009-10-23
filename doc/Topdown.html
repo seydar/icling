@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Topdown.html
+     PURPOSE:   About using recursion to parse X 
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Top Down Parsing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Topdown.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Top-down Parsing</H3>
+</CENTER>
+
+<P>The top-down method relies on the IOG as a programming template to 
+specify some <B>mutually recursive functions</B>.  
+Each function is responsible for one phrase name, 
+so the total number of such functions can be predicted by examining
+the CFG.  For <A HREF="Xcfg.html">X</A>, there are 55.
+</P>
+
+<P>
+The whole process of writing the recursive processor is presented
+in a simplified version based on the Proposition Cfg in the class
+<A HREF="RecursiveParsing.pdf">handout</A>. 
+</P>
+<P>
+The first steps toward writing the parser functions use grammar 
+transformations.  
+An experienced parser author sometimes does not bother with explicit 
+transformations, 
+doing them mentally at the keyboard while preparing the parser.
+</P>
+
+<H4>Label the Rules</H4>
+<P>
+The first step is to <B>label</B> 
+the CFG rules in a systematic way. 
+In effect, this changes the context-free grammar into an 
+<A HREF="InputOutputGrammar.pdf">input-output grammar</A>.
+The labels are the members of <EM>V<SUB>O</SUB></EM>.
+One can merely number the rules, as is done for Proposition
+in the section on <A HREF="ContextFreeGrammar.pdf">context-free grammars</A>, 
+or use moderately mnemonic labels 
+incorporating the phrase name as done in the labelling
+<A HREF="Xlabel.html">example</A> for X, 
+or use wholly mnemonic labels as is done in xcom where
+the second rule for vars
+<PRE>
+vars
+  vars , id
+</PRE>
+is labelled
+<PRE>
+  vars_varsCOMMAid
+</PRE>
+</P>
+<P>
+The issue is maintainability.  Making a change in xcom should not cause
+the programmer to have to change unrelated names (as would be the case
+in first two example labels above). 
+The labels in xcom are in fact generated in a predictable way by
+the Cfg object based on the whole text of each rule.
+To see them, in MATLAB, type
+<PRE>
+  >> c=Cfg(xread('X.cfg'));
+  >> c.ruleNames
+</PRE>
+The input-output grammar is closely analogous the the 
+<B>yacc</B> input language.
+The equivalent of the xcom rule labels in the IOG  
+are yacc actions expressed as C text enclosed in curly braces.
+
+</P>
+
+<H4>Construct the IOG</H4>
+<P>
+The second step is to <A HREF="RecursiveParsing.pdf">transform</A> 
+the <A HREF="Xlabel.html">labelled</A> CFG 
+into the regular expression form of an <A HREF="Xiog.html">IOG for X</A>, 
+removing left recursion and dragging the rule labels along.  
+Changing the CFG to the free-form notation to distinguish phrase names, 
+input symbols, and output symbols is part of the task.  
+</P>
+
+<H4>Write Recursive Parsing Functions</H4>
+<P>
+The third step is to implement the 
+<A HREF="RecursiveParsing.pdf">recursive functions</A>
+in analogy to those for Proposition.  
+For X, the functions are methods in mxcom/m/Parser.m.  
+The current token must be updated immediately after passing any token
+comparison test.  
+The output actions have to be turned into reduce calls.
+The entire effect of parsing is to produce a 
+<B>shift/reduce sequence</B>.
+</P>
+
+<H4>Test Early and Often</H4>
+<P>
+The fourth step is to implement a unit test for the parser.
+The file mxcom/m/tests/testParser.m is such a test, 
+but it is nothing to be proud of since it depends on a "gold file"
+of prerecorded results.
+My feelings will not be hurt if you do a much better job.
+</P>
+
+<H4>Making a Small Change in the Parser</H4>
+<P>See the details <A HREF="ChangingParser.html">here</A>.</P>
+
+<H4>Why not Something Simpler?</H4>
+<P>There have been many unique solutions to the parsing problem over the 
+years, from the earlier Fortran compilers onward.
+What has been shown above is one of the best.
+</P>
+
+<P>One can imagine not using either the REG or IOG and still be able to
+write recursive parsers.  You can.  The transformations leading to the
+recursive parsing template are, generally speaking, not that difficult
+to do in your head while you are typing.
+</P>
+
+<P>What you cannot do is skip the transformations.  Take, for example,
+the rules
+<PRE>
+Disjuction 
+  Disjunction | Conjunction
+  Conjunction
+</PRE>
+One could write
+<PRE>
+function Disjunction()
+  if (???)
+    Disjunction();
+    accept('|');
+    Conjunction();
+    reduce(1)
+  else
+    Conjunction();
+    reduce(2);
+  end
+end
+</PRE>  
+</P>
+    
+<P>The first problem is what to put in place of the <TT>???</TT>.
+The meaning of the <TT>???</TT> has to be "if there is a '|' coming and
+nothing is going to get in the way (like a ')').
+</P>
+<P> The second problem is that Disjunction calls itself immediately,
+which will lead to a <B>stack overflow</B> and no answer.
+</P>
+
+<P>Cfg left-recursion has to be turned into an iteration, in your head
+or in your IOG.
+</P>
+
+<P>On the other hand, if the rules are tried in the opposite order,
+<PRE>
+Disjuction 
+  Conjunction
+  Disjunction | Conjunction
+</PRE>
+you could try <B>backtracking</B> from any point of failure and failing 
+over to the second alternative.  
+This solution works but is not efficient.
+</P>
+
+<P>And, of course, the <B>bottom-up</B> methods also will work and are 
+competitive.
+The table builder is usually a bit tedious to work with but the eventual
+parser is "as good as it gets".
+</P>
+<HR>
+Footnote:
+<P>
+  I learned top-down compiling by reading the 
+  <A HREF="http://en.wikipedia.org/wiki/Burroughs_large_systems">
+  Burroughs B5000 Algol-60</A> compiler in 1963.  
+  It was self-compiling.  Kudos to Lloyd Turner and Dave Dahm.
+  I learned bottom-up compiling while implementing part of 
+  <A HREF="http://portal.acm.org/citation.cfm?id=365202">Euler</A>
+  for Niklaus Wirth and Helmut Weber.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

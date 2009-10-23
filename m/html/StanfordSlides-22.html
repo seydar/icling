@@ -1,0 +1,92 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-22.html</p>
+
+         <h2>3.4.2  Add Kleene <tt>+</tt><a name="57"></a></h2>
+         <p>Adding Kleene operator <tt>+</tt> is accomplished by translating <tt>r+</tt> into <tt>rr*</tt>, then use <tt>nostar1</tt> and <tt>nostar2</tt> to eliminate the <tt>*</tt>. The IOG <tt>noplus</tt> is a version of <tt>pretty</tt> with 26 rules of the form
+         </p><pre> s = 'a+' "aa*';
+ s = 'b+' "bb*';
+ ...
+ s = 'z+' "zz*';</pre><pre class="codeinput">plusexample = <span class="string">'r=a+b+;a=''1''"O";b=''2''"T";'</span>; fprintf(GEM(plusexample,G.pretty2));
+</pre><pre class="codeoutput">r = a+ b+;
+a = '1' "O";
+b = '2' "T";
+</pre><pre class="codeinput">plusres = GEM(plusexample, G.noplus); fprintf(GEM(plusres,G.pretty2));
+</pre><pre class="codeoutput">r = a a* b b*;
+a = '1' "O";
+b = '2' "T";
+</pre><pre class="codeinput">plusout = GEM(<span class="string">'11122'</span>, [GEM(plusres,G.nostar2) GEM(plusres,G.nostar1)])
+</pre><pre class="codeoutput">plusout =
+OOOTT
+</pre><table border=1><tr><td><a href="StanfordSlides-21.html">PREV</a></td><td><a href="StanfordSlides-23.html">NEXT</a></td></tr></table>
+</body></html>

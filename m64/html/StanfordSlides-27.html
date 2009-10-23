@@ -1,0 +1,87 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-27.html</p>
+
+         <h2>4.4 A calculator<a name="73"></a></h2>
+         <p>Moving to a higher level, one can compile and run a little 4-register calculator language.  As usual, the sequence of calculations
+            is compiled into Intel X86 binary, run, and also decompiled.
+         </p><pre class="codeinput">make31 = <span class="string">'b=9;a=3;c=4;a*=b;a+=c;'</span>;
+compiled = G.run(make31, G.scan(G.calc), <span class="string">'D'</span>); fprintf(<span class="string">'compiled = %s\n'</span>, compiled);
+executed = G.exe(compiled); fprintf(<span class="string">'executed = %d\n'</span>,executed);
+invertedcalc = G.GEM(G.scan(G.calc),<span class="string">'invert'</span>);
+decompiled=G.run(compiled, invertedcalc, <span class="string">'D'</span>); fprintf(<span class="string">'decompiled = %s'</span>,decompiled);
+</pre><pre class="codeoutput">compiled = 554889E5B909000000B803000000BA040000000FAFC101D0C9C3
+executed = 31
+decompiled = b=9;a=3;c=4;a*=b;a+=c;</pre><p>Unix function atoi</p><pre class="codeinput">intval  = G.exe(G.GEM(<span class="string">'376'</span>, <span class="string">'atoi'</span>)); fprintf(<span class="string">'intval=%d'</span>, intval);
+</pre><pre class="codeoutput">intval=376</pre><table border=1><tr><td><a href="StanfordSlides-26.html">PREV</a></td><td><a href="StanfordSlides-28.html">NEXT</a></td></tr></table>
+</body></html>

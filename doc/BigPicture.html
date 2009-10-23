@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      BigPicture.html
+     PURPOSE:   Putting it all together
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Big Picture
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> BigPicture.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Putting it all Together</H3>
+</CENTER>
+
+<H4>Overview</H4>
+<P>
+  The action starts with a context-free grammar X.cfg and the C runtime.
+  <OL>
+    <LI>makeCfg.m builds grammar tables offline. (Cfg.MAT)</LI>
+    <LI>makeMex.m builds the MEX files offline.</LI>
+  </OL>
+</P>
+<P>
+  For each X source file or program named on the MATLAB command line
+  <OL>
+    <LI>build a lexeme stream (Lexer.m)</LI>
+    <LI>build a shift/reduce sequence (Parser.m), one of
+      <UL>
+        <LI>top down (recursive)</LI>
+        <LI>bottom up (LR)</LI>
+      </UL>
+    </LI>
+    <LI>build a tree (Tree.m), one of
+      <UL>
+        <LI>syntax tree</LI>
+        <LI>AST, abstract syntax tree</LI>
+      </UL>
+    </LI>
+    <LI>build a symbol table (Symbols.m tree walk)</LI>
+    <LI>
+      generate a sequence of semantic actions (Generator.m tree walk), 
+      which
+    </LI>
+    <LI>emits a sequence of hardware instructions (EmitX86.m), which</LI>
+    <LI>are assembled as bits in an array (AsmX86.m)</LI>
+  </OL>
+</P>
+
+<P>
+  Once the compilation(s) are done
+  <OL>
+    <LI>
+      Input variables are initialized from the MATLAB command line.
+    </LI>
+    <LI>
+      The rightmost X source file or program is executed, 
+      having been linked to builtins
+      and other X programs named on the command line.
+    </LI>
+    <LI>
+      Output variables are reported to the MATLAB command line.
+    </LI>
+  </OL>
+</P>
+
+<H4>Preparation</H4>
+<P>
+<PRE>
+    *.c -> makeMex.m -> MEX -> *.mexw32
+    
+    X.cfg -> makeCfg.m
+               |
+               v
+             Cfg.m -> Cfg.MAT
+</PRE>
+</P>
+
+<H4>Front end</H4>
+<P>
+<PRE>
+          *.x ->  xcom.m
+                    |         <-- source text
+                    v
+                 Lexer.m
+                    |         <-- token stream
+                    v
+                Parser.m
+                 /     \
+            bottomup  topdown <-- shift/reduce sequence
+                 \     /
+                 Tree.m
+                 /     \
+              syntax   AST    <-- tree
+                 \     /
+                Symbols.m
+                    |         <-- symbol table
+                    v
+</PRE>
+</P>
+
+<H4>Back end</H4>
+
+<P>
+<PRE>
+                   | |        <-- symbol table and tree
+                   v v
+               Generator.m
+                    |         <-- semantic actions
+                    v
+                EmitX86.m
+                    |         <-- symbolic hardware instructions
+                    v
+                AsmX86.m    
+                    |         <-- hex hardware instructions
+                    v
+</PRE>
+</P>
+
+<H4>Runtime</H4>
+<P>
+<PRE>                 
+                    |        <-- user input
+                    v
+                  xcom.m
+                 /     \
+        EmulateX86.m  RunX86.c
+                 \     /
+                 xcom.m
+                    |        <-- user output
+                    v
+</PRE>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,86 @@
+<!-- FILE:      ChangingXcom.html
+     PURPOSE:   About changing xcom
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Development
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingXcom.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+
+<CENTER>
+<H3>Changing xcom</H3>
+</CENTER>
+
+<H4>Changing xcom</H4>
+<P>
+  First things first; if you are going to change xcom, 
+  pick a <B>new name</B> for your version.
+</P>
+<P>
+Typically one extends a language like xcom by adding some new construct.
+The sequence of change-events is important, if for nothing else, 
+to avoid a <A HREF="Glossary.html#bigbang">big bang</A>
+of many changes before feedback is available.
+The supposition here is that some small addition will be made to X.cfg.
+This change may, or may not, require changes to further modules before
+xcom can run again.
+</P>
+<P>
+In some cases the sequence below will not be best.  
+For instance, if there is a large runtime package to be integrated,
+it might be best to do that first.
+</P>
+
+<H4>Recommended Order of Changes</H4>
+<OL>
+<LI>Do not forget the <A HREF="Warmup.html">warm up exercise</A></LI>.
+<LI><A HREF="ChangingX.html">X.cfg</A> (add to the X context-free grammar)</LI>
+<LI><A HREF="ChangingCfg.html">Cfg.m</A> (run makeCfg always, but rarely tweak the cfg object)</LI>
+<LI><A HREF="ChangingLexer.html">Lexer.m</A> (change only if a new token type -- such as string -- has been added)</LI>
+<LI><A HREF="ChangingParser.html">Parser.m</A> (change almost always, whenever a cfg rule is changed)</LI>
+<LI><A HREF="ChangingTree.html">Tree.m</A> (change almost never, building a syntax tree is standard) </LI>
+<LI><A HREF="ChangingSymbols.html">Symbols.m</A> (change almost always, to deal with new tree nodes) </LI>
+<LI><A HREF="ChangingGenerator.html">Generator.m</A> (change almost always, to deal with new tree nodes) </LI>
+<LI><A HREF="ChangingEmitter.html">EmitX86.m</A> (change almost always, to deal with new semantics) </LI>
+<LI><A HREF="ChangingAsm.html">AsmX86.m</A> (change only when a new CPU instruction is added) </LI>
+<LI><A HREF="ChangingEmulator.html">EmulateX86.m</A> (change only when a new CPU instruction or X builtin is added) </LI>
+<LI><A HREF="ChangingRuntime.html">Runtime</A> (change whenever a new C runtime routine is added) </LI>
+</OL>
+
+<H4>Testing xcom</H4>
+<P>
+xcom is arranged so that small changes can be <A HREF="TestingXcom.html">tested</A> immediately.
+Test often.  Update tests as you go.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

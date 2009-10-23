@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Glossary.html
+     PURPOSE:   glossary of terms
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Glossary
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Glossary.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>The xcom Glossary</H3>
+</CENTER>
+
+<H4>Technical Terms</H4>
+<P>
+<UL>
+<A NAME="arena"></A>
+<LI><B>arena</B> -- allocating things.
+  <P>
+  Memory allocation can be retail (C malloc) or wholesale
+  (suballocation out of a large pre-allocated arena).
+  Arena allocation is always an attractive alternative because 
+  the entire arena can be freed as a unit when it is no longer needed.
+  In MATLAB where there are no pointers and no malloc,
+  arena allocation is especially attractive. 
+  An index into the arena locates data.  
+  The data can contain other indices,
+  providing the same kind of data structures available with C pointers.
+  Increasingly relevant, the size of the index type need not
+  be as big as the computer address space, 
+  which can lead to a considerable savings in the space needed to
+  store the links.
+  Because all links are arena-relative, 
+  nothing is lost if the arena must be enlarged (C realloc).
+  </P>
+  
+  <P>
+  The <A HREF="SyntaxTree.html">syntax trees</A>
+  of xcom are arena allocated.
+  </P>
+</LI>
+
+<A NAME="bigbang"></A>
+<LI><B>big bang</B> -- bad planning.
+  <P>
+    The big bang in software results when a big change has to be made
+    all in one step.  
+    Nothing works until it all works.  
+    There are many disadvantages to such a plan.
+    The most worrisome to management is that there is no way to tell
+    if something has gone wrong until much time and effort has been spent.
+    A big bang can lead to a big slip in delivery, or project cancellation.
+    Almost everyone in the business knows of one example.
+    One alternative is incremental change -- do a little; test a lot.
+  </P>
+  <P>
+    Another alternative is to prototype.  
+    A series of ever more ambitious prototypes, 
+    each of which <EM>demonstrates</EM> more of the final objective,
+    and perhaps each done to higher software engineering standards,
+    provides milestones and the opportunity to learn something.
+    The danger in prototyping is that a less-than-final stage may
+    get turned into a product.
+  </P>
+  <P>
+    If the software is modular, each module can become a subproject.
+    Unit tests can be implemented for each module, 
+    supplying useful milestones.
+  </P>
+</LI>
+
+<A NAME="bind"></A>
+<LI><B>bind</B> -- connecting things.
+  <P>Programming languages and mathematical notation share a concept
+  of operator finding in expressions.  
+  The words precedence, priority, and/or hierarchy are also often used to
+  describe this concept.
+  Readability depends on the reader of an expression understanding
+  what are the operands of each operator.  
+  The association of operands and operators can always be made explicit
+  with parentheses but readability suffers.
+  Saying that * <B>binds</B> more tightly than + (which is true in X)
+  allows the reader to immediately infer the equivalence of the
+  following examples.
+  <TABLE BORDER="1" ALIGN="CENTER">
+  <TR><TD>1+2*3+4</TD><TD><TT>&lt;--&gt;</TT></TD><TD>1+(2*3)+4</TD></TR>
+  <TR><TD>1*2+3*4</TD><TD><TT>&lt;--&gt;</TT></TD><TD>(1*2)+(3*4)</TD></TR>
+  </TABLE>
+  </P>
+</LI>
+
+<A NAME="cache"></A>
+<LI><B>cache</B> -- faster memory.
+  <P>
+  Any particular computer may have several kinds of cache memory.
+  Cache memory is faster than 
+  <A HREF="#RAM">main memory</A>.
+  The idea is that a copy of parts of main memory is kept in the cache
+  and therefore can be accessed faster than it could be directly
+  from main memory.
+  A <B>cache miss</B> requires that many words of data be loaded 
+  from main memory into
+  the cache before the needed word of memory can be used.
+  If main memory is randomly accessed, a cache will not help much.
+  </P>
+  <P>Performance optimization often depends more on managing the 
+  cache than it does on instruction selection.
+  </P>
+</LI>
+  
+<A NAME="compiletime"></A>
+<LI><B>compile time</B>.
+  <P>
+    Compile time has two meanings.
+    <OL>
+    <LI>
+      <P>Compile time can mean the time elapsed during the production of an 
+         executable form.
+         This is the metric that JITs try to minimize since it
+         is directly related to perceived performance.
+         For example, "The compile time is 10<SUP>-6</SUP>
+         seconds per line of source code"
+      </P>
+    </LI>
+    <LI>
+      <P>Compile time can mean a phase of the total process of getting
+         code into execution.  
+         For example, "Symbol table lookup occurs at compile time."
+         Other analogous phases might be edit time, link time, load time
+         or run time.
+      </P>
+    </LI>
+    </OL>
+  </P>
+</LI>
+
+<A NAME="fixup"></A>
+<LI><B>fixup</B> -- late insertion of a value.
+  <P>
+  The order of events in a compiler may force partly-done code to
+  be produced.  
+  A fixup is a process which, at a later time, finishes the job
+  by placing the missing values into the partly-done code.
+  The typical situation requiring a fixup is a forward conditional 
+  branch.
+  </P>
+</LI>
+  
+<A NAME="hash"></A>
+<LI><B>hash</B> -- randomized access for fast lookup.
+  <P>
+    The simplest way to search a large table of strings
+    is from one end to the other.
+  </P>
+  <P>
+    A faster way is to compute a small repeatable random number
+    based on the the characters in each string in the table.
+    Assuming there are N entries in the table and the small
+    random number is 0 <= H < M, then items with the same
+    hash H can be linked together.  
+    When it is time to look something up, the hash H is computed
+    and only the approximately N/M entries on the corresponding
+    list need to be examined.
+  </P>
+  <P>
+    A typical value for M is 256.  The lookups for a large table
+    are thereby speeded up by a factor of 256.
+  </P>
+</LI>
+  
+<A NAME="opaque"></A>
+<LI><B>opaque</B> -- a value that can be assigned but not examined.
+  <P>
+  A separation of concerns can be established if one part of a program
+  computes values and another simply holds the values to pass back.
+  The value manager does not need the capability of examining the 
+  values it manages.
+  </P>
+</LI>
+  
+<A NAME="pass"></A>  
+<LI><B>pass</B> -- one of a series of processes on a single set of data.
+  <P>
+  When memories were small, 
+  all compilers had to make multiple passes over the source input,
+  each pass collecting and tabulating some particular kind of information,
+  perhaps writing the data to secondary store to be read in again later.
+  The number of passes approached 100 in the most elaborate cases.
+  </P>
+  <P>
+  Now it is rare to look at the source input more than once, 
+  but it is still common to repeatedly process some intermediate form,
+  and even more common to organize the compiler to transform
+  an intermediate form for a complete compilation unit
+  before starting on the next process.
+  </P>
+  <P>
+  In xcom, the symbol table is implemented as multiple passes
+  to enable the propagation of type information across the
+  control flow of the user program.
+  </P>
+</LI>
+  
+<A NAME="pfn"></A>  
+<LI><B>PFN</B> -- Parenthesis-free Notation.
+  <P>
+    PFN is a notation invented by Polish mathematician 
+    <A HREF="http://en.wikipedia.org/wiki/Jan_%C5%81ukasiewicz">
+    Jan &#321;ukasiewicz</A>.  
+    The original notation was "operator-early" or "prefix", 
+    that is 1+2 was represented by +12.
+    The form used as executable machine code for expressions on 
+    stack-based computers is "operator-late" or "postfix", 
+    that is 1+2 is represented by 12+.  Sometimes it is called
+    "Reverse Polish", but that name is not popular in Poland.
+  </P>
+  <P>
+    Here is what the author himself had to say about the notation:
+    "I came upon the idea of a parenthesis-free notation in 1924. 
+    I used that notation for the first time in my article Lukasiewicz(1), 
+    p. 610, footnote. See also Lukasiewicz (2) pp. 7 and 38, 
+    and Kotarbinski, p. 244."
+  </P>
+  <P>
+    In fact, Lukasiewicz(1) mentioned above 
+    is a lithographed report in Polish. 
+  </P>
+</LI>
+
+ <A NAME="plug"></A>  
+  <LI><B>plug compatible</B> -- interchangeable software units.
+    <P>
+      In electronics, if two things need to be connected, 
+      then they must have matching connectors (called a plug and socket).
+      For example, a USB port is a kind of socket and obviously can only
+      be used with the corresponding USB plug.
+    </P>
+    <P>
+      In software, two modules are 
+      <A HREF="http://www.webopedia.com/TERM/P/plug_compatible.html">
+      "plug compatible" </A> if they can be swapped.
+      This requires that they have the same software interface, 
+      as well as doing the same job.
+    </P>
+  </LI>
+  
+  <A NAME="pun"></A>
+<LI><B>pun</B> -- a construct that pretends its bits are of another type.
+  <P>
+  There are three puns in the xcom implementation. 
+  </P>
+  </P>
+  The first two are related: <TT>f2i</TT> and <TT>i2f</TT>.  
+  The <A HREF="Runtime.html">runtime frame</A> has M type int32.
+  When the variable is an X integer, it can be accessed normally
+  from  MATLAB.
+  When the variable is an X real, MATLAB must be fooled into
+  treating the value as MATLAB single.  
+  <PRE>
+     x=i2f(frame(i))
+  </PRE>
+  makes <TT>x</TT> have MATLAB type single but keeps the exact bits
+  that are in the frame at index <TT>i</TT>. 
+  <PRE>
+     frame(i)=f2i(x)
+  </PRE> 
+  puts the bits back.  In this way a MATLAB
+  vector can hold a mixture of types as required for the runtime frame.
+  </P>
+  
+  <P>The third pun fools the C/C++ compiler into treating a data
+  pointer as though it were a pointer to a function.  
+  This trick is used to do the "go" step in a load&amp;go compiler.
+  It is found in <A HREF="Runtime.html">Asmx86.m</A>. 
+  </P>
+</LI>
+
+<A NAME="pure"></A>
+<LI><B>pure</B> -- no <A HREF="#sideeffect">side effect</A>s.
+  <P>
+  A function is pure
+  if it has no effect except for the value(s) returned.
+  </P>
+</LI>
+
+<A NAME="RAM"></A>
+<LI><B>RAM</B> -- Random Access Memory.
+  <P>
+  The term RAM was in common use when programs and data resided in a
+  large memory which had uniform access speed.  
+  No modern computer has such a thing anymore;
+  all memory has non-uniform access times.
+  Main Memory is a better term. 
+  Main memory is accessed via 
+  <A HREF="#cache">cache</A> memory.
+  </P>
+</LI>
+
+<A NAME="shortcircuit"></A>
+<LI><B>short circuit</B> -- early exit for ~, &amp, and |.
+  <P>
+  The logical operators follow a simple algebra.
+  There are two common ways to compute their results.
+  The most obvious is ordinary expression evaluation using the 
+  hardware arithmetic.  
+  Since there are a lot of bits in a typical hardware word,
+  this kind of logical evaluation is intrinsically parallel.
+  </P>
+  <P>
+  The less obvious way is early-exit -- evaluating only as much
+  of the logical expression as is necessary to determine the result.
+  One expects early-exit to be faster.
+  The important <A HREF="#sideeffect">side effect</A> 
+  of the second trick is that undefined values
+  that are never reached do not cause trouble.
+  </P>
+</LI>
+
+<A NAME="sideeffect"></A>
+<LI><B>side effect</B> -- unobvious change.
+  <P>
+  The main purpose of a piece of code (e.g. rand delivers a number) 
+  may be accompanied by another purpose (e.g. updating the seed).
+  Intended or otherwise, side effects pose problems for maintenance.
+  </P>
+</LI>
+
+<A NAME="wart"></A>
+<LI><B>wart</B> -- ill-considered program design.
+  <P>
+  As software ages, changes are made.  
+  It seems as if the new contributor does not have much of an idea
+  about the gestalt of the orginal author.
+  Since there are many places to "hang" a fix and pass the test suite,
+  the "where" gets scant consideration.
+  A wart is such a piece of code, ill-placed or ill-written.
+  The long-term effect of warts is to cause a large rewrite.
+  </P>
+</LI>
+
+</UL>
+</P>
+  
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+<!-- FILE:    theory/binary-grammar.html
+  -- PURPOSE: Binary Grammar
+  -- MODS:    McKeeman -- 1999.08.20 -- revised for Spring 2000
+  -->
+
+<html>
+<head>
+<title>Binary Integer Grammars</title>
+</head>
+
+<body bgcolor="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<table>
+<tr><p></tr>
+<tr><td width=50></td><td width=600>
+
+<h2>Binary Integer Grammar (allowing leading 0's)</h2>
+
+<pre>
+binary-integer
+   0
+   1
+   binary-integer 0
+   binary-integer 1
+   
+</pre>
+
+
+<h2>Hex Integer Grammar </h2>
+
+<pre>
+hex-integer
+   0-F
+   hex-integer 0-F 
+
+0-F
+    0
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    0
+    A
+    B
+    C
+    D
+    E
+    F
+
+</pre>
+
+<p>How would you modify this to get C hex constants?</p>
+
+<hr>
+Created: <i>Friday, August 20, 1999</i><br>
+Last modified: <i>
+March 27, 2002
+</i><br>
+email: McKeeman{at}Mathworks{dot}COM<br>
+
+<!-- the following table end provides margins and textbook like appearance -->
+</td><td width=50></td></tr>
+</table>
+
+</body>
+</html>

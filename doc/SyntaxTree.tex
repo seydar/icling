@@ -1,0 +1,675 @@
+% FILE:		    SyntaxTree.tex
+% PURPOSE:  	Building a syntax tree
+% COPYRIGHT:    W.M.McKeeman 2008
+
+
+\input bookhead
+
+\begin{document}
+
+\begin{center}
+\begin{small}
+\noindent --contents of Syntax Tree--
+\begin{quote}
+\raggedright
+Building Syntax Trees\\
+An Example\\
+Tree Transformations\\
+Intermediate Representation\\
+Abstract Syntax Tree\\
+\end{quote}
+--requires--
+\begin{quote}
+\raggedright
+Notation Supporting Grammars\\
+Context-free Grammars\\
+Input-output Grammars
+\end{quote}
+\end{small}
+\end{center}
+
+\vspace{1em}
+
+
+\noindent {\large \bf Building Syntax Trees} 
+\vspace{1em}
+
+\noindent Building a syntax tree from a shift/reduce sequence requires a 
+simple algorithm:
+\begin{itemize}
+\item Stack each shifted token.
+\item Build a node from the top of the stack to match each reduce.
+\end{itemize}
+
+\noindent Here is the \iog\ for {\em Proposition}.
+It describes the constant formulas of the propositional calculus.
+It has 10 rules.  
+The rule numbers are used as output symbols.
+The {\em chicken-foot\/} symbol $\perp$ is used for end-of-file.
+\begin{em}
+\begin{tabbing}
+xxxxxxxxxx\=Propositionxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>Proposition \>\la\> Disjunction $\perp$             \>{\rm 0}    \\        
+\>Disjunction \>\la\> Disjunction $\vee$ Conjunction  \>{\rm 1}    \\
+\>Disjunction \>\la\> Conjunction                     \>{\rm 2}    \\
+\>Conjunction \>\la\> Conjunction $\wedge$ Negation   \>{\rm 3}    \\
+\>Conjunction \>\la\> Negation                        \>{\rm 4}    \\
+\>Negation    \>\la\> $\neg$ Boolean                  \>{\rm 5}    \\
+\>Negation    \>\la\> Boolean                         \>{\rm 6}    \\
+\>Boolean     \>\la\> {\rm t}                         \>{\rm 7}    \\
+\>Boolean     \>\la\> {\rm f}                         \>{\rm 8}    \\
+\>Boolean     \>\la\> {\rm(} Disjunction {\rm)}       \>{\rm 9} 
+\end{tabbing}
+\end{em}
+
+Applying the two-rule algorithm to the shift/reduce sequence
+leads to a syntax tree.  
+The nodes are labelled with the rule numbers.  
+The input symbols are at the leaves.  
+
+\vspace{1em}
+\noindent {\bf An Example} 
+\vspace{1em}
+
+\noindent In the display of the steps below, the input text is on the right
+and the successive states of the stack are on the left. 
+The entries in the stack are tree nodes.
+The tree is pushed out to the left (horizontal tree).
+
+\vspace{1em}
+\noindent The shift/reduce sequence for
+
+    (f$\vee$t)$\perp$
+
+\noindent is
+
+    (f8642$\vee$t7641)9642$\perp$0
+
+\pagebreak
+
+\begin{picture}(500,25)(-50,0)
+\put(90,0){\em treelets}
+\put(140,0){\em stack}
+\put(210,0){\em input}
+\end{picture}
+
+\begin{picture}(500,25)(-50,0)
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){12}}  %
+\put(159,-4){\line(0,1){12}}  %
+\put(180,0){(f8642$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,25)(-50,0)
+\put(152,0){(}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){12}}  %
+\put(159,-4){\line(0,1){12}}  %
+\put(180,0){f8642$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,35)(-50,0)
+\put(152,0){(}
+\put(152,10){f}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){22}}  %
+\put(159,-4){\line(0,1){22}}  %
+\put(180,10){8642$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,35)(-50,0)
+\put(152,0){(}
+\put(152,10){8}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){22}}  %
+\put(159,-4){\line(0,1){22}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){f}
+\put(180,10){642$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,35)(-50,0)
+\put(152,0){(}
+\put(152,10){6}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){22}}  %
+\put(159,-4){\line(0,1){22}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){8}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){f}
+\put(180,10){42$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,35)(-50,0)
+\put(152,0){(}
+\put(152,10){4}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){22}}  %
+\put(159,-4){\line(0,1){22}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){6}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){8}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){f}
+\put(180,10){2$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,35)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){22}}  %
+\put(159,-4){\line(0,1){22}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,10){$\vee$t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(151,20){$\vee$}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){32}}  %
+\put(159,-4){\line(0,1){32}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,20){t7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,55)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(151,20){$\vee$}
+\put(152,30){t}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){42}}  %
+\put(159,-4){\line(0,1){42}}  %
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,30){7641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,55)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(151,20){$\vee$}
+\put(152,30){7}
+\put(128,30){t}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){42}}  %
+\put(159,-4){\line(0,1){42}}  %
+\put(146,33){\vector(-1,0){10}}
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,30){641)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,55)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(151,20){$\vee$}
+\put(152,30){6}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){42}}  %
+\put(159,-4){\line(0,1){42}}  %
+\put(124,33){\vector(-1,0){10}}
+\put(128,30){7}
+\put(146,33){\vector(-1,0){10}}
+\put(106,30){t}
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,30){41)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,55)(-50,0)
+\put(152,0){(}
+\put(152,10){2}
+\put(151,20){$\vee$}
+\put(152,30){4}
+\put(149,-4){\line(1,0){10}}  %
+\put(149,-4){\line(0,1){42}}  %
+\put(159,-4){\line(0,1){42}}  %
+\put(146,33){\vector(-1,0){10}}
+\put(128,30){6}
+\put(124,33){\vector(-1,0){10}}
+\put(106,30){7}
+\put(102,33){\vector(-1,0){10}}
+\put( 84,30){t}
+\put(146,13){\vector(-1,0){10}}
+\put(128,10){4}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){6}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){8}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){f}
+\put(180,30){1)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(-50,0)
+\put(152,10){(}
+\put(152,20){1}
+\put(149,6){\line(1,0){10}}  %
+\put(149,6){\line(0,1){22}}  %
+\put(159,6){\line(0,1){22}}  %
+\put(146,23){\vector(-1,-1){10}}
+\put(146,23){\vector(-1,0){10}}
+\put(146,23){\vector(-1,1){10}}
+\put(128,10){2}
+\put(128,20){$\vee$}
+\put(128,30){4}
+\put(124,33){\vector(-1,0){10}}
+\put(106,30){6}
+\put(100,33){\vector(-1,0){10}}
+\put( 84,30){7}
+\put( 80,33){\vector(-1,0){10}}
+\put( 62,30){t}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){4}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){6}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){8}
+\put( 58,13){\vector(-1,0){10}}
+\put( 40,10){f}
+\put(180,20){)9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(-50,0)
+\put(152,10){(}
+\put(152,20){1}
+\put(152,30){)}
+\put(149,6){\line(1,0){10}}  %
+\put(149,6){\line(0,1){32}}  %
+\put(159,6){\line(0,1){32}}  %
+\put(146,23){\vector(-1,-1){10}}
+\put(146,23){\vector(-1,0){10}}
+\put(146,23){\vector(-1,1){10}}
+\put(128,10){2}
+\put(128,20){$\vee$}
+\put(128,30){4}
+\put(124,33){\vector(-1,0){10}}
+\put(106,30){6}
+\put(100,33){\vector(-1,0){10}}
+\put( 84,30){7}
+\put( 80,33){\vector(-1,0){10}}
+\put( 62,30){t}
+\put(124,13){\vector(-1,0){10}}
+\put(106,10){4}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){6}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){8}
+\put( 58,13){\vector(-1,0){10}}
+\put( 40,10){f}
+\put(180,30){9642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(-50,0)
+\put(151,20){9}
+\put(149,16){\line(1,0){10}}  %
+\put(149,16){\line(0,1){12}}  %
+\put(159,16){\line(0,1){12}}  %
+\put(146,23){\vector(-1,-1){10}}
+\put(146,23){\vector(-1,0){10}}
+\put(146,23){\vector(-1,1){10}}
+\put(128,10){(}
+\put(128,20){1}
+\put(128,30){)}
+\put(106,10){2}
+\put(124,23){\vector(-1,-1){10}}
+\put(124,23){\vector(-1,0){10}}
+\put(124,23){\vector(-1,1){10}}
+\put(106,20){$\vee$}
+\put(106,30){4}
+\put(102,33){\vector(-1,0){10}}
+\put( 84,30){6}
+\put( 78,33){\vector(-1,0){10}}
+\put( 62,30){7}
+\put( 58,33){\vector(-1,0){10}}
+\put( 40,30){t}
+\put(102,13){\vector(-1,0){10}}
+\put( 84,10){4}
+\put( 80,13){\vector(-1,0){10}}
+\put( 62,10){6}
+\put( 58,13){\vector(-1,0){10}}
+\put( 40,10){8}
+\put( 36,13){\vector(-1,0){10}}
+\put( 18,10){f}
+\put(180,20){642$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(0,0)
+\put(201,20){6}
+\put(199,16){\line(1,0){10}}  %
+\put(199,16){\line(0,1){12}}  %
+\put(209,16){\line(0,1){12}}  %
+\put(196,23){\vector(-1,0){10}}
+\put(178,20){9}
+\put(174,23){\vector(-1,-1){10}}
+\put(174,23){\vector(-1,0){10}}
+\put(174,23){\vector(-1,1){10}}
+\put(156,10){(}
+\put(156,20){1}
+\put(156,30){)}
+\put(134,10){2}
+\put(152,23){\vector(-1,-1){10}}
+\put(152,23){\vector(-1,0){10}}
+\put(152,23){\vector(-1,1){10}}
+\put(134,20){$\vee$}
+\put(134,30){4}
+\put(130,33){\vector(-1,0){10}}
+\put(112,30){6}
+\put(108,33){\vector(-1,0){10}}
+\put( 90,30){7}
+\put( 86,33){\vector(-1,0){10}}
+\put( 68,30){t}
+\put(130,13){\vector(-1,0){10}}
+\put(112,10){4}
+\put(108,13){\vector(-1,0){10}}
+\put( 90,10){6}
+\put( 86,13){\vector(-1,0){10}}
+\put( 68,10){8}
+\put( 64,13){\vector(-1,0){10}}
+\put( 46,10){f}
+\put(230,20){42$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(0,0)
+\put(201,20){4}
+\put(199,16){\line(1,0){10}}  %
+\put(199,16){\line(0,1){12}}  %
+\put(209,16){\line(0,1){12}}  %
+\put(196,23){\vector(-1,0){10}}
+\put(178,20){6}
+\put(174,23){\vector(-1,0){10}}
+\put(156,20){9}
+\put(152,23){\vector(-1,-1){10}}
+\put(152,23){\vector(-1,0){10}}
+\put(152,23){\vector(-1,1){10}}
+\put(134,10){(}
+\put(134,20){1}
+\put(134,30){)}
+\put(112,10){2}
+\put(130,23){\vector(-1,-1){10}}
+\put(130,23){\vector(-1,0){10}}
+\put(130,23){\vector(-1,1){10}}
+\put(112,20){$\vee$}
+\put(112,30){4}
+\put(108,33){\vector(-1,0){10}}
+\put( 90,30){6}
+\put( 86,33){\vector(-1,0){10}}
+\put( 68,30){7}
+\put( 64,33){\vector(-1,0){10}}
+\put( 46,30){t}
+\put(108,13){\vector(-1,0){10}}
+\put( 90,10){4}
+\put( 86,13){\vector(-1,0){10}}
+\put( 68,10){6}
+\put( 64,13){\vector(-1,0){10}}
+\put( 46,10){8}
+\put( 42,13){\vector(-1,0){10}}
+\put( 24,10){f}
+\put(230,20){2$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(0,0)
+\put(201,20){2}
+\put(199,16){\line(1,0){10}}  %
+\put(199,16){\line(0,1){12}}  %
+\put(209,16){\line(0,1){12}}  %
+\put(196,23){\vector(-1,0){10}}
+\put(178,20){4}
+\put(174,23){\vector(-1,0){10}}
+\put(156,20){6}
+\put(152,23){\vector(-1,0){10}}
+\put(134,20){9}
+\put(130,23){\vector(-1,-1){10}}
+\put(130,23){\vector(-1,0){10}}
+\put(130,23){\vector(-1,1){10}}
+\put(112,10){(}
+\put(112,20){1}
+\put(112,30){)}
+\put( 90,10){2}
+\put(108,23){\vector(-1,-1){10}}
+\put(108,23){\vector(-1,0){10}}
+\put(108,23){\vector(-1,1){10}}
+\put( 90,20){$\vee$}
+\put( 90,30){4}
+\put( 86,33){\vector(-1,0){10}}
+\put( 68,30){6}
+\put( 64,33){\vector(-1,0){10}}
+\put( 46,30){7}
+\put( 42,33){\vector(-1,0){10}}
+\put( 24,30){t}
+\put( 86,13){\vector(-1,0){10}}
+\put( 68,10){4}
+\put( 64,13){\vector(-1,0){10}}
+\put( 46,10){6}
+\put( 42,13){\vector(-1,0){10}}
+\put( 24,10){8}
+\put( 20,13){\vector(-1,0){10}}
+\put(  2,10){f}
+\put(230,20){$\perp$0}
+\end{picture}
+
+\begin{picture}(500,45)(0,0)
+\put(200,30){$\perp$}
+\put(201,20){2}
+\put(199,16){\line(1,0){10}}  %
+\put(199,16){\line(0,1){22}}  %
+\put(209,16){\line(0,1){22}}  %
+\put(196,23){\vector(-1,0){10}}
+\put(178,20){4}
+\put(174,23){\vector(-1,0){10}}
+\put(156,20){6}
+\put(152,23){\vector(-1,0){10}}
+\put(134,20){9}
+\put(130,23){\vector(-1,-1){10}}
+\put(130,23){\vector(-1,0){10}}
+\put(130,23){\vector(-1,1){10}}
+\put(112,10){(}
+\put(112,20){1}
+\put(112,30){)}
+\put( 90,10){2}
+\put(108,23){\vector(-1,-1){10}}
+\put(108,23){\vector(-1,0){10}}
+\put(108,23){\vector(-1,1){10}}
+\put( 90,20){$\vee$}
+\put( 90,30){4}
+\put( 86,33){\vector(-1,0){10}}
+\put( 68,30){6}
+\put( 64,33){\vector(-1,0){10}}
+\put( 46,30){7}
+\put( 42,33){\vector(-1,0){10}}
+\put( 24,30){t}
+\put( 86,13){\vector(-1,0){10}}
+\put( 68,10){4}
+\put( 64,13){\vector(-1,0){10}}
+\put( 46,10){6}
+\put( 42,13){\vector(-1,0){10}}
+\put( 24,10){8}
+\put( 20,13){\vector(-1,0){10}}
+\put(  2,10){f}
+\put(230,30){0}
+\end{picture}
+
+\begin{picture}(500,45)(0,0)
+\put(226,25){0}
+\put(224,22){\line(1,0){10}}  %
+\put(224,22){\line(0,1){12}}  %
+\put(234,22){\line(0,1){12}}  %
+\put(220,27){\vector(-2,-1){10}}
+\put(220,27){\vector(-2,1){10}}
+\put(198,30){$\perp$}
+\put(200,20){2}
+\put(196,23){\vector(-1,0){10}}
+\put(178,20){4}
+\put(174,23){\vector(-1,0){10}}
+\put(156,20){6}
+\put(152,23){\vector(-1,0){10}}
+\put(134,20){9}
+\put(130,23){\vector(-1,-1){10}}
+\put(130,23){\vector(-1,0){10}}
+\put(130,23){\vector(-1,1){10}}
+\put(112,10){(}
+\put(112,20){1}
+\put(112,30){)}
+\put( 90,10){2}
+\put(108,23){\vector(-1,-1){10}}
+\put(108,23){\vector(-1,0){10}}
+\put(108,23){\vector(-1,1){10}}
+\put( 90,20){$\vee$}
+\put( 90,30){4}
+\put( 86,33){\vector(-1,0){10}}
+\put( 68,30){6}
+\put( 64,33){\vector(-1,0){10}}
+\put( 46,30){7}
+\put( 42,33){\vector(-1,0){10}}
+\put( 24,30){t}
+\put( 86,13){\vector(-1,0){10}}
+\put( 68,10){4}
+\put( 64,13){\vector(-1,0){10}}
+\put( 46,10){6}
+\put( 42,13){\vector(-1,0){10}}
+\put( 24,10){8}
+\put( 20,13){\vector(-1,0){10}}
+\put(  2,10){f}
+\end{picture}
+
+\vspace{1em}
+\noindent {\bf Tree Transformations}
+\vspace{1em}
+
+\noindent While xcom treats trees as read-only,
+there is a whole class of useful transformations that can be applied
+to trees to improve the quality of the resulting compiled code.
+Some of these are described under the heading of {\bf Optimization}.
+
+Tree transformations lead to the creation of new nodes and the 
+abandonment of others.   
+The tree mechanism needs to support these dynamic demands.
+Some tree transformations lead to trees that could not represent
+a program as written.  
+This is ok until a diagnostic needs to be issued
+for a tree construct that has no image in the source text.
+All of these complexities and more have been solved in most
+modern compilers.  
+
+
+\vspace{1em}
+\noindent {\bf Intermediate Representation}
+\vspace{1em}
+
+\noindent The result of transformations often takes the data structure
+far from its origins as a syntax tree.  
+In many compilers the information passed from front-end to back-end
+is called the {\em intermediate representation} or IR.
+
+\vspace{1em}
+
+\noindent {\bf Abstract Syntax Tree}
+\vspace{1em}
+
+\noindent Most of the syntax tree is occupied by the empty transitions from 
+one phrase name to the next.
+The value of this form of grammar is that it expresses
+associativity and operator precedence.
+The existence of long chains of steps which, in themselves, 
+convey no meaning, is a disadvantage of using unmodified syntax trees.
+Compiler writing tools, generally speaking, eliminate the useless chains
+by one means or another to give an Abstract Syntax Tree.  
+Here is what the tree would look like for the example.
+
+\begin{picture}(500,45)(100,0)
+\put(224,25){0}
+\put(220,27){\vector(-2,-1){10}}
+\put(220,27){\vector(-2,1){10}}
+\put(198,30){$\perp$}
+\put(200,20){9}
+\put(196,23){\vector(-1,-1){10}}
+\put(196,23){\vector(-1,0){10}}
+\put(196,23){\vector(-1,1){10}}
+\put(178,10){(}
+\put(178,20){1}
+\put(178,30){)}
+\put(156,10){t}
+\put(174,23){\vector(-1,-1){10}}
+\put(174,23){\vector(-1,0){10}}
+\put(174,23){\vector(-1,1){10}}
+\put(156,20){$\vee$}
+\put(156,30){f}
+\end{picture}
+
+\noindent If there is no semantics associated with parentheses, 
+they too can be eliminated
+
+\begin{picture}(500,45)(100,0)
+\put(224,25){0}
+\put(220,27){\vector(-2,-1){10}}
+\put(220,27){\vector(-2,1){10}}
+\put(198,30){$\perp$}
+\put(200,20){1}
+\put(178,10){t}
+\put(196,23){\vector(-1,-1){10}}
+\put(196,23){\vector(-1,0){10}}
+\put(196,23){\vector(-1,1){10}}
+\put(178,20){$\vee$}
+\put(178,30){f}
+\end{picture}
+
+\noindent And, finally, the operators are implicit in the rules, 
+so they too can be eliminated.
+
+\begin{picture}(500,45)(100,0)
+\put(224,20){0}
+\put(220,23){\vector(-1,0){10}}
+\put(200,20){1}
+\put(178,10){t}
+\put(196,23){\vector(-1,-1){10}}
+\put(196,23){\vector(-1,1){10}}
+\put(178,30){f}
+\end{picture}
+
+\noindent The resulting tree is (obviously) much more concise and still contains
+the information needed to compile code.  
+One disadvantage in the last step of eliminating the operator
+symbols is that their position in the source text goes with them.
+This somewhat complicates the formulation of diagnostics involving
+the operators.
+
+
+\end{document}

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ProgrammingModel.html
+     PURPOSE:   How MATLAB is used to write xcom
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.13 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- XCOM Programming Model
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ProgrammingModel.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+
+<CENTER>
+<H3>XCOM Programming Model</H3>
+</CENTER>
+
+<H4>Overview</H4>
+<P>
+The xcom compiler does <B>not</B> use the 
+<A HREF="http://www.mathworks.com/products/matlab/object_oriented_programming.html">
+MATLAB class system</A> 
+(but it could have). Instead it uses 
+<A HREF="http://www.mathworks.com/access/helpdesk/help/techdoc/matlab_prog/f4-39683.html">
+nested functions</A> and function
+handles to provide object capabilities.  
+</P>
+
+<H4>Enumerations</H4>
+
+<P>
+A class of named constants, similar to a 
+<A HREF="http://en.wikipedia.org/wiki/Enumerated_type">C enum</A>, 
+can be built from a cell array of field names.  
+By default the base value is 1.  
+An optional second argument is provided for other bases (such as 0).  
+For example
+  <PRE>
+    e = enum({'zero', 'one', 'two', 'three'}, 0);
+    x = e.one;    % assign 1 to x.
+  </PRE>
+This facility is used, for instance, to name grammar rules and reserved
+words in the parser.
+    <PRE>
+      rw    = enum(cfg.reserved);             % set up tables
+      rule  = enum(cfg.ruleNames);
+    </PRE>
+</P>
+<H4>Objects</H4>
+<P>
+The combination of nested functions and function handles 
+has been used to build an OO compiler, 
+with an object for each stage of the compilation process.  
+The general model is to call a MATLAB function (the constructor) which 
+instantiates an object.  
+The result of the constructor is a struct of values and function handles 
+giving access to the state of the constructed object.  An example follows:
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+
+
+<HR>
+  <PRE>
+  function obj = objtest()       % ctor
+    
+    % variables in the persistent frame accessed by the handles
+    x = zeros(1,0, 'int32');
+    C = 2007;
+    
+    obj = public();              % return the public interface
+    
+    return;   % end of constructor
+    
+    % ---- nested functions ----
+    function set(i, v)           % change the i-th value of x
+      x(i) = v;
+    end
+    
+    function v = get(i)          % latest value of the i-th value of x
+      v = x(i);
+    end
+    
+    function a = getx()          % latest value of the whole array
+      a = x;
+    end
+    
+    % ---- public interface ----
+    function o = public()
+      o     = struct;            % to pass the public interface
+      o.set = @set;              % function handles for "methods"
+      o.get = @get;
+      o.x   = @getx;             % o.x = x would mean the initial value of x
+      o.C   = C;                 % no @ needed because C is not a function
+    end
+  end
+  </PRE>
+<HR>
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+
+<P>
+The local variables of the constructor function are preserved in the 
+call frame of the constructor which remains live via the return value 
+after the return from the constructor.  
+The values at construction-time can be made available in the 
+returned struct.  
+Values computed later need to be accessed via function handles, 
+which are also in the struct.  For example:
+</P>
+<HR>
+  <PRE>
+    >> x = objtest();
+    >> second = x.get(2)
+    second = 0
+    >> x.set(2,113);
+    >> second = x.get(2)
+    second = 113
+    >> date = x.C
+    date = 2007
+  </PRE>
+<HR>
+    
+<P>
+Passing one object to the constructor of a second object is the equivalent 
+of extending the first object.  All of the public methods and fields of the
+first object are available for use in the extended object.
+</P>
+
+<H4>Frequent Testing</H4>
+<P>
+Since MATLAB provides instant turnaround,
+the work pattern of do-a-little, test-a-little is feasible.
+For that reason xcom comes with an extensive set of 
+<A HREF="TestingXcom.html">unit tests</A>
+which can and should be run frequently.  
+Any new code should get a corresponding entry in the unit tests.
+This is all the more important since MATLAB provides very little 
+compile-time redundancy, meaning that most errors are run-time errors.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

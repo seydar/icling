@@ -1,0 +1,44 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    sqrt.x}\\
+{\tt\char18}{\em{} PURPOSE: approximate $\sqrt{x}$ with $s \leftarrow (s+x/s)/2$}\\
+REPS\ $\leftarrow$\ 100;\\
+EPS\ $\leftarrow$\ 0.0000001;\\
+{\bf if}\>x\ $\leq$\ 0.0\ $\wedge$\ x\ $\geq$\ 0.0\ $\Rightarrow$
+\\
+\>res\ $\leftarrow$\ 0.0;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>x\ $<$\ 2.0\ $\Rightarrow$
+\>\>\>{\tt\char18}{\em{} running approximation}\\
+\>s\ $\leftarrow$\ x$/$2.0;\\
+\>r\ $\leftarrow$\ 0;\\
+\>more\ $\leftarrow$\ true;\>\>\>{\tt\char18}{\em{} get it started}\\
+\>{\bf do}\>r\ $<$\ REPS\ $\wedge$\ more\ $\Rightarrow$
+\>\>{\tt\char18}{\em{} not within $\epsilon$}\\
+\>\>snew\ $\leftarrow$\ (s$+$x$/$s)$/$2.0;\\
+\>\>err\ $\leftarrow$\ s$-$snew;\\
+\>\>more\ $\leftarrow$\ err\ $<$\ EPS\ $\vee$\ $-$err\ $<$\ EPS;\\
+\>\>r\ $\leftarrow$\ r$+$1;\\
+\>\>s\ $\leftarrow$\ snew;\\
+\>{\bf od};
+\\
+\>res\ $\leftarrow$\ s;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>x\ $\geq$\ 0.0\ $\wedge$\ x\ $<$\ 0.5\ $\Rightarrow$
+\>\>\>{\tt\char18}{\em{} recursive call}\\
+\>s\ $\leftarrow$\ sqrt\ $\leftarrow$\ 1.0$/$x;\\
+\>res\ $\leftarrow$\ 1.0$/$s;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>(x\ $\geq$\ 0.0\ $\wedge$\ x\ $\leq$\ 2.0)\ $\vee$\ x\ $\geq$\ 0.5\ $\Rightarrow$
+\>\>\>{\tt\char18}{\em{} recursive call}\\
+\>s\ $\leftarrow$\ sqrt\ $\leftarrow$\ 16.0$\times$x;\\
+\>res\ $\leftarrow$\ s$/$4.0;\\
+{\bf {f}{i}};
+\\
+\end{tabbing}
+\end{document}

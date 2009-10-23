@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML>
+<HEAD>
+<TITLE>xcom lexer from C++ implemenation</TITLE>
+<BODY>
+<PRE>
+/* FILE:      lex.cpp
+ * PURPOSE:   implement lexer for X
+ * COPYRIGHT: W. M. McKeeman 2003.  You may do anything you like with
+ *            this file except alter or remove this notice.
+ * MODIFIED:  McKeeman at WangInst  -- 86.10.08 -- original release
+ *            McKeeman at WangInst  -- 87.06.11 -- from C to D
+ *            McKeeman at WangInst  -- 87.07.07 -- single scan loop
+ *            McKeeman at Harvard   -- 88.03.01 -- went hyper
+ *            McKeeman at Harvard   -- 88.04.12 -- from D to X
+ *            McKeeman at Dartmouth -- 00.06.09 -- upgrade to ISO C
+ *            McKeeman at Dartmouth -- 03.05.02 -- OO version
+ *            McKeeman at Dartmouth -- 05.03.23 -- remove perfect hash
+ *            who @ where -- when -- what
+ * METHOD:    Switch on leading character; report token category.
+ */
+
+# include &lt;cstring>
+# include &lt;cctype>
+# include &lt;cstdio>
+# include "lex.macros"
+# include "lex.h"
+
+// ----------------- static tables (see lex.macros) ------------------
+
+# define SIZE(a) (sizeof(a)/sizeof(*a))
+
+# undef FIRST
+# undef SECOND
+# define FIRST(a,b) a,
+# define SECOND(a,b) b,
+
+static char *rw[]           = { RESERVED_WORDS(FIRST) };
+static SymbolCode rwcode[]  = { RESERVED_WORDS(SECOND) };
+
+static char *op[]           = { RESERVED_OPS(FIRST) };
+static SymbolCode opcode[]  = { RESERVED_OPS(SECOND) };
+
+static char *sep[]          = { RESERVED_SEPS(FIRST) }; 
+static SymbolCode sepcode[] = { RESERVED_SEPS(SECOND) }; 
+# undef FIRST
+# undef SECOND
+
+// -------------------- table initialization ---------------------
+
+
+static SymbolCode
+rwlookup(char *start, int len) {                  // reserved word
+  if (len < 2) return idSYM;                      // no 1-char rw
+  for (int i=0; i&lt;SIZE(rw); i++) {
+    if (strlen(rw[i]) == len && strncmp(start, rw[i], len) == 0) {
+      return rwcode[i];                           // found it
+    }
+  }
+  return idSYM;
+}
+
+static SymbolCode
+oplookup(char *start, int len) {                  // reserved op
+  for (int i=0; i&lt;SIZE(op); i++) {
+    if (strlen(op[i]) == len && strncmp(start, op[i], len) == 0) {
+      return opcode[i];                           // found it
+    }
+  }
+  return opSYM;
+}
+
+static SymbolCode
+seplookup(char *start) {                          // reserved sep
+  for (int i=0; i&lt;SIZE(sep); i++) {
+    if (*start == *sep[i]) {                      // alway one char
+      return sepcode[i];                          // found it
+    }
+  }
+  return sepSYM;
+}
+
+static int   isop[256];                           // classes
+static int   initialized = 0;                     // one time only
+
+static void
+lexInit(void) {
+  if (initialized) return;
+  memset(isop, 0, sizeof(isop));                  // op class
+  for (int i=0; i&lt;strlen(OPS); i++) {
+    isop[OPS[i]] = 1;
+  }
+  initialized = 1;
+}
+
+// ------------------------- Lex methods -------------------------
+
+Lex::Lex(void) {lexInit();}                       // ctor
+Lex::~Lex(void) {}                                // dtor
+
+void Lex::
+lex(char *src) {                                  // null terminated
+  lex(src, strlen(src));
+}
+
+void Lex::
+lex(char *src, int len) {                         // find tokens
+  char *beyond = src;                             // where to start
+  char *lim = src+len;                            // where to quit
+
+  for (;;) {                                      // until EOL
+    char *begin = beyond;                         // remember for report
+    if (beyond >= lim) return;                    // no more chrs
+
+    switch (*begin) {
+
+    case ' ': case '\t': case '\n':
+      while (++beyond&lt;lim && isspace(*beyond));   // white
+      report(whiteSYM, begin, beyond);
+      break;
+
+    case '`':                                     // comment
+      while (++beyond&lt;lim &amp;&amp; *beyond != '\n' && *beyond != 0);
+      report(commentSYM, begin, beyond);
+      break;
+
+    case 0:                                       // null
+      return;                                     // end of src
+
+    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+    case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+    case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+    case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+    case 'y': case 'z':
+    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+    case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
+    case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
+    case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
+    case 'Y': case 'Z':
+      while (++beyond&lt;lim &amp;&amp; isalnum(*beyond));   // L(L|D)*
+      report(rwlookup(begin, beyond-begin), begin, beyond);
+      break;
+
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      while (++beyond&lt;lim &amp;&amp; isdigit(*beyond));   // D+
+      if (*beyond == '.') {
+        while (++beyond&lt;lim &amp;&amp; isdigit(*beyond)); // D+.D*
+        report(realSYM, begin, beyond);
+      } else {
+        report(integerSYM, begin, beyond);
+      }
+      break;
+
+    case '+': case '-': case '*': case '/': case '|': case '&':
+    case '<': case '=': case '>': case '~': case ':': case '?':
+      while (++beyond&lt;lim &amp;&amp; isop[*beyond]);      // O+
+      report(oplookup(begin, beyond-begin), begin, beyond);
+      break;
+
+    case ',': case ';': case '(':  case ')':
+      beyond++;
+      report(seplookup(begin), begin, beyond);    // separator
+      break;
+
+    default:
+      ++beyond;                                   // bad input char
+      report(charERRSYM, begin, beyond);
+      break;
+    }
+  }
+}
+</PRE>
+</BODY>
+</HTML>
+

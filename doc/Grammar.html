@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Grammar.html
+     PURPOSE:   About Grammars
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Grammars
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Grammar.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+
+<CENTER>
+<H3>Grammars for Programming Languages</H3>
+</CENTER>
+
+<P>
+For programming languages, 
+grammar is synonymous with context-free grammar (CFG).
+The CFG is not only used to define the syntax of a programming language,
+it is also used as input to compiler writing tools (such as <B>yacc</B>).
+In the Darwinian world of language invention, a confusing plethora of
+notations and file formats for grammars has evolved.  
+One of the goals of this section is to settle on just a few CFG notations, 
+each of which has a particular reason to exist.
+</P>
+
+<P>
+The alternatives for grammars for programming languages
+(aside from notational inventiveness) are in the 
+<A HREF="http://en.wikipedia.org/wiki/Chomsky_hierarchy">
+Chomsky hierarcy
+</A>of rewriting systems.
+In addition to the Type 2 (context-free) grammars, 
+Type 3 (regular grammars) are frequently used, 
+especially in describing parsing algorithms.
+As in the case of context-free grammars,
+the notational variation is Darwinian
+and has been evolving for 
+<A HREF="http://en.wikipedia.org/wiki/P&#x0101;&#x1e47;ini">thousands</A> 
+of years.
+</P>
+
+<H4>Theory</H4>
+<UL>
+  <LI><A HREF="Notation.pdf">Notation Supporting Grammars</A></LI>
+  <LI><A HREF="ContextFreeGrammar.pdf">Context-free Grammars</A> (CFG)</LI>
+  <LI><A HREF="RegularExpressions.pdf">Regular Expressions</A></LI>
+  <LI><A HREF="FiniteAutomata.pdf">Finite Automata</A></LI>
+  <LI><A HREF="RegularExpressionGrammar.pdf">Regular Expression Grammars</A> (REG)</LI>
+  <LI><A HREF="InputOutputGrammar.pdf">I/O Grammars</A> (IOG)</LI>
+  <LI><A HREF="ExecutableGrammar.html">Executable Grammars</A></LI>
+  <LI><A HREF="SyntaxTree.pdf">Syntax Trees</A></LI>
+</UL>
+
+<P>
+The combination of REG and IOG gives the template to implement recursive 
+parsers.
+<PRE>
+                         CFG
+                        /   \
+                      REG   IOG
+                        \   /
+             recursive parser template       
+</PRE>
+</P>
+
+<H4>Everyday Examples</H4>
+<UL>
+<LI>
+A <A HREF="Xcfg.html">CFG for X</A>.
+</LI>
+<LI>
+<A HREF="../yacc/X.y">YACC for X</A>.
+</LI>
+
+<LI>
+A <A HREF="Ccfg.html">CFG for Standard C</A>.
+</LI>
+
+<LI>
+A <A HREF="http://java.sun.com/docs/books/jls/second_edition/html/syntax.doc.html">
+CFG for Java</A>
+</LI>
+
+<LI>
+A <A HREF="Xiog.html">parser template</A> for X.
+</LI>
+
+</UL>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

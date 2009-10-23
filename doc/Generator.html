@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Generator.html
+     PURPOSE:   Describe transformation of IR into semantic actions
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Generator
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+  <SMALL>
+   <EM>File</EM> Generator.html&nbsp;&nbsp;&nbsp;  
+  <EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+  <EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+  <A HREF="Index.html">index</A>
+  </SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Generate Semantic Action Sequences</H3>
+</CENTER>
+
+<H4>Overview</H4>
+<P>
+  The generator walks the IR once, calling the semantic actions
+  in execution sequence, and keeping track of values shared between 
+  actions.  All state is kept in the local variables of the IR walking
+  routines.  The generator has no dependencies on the target CPU, 
+  but rather accesses its emitter object as needed.
+</P>
+
+<H4>Expressions</H4>
+<P>
+  An expression is always represented by a subtree of the syntax tree.
+  The leaves of the subtree are literals, variables and builtins.
+  Since the symbol table is complete before the Generator object
+  is constructed, the type of all variables is known.
+  The type of literal constants and builtins is manifest in their form.
+</P>
+
+<P>
+  The tree walker does a 
+  <A HREF="http://en.wikipedia.org/wiki/Depth-first_search">depth-first</A>
+  left-to-right sweep of the syntax tree, and therefore each expression
+  subtree.  
+  The interior nodes of the expression subtree represent computations.
+  By the final visit to an internal node, all the leafward
+  nodes have already been processed.
+  The return value of an expression-walking Generator method is an operand.
+  The operands are 
+  <A HREF="Glossary.html#opaque">opaque</A> to the Generator object, 
+  it gets them from calls
+  to the emitter object and passes them back unexamined.
+  Whatever values are going to
+  be needed are stored in the local variables of the walker methods.
+  Here is a <A HREF="CodeGen.pdf">worked example</A>.
+</P>
+
+<H4>Builtin Functions</H4>
+<P>
+  A builtin function can either be inlined (just emit the right code)
+  or implemented in the runtime in C (see getCfun.c).  
+  If a builtin is implemented in C, 
+  it must be called from the running machine code.
+  The <A HREF="Runtime.html#IntoHardware">calling code</a> 
+  is similar to, but simpler than, 
+  the call of an X subprogram.
+  The inputs (if any) are passed on the hardware stack 
+  and the result is left
+  in a designated register (the Intel X86 calling sequence).
+</P>
+<P>
+  Implementing a builtin function in C is relatively straightforward.
+  The mechanism is in place in getCfun.c.  Just add to it.  
+  Note that operators '/' and '//' are implemented as builtins
+  because it was simpler that emitting the proper code sequence.
+</P>
+
+<H4>Control</H4>
+<P>
+  Conditional and iterative constructs need to be turned into segments
+  of code that are reached via branch logic.  
+  A forward branch needs the destination before the depth-first tree walk
+  has reached that point.  
+  The solution is for the emitter to make code for the segment,
+  leaving a "hole" in which to put the eventual forward branch distance,
+  and opaquely passing back the location of the hole to the walker,
+  to be held in the local variables of the walking method.
+  Before returning,
+  the walker method passes the collection of places for holes back 
+  to the emitter.
+  The emitter then does a <A HREF="Glossary.html#fixup">fixup</A>, 
+  poking the 
+  now-known branch destinations into the holes that were left behind.
+</P>
+
+<H4>Subprograms</H4>
+<P>
+  Calling a subprogram requires allocating a frame, 
+  collecting the inputs and placing them in the frame,
+  then passing the frame and transfering control to the subprogram.
+  Once the subprogram has completed, 
+  it will have left the results in its frame.
+  The results have to be extracted from the frame,
+  placed in the caller output variables,
+  and the frame freed 
+  The location of inputs and outputs in the frame is 
+  found in the symbol table.
+</P>
+
+<H4>Prolog and Epilog</H4>
+<P>
+  The calling sequence requires manipulating the hardware stack.
+  Upon entry, the program must save registers and prepare to access its frame.
+  Upon exit, the program must restore registers and 
+  clean up the hardware run stack.
+  These standard code sequences are called the prolog and epilog.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

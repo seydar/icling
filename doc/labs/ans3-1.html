@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      ans3-1.html
+     PURPOSE:   answer to lab3
+     COPYRIGHT: W.M.McKeeman 2009.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2009.01.12 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 2 (answer) -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/ans3-1.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2009&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+
+<P>
+  The structure of the tests suggests adding a new case
+</P>
+<PRE>
+  if allt || any(tn == 3)              % my test
+  ...stuff
+  end
+</PRE>
+<P>
+  The point of the if-end is that you can easily run all or some
+  subset of the tests.  You will be interested in running test 3.
+</P>
+<P>
+  Then you need to decide what kind of test you want.  
+  Among the virtually unlimited possibilities are
+  <UL>
+    <LI>all pairs of kinds of lexemes (<TT>A B</TT>) (<TT>A 1</TT>) 
+    (<TT>A+</TT>) (<TT>+ +</TT>) (<TT>++</TT>)</LI>
+    <LI>limits  <TT>44444444444444444444444444444444444444444444444</TT></LI>
+    <LI>bad stuff <TT>#@[]{}</TT>...</LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingEmitter.html
+     PURPOSE:   How to change the xcom Emitter object.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Emitter Object
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingEmitter.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the Emitter Object</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>First read about the <A HREF="Emitter.html">emitter</A>.</P>
+
+<P>
+In MATLAB in the mxcom directory, try
+<BIG>
+<PRE>
+  >> help Emitter.m
+  >> xcom -emitTrace x:=1
+  >> xcom -emitTrace -asmTrace x:=1
+  >> xcom -genTrace -emitTrace -asmTrace x:=1
+</PRE>
+</BIG>
+</P>
+
+<H4>Small Changes to the Emitter</H4>
+<P>
+  A small change to X trickles down to either a new case in an existing
+  <B>action</B> or a new action.  
+  If the change involves the current expressions, 
+  the invariants of the operand tracking mechanism must be preserved.
+  If the change introduces a new expression type,
+  that type must be integrated into the symbol table and emitter operands.
+</P>
+
+<H4>Changing the Emitter for New Hardware</H4>
+<P>
+  If xcom is just going to be implemented for a different CPU,
+  then the exisiting EmitX86.m can be renamed and then modified.
+  New calls to the a new assembler need to be formulated.
+</P>
+
+<P>
+  If xcom is to be multi-targetted (retain the x86 and add a new 
+  target CPU), the calls to the assembler need to be conditional
+  on which CPU is targetted,
+  but the rest of the emitter mechanism is likely to be correct.
+  One can imagine making the assembler calls conditional on the
+  target platform (increasing the size of EmitX86.m) or one can
+  imagine implementing another parallel emitter which is chosen
+  by the Generator, perhaps at startup.
+</P>
+
+<P>
+  In the end, if enough different platforms are going to be targetted,
+  it will pay to insert an abstract machine between the emitter and
+  assemblers.  I doubt this will ever be worth the effort for xcom.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,111 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    iffis.x
+}\\
+{\tt\char18}{\em{} PURPOSE: test combinations of if
+}\\
+{\tt\char18}{\em{} METHOD:  The X assert  if boolexp ? fi is used to check answers.
+}\\
+pass\ $\leftarrow$\ 0;\>\>\>\>\>{\tt\char18}{\em{} none yet
+}\\
+{\tt\char18}{\em{} test literal constant, store and fetch
+}\\
+b2,\ b1\ $\leftarrow$\ false,\ true;\\
+{\bf if}\>b1\ $\wedge$\ \ $\neg$b2\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 17;\\
+{\bf if}\>b1\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ 1;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>b2\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ 2;\\
+{\bf {f}{i}};
+\\
+{\bf if}\>x\ $=$\ 1\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 17;\\
+{\bf if}\>b2\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ 2;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>b1\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ 1;\\
+{\bf {f}{i}};
+\\
+{\bf if}\>x\ $=$\ 1\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 17;\\
+{\bf if}\>b1\ $\Rightarrow$
+\\
+\>{\bf if}\>b1\ $\Rightarrow$
+\\
+\>\>x\ $\leftarrow$\ 1;\\
+\>{\bf {f}{i}};
+\\
+{\bf {f}{i}};
+\\
+{\bf if}\>x\ $=$\ 1\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 17;\\
+{\bf if}\>b1\ $\Rightarrow$
+\\
+\>{\bf if}\>b1\ $\Rightarrow$
+\\
+\>\>{\bf if}\>b1\ $\Rightarrow$
+\\
+\>\>\>x\ $\leftarrow$\ 1;\\
+\>\>{\bf {f}{i}};
+\\
+\>{\bf {f}{i}};
+\\
+{\bf {f}{i}};
+\\
+{\bf if}\>x\ $=$\ 1\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+{\bf if}\>b2\ $\Rightarrow$
+\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>b1\ $\Rightarrow$
+\\
+\>{\bf if}\>b2\ $\Rightarrow$
+\\
+\>\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>b1\ $\Rightarrow$
+\\
+\>\>{\bf if}\>b2\ $\Rightarrow$
+\\
+\>\>\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>b1\ $\Rightarrow$
+\\
+\>\>\>x\ $\leftarrow$\ 1;\\
+\>\>{\bf {f}{i}};
+\\
+\>{\bf {f}{i}};
+\\
+{\bf {f}{i}};
+\\
+{\bf if}\>x\ $=$\ 1\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+passediffis\ $\leftarrow$\ pass;\\
+\end{tabbing}
+\end{document}

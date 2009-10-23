@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      DebuggingX.html
+     PURPOSE:   About debugging X programs
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- X Debugging
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> DebuggingX.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Debugging X Programs</H3>
+</CENTER>
+
+<P>
+The lack of intermediate output during execution is acceptable for working 
+programs.  
+It is not practical, however, when the X program misbehaves.  
+While one can always go back to the analysis to find an error, 
+it is often expeditious to "open the bonnet" to do some troubleshooting.  
+Traditional development systems provide output statements as well as 
+debuggers for this purpose.  
+</P>
+
+<H4>Dumps and Traces</H4>
+
+<P>
+xcom offers many <B>dumps</B> and <B>traces</B>, including an 
+instruction-by-instruction trace of the machine language version of the
+users X program.  It is usually best to start with flag 
+<PRE>
+  -xcomTrace
+</PRE> 
+to isolate the problem.  
+Then add a more detailed trace as needed.
+Use the MATLAB command 
+<PRE>
+>> help xcom
+</PRE>
+for more information.
+</P>
+
+<H4>Unit Tests, Trials, and Times</H4>
+<P>
+If one gives the MATLAB command
+<PRE>
+>> addpath tests trials times
+</PRE>
+the unit tests can be run from the command line in the mxcom/m directory.
+It is often the case that getting the unit test and trial to succeed first
+is easier than trying to get xcom to succeed directly.
+</P>
+
+<H4>X Intermediate Values</H4>
+<P>
+One can add assignments anywhere in an X program.
+If the l.h.s. is unique, its final value will be printed.
+</P>
+
+<H4>Assembly-level Debugging</H4>
+<P>
+Running xcom with the -interactive flag
+<PRE>
+>> xcom -interactive x/pi.x
+</PRE>
+provides an instruction-by-instruction trace.
+</P>
+
+<H4>Debugging xcom</H4>
+<P>
+One can add <B>fprintf</B> statements anywhere in <B>xcom</B>.
+The output will show up in the command window.  And one can use
+the MATLAB debugger.
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

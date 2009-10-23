@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingX.html
+     PURPOSE:   How to change the X context-free grammar
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the X Cfg
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingX.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the X CFG</H3>
+</CENTER>
+
+<H4>Changing X</H4>
+<P>
+  The first action in changing the X language is changing the X CFG.
+  The initial <A HREF="Xcfg.html">X CFG</A> describes an implementable
+  language.  
+</P>
+<P>
+  A new construct is added to X by adding one or more rules to the CFG.
+  The new rule(s) must also be implementable, 
+  which means that corresponding changes to the rest of the compiler
+  must be possible.  
+  Knowing how to design implementable rules is an art; 
+  your skill will improve with practice.  
+  You should, of course, use a new name for your new CFG.  
+  If the <A HREF="http://www.marx-brothers.org/">Marx Brothers</A> 
+  did a language project, they might have called their grammar CHGGZ.cfg.
+  My name, X, is meant to imply that anything can be substituted for it.
+</P>
+<P>
+  The simplest way to start is to pick a rule that "is like" the others,
+  then carry through the implementation,
+  as in the <A HREF="Warmup.html"> warm up exercise</A>.
+  After awhile, you can be more adventurous because you will better
+  understand the implications of your choices.
+</P>
+  
+
+<H4>The Original X CFG</H4>
+<P>
+  The easiest way to get familiar with the X CFG is to run 
+<PRE>
+>> tryCfg();
+</PRE>
+  One of the trials reads and dumps the result of CFG analysis for X.cfg.
+</P>
+<P>
+Perhaps even better, do the test steps by hand one at a time:
+<PRE>
+>> grtxt = xread('X.cfg')
+</PRE>
+  You will see the raw text of the <B>current</B> X.cfg.
+  Then try
+<PRE>
+>> grobj = Cfg(grtxt)
+</PRE>
+  You will see the <B>Cfg object</B> (which is itself not very interesting).  
+  The object output does, however, hint at more information.
+  The sizes of V, Vi, V, and the reserved word count are explicit.
+  The difference in size between Vi and reserved is explained by the 
+  three "special" input symbols <B>id</B>, <B>integer</B> and <B>real</B>, 
+  which are not reserved names, 
+  but rather "reserved classes" handled later by the lexer.
+  If you want all the data in one go, just type
+<PRE>
+>> grobj.dump()
+</PRE>
+  otherwise just look at one public object field at a time, as in
+<PRE>
+>> grobj.Vn
+</PRE>
+</P>
+
+<H4>Everyday Cfgs</H4>
+<P>
+The format of an everyday cfg is given by four simple rules.
+<OL>
+  <LI>
+    Symbols are separated by whitespace.
+  </LI>
+  <LI>
+    A single symbol starting in column 1 is a phrase name; 
+    it determines the current rule; subsequent lines are definitions.
+  </LI>
+  <LI>
+    A line starting with a blank (or an empty line) is a phrase
+    definition for the current rule.
+  </LI>
+  <LI>
+    The end of file terminates the cfg 
+    (watch out for unintended empty lines at the end).
+  </LI>
+</OL>
+For example, the following 4 (four) definitions are used for stmt,
+including the empty statement.
+<PRE>
+stmt
+
+  selection
+  iteration
+  assignment
+</PRE>
+</P>
+
+<H4>Manufactured Rule Names</H4>
+<P>
+  The rule names are of particular interest.  Try
+<PRE>
+>> grobj.ruleNames
+</PRE>
+  What you will see is manufactured rule names, one for each rule of the CFG.  
+  The Cfg object makes the names by catenating all the characters
+  in the rule, 
+  inserting an underbar ('_') between the phrase name and each definition, 
+  and using character identifiers for each non letter.  
+  The result is a name that is visually identifiable with
+  a particular grammar rule, 
+  and will not change unless that grammar rule itself changes.  
+  This is a plus when you are changing rules during development.
+  The trickery, a kind of 
+  <A HREF="http://en.wikipedia.org/wiki/Name_mangling">name mangling</A>,
+  is tucked away in object idCtor.m.
+</P>
+
+<H4>Adding Rule(s) to X.cfg</H4>
+<P> 
+  The typical change to X.cfg adds a few rules.  You might want to
+  look at the <A HREF="Warmup.html">warm up exercise</A> for an example.  
+  The format of X.cfg is straightforward.  
+  It is an <A HREF="ContextFreeGrammar.pdf">everyday grammar</A>.
+</P>
+<P>
+  A new reserved word or operator is added by including it 
+  in a right-hand side of some rule.
+  The Cfg object classifies it as an input symbol because it does not appear
+  in the left margin (and thereby becoming a phrase name).
+  You must, of course, keep your V<SUB>I</SUB> and V<SUB>N</SUB> separate.
+</P>
+<P>
+  After every change, it is a good idea to make a Cfg object and look at
+  the results to confirm that the changes are what you desire.
+</P>
+
+<H4>Adding Good Rule(s) to X.cfg</H4>
+<P>
+  Conforming to the layout of X.cfg and satisfying Cfg.m is straightforward.
+  Making a usable cfg takes more skill.  
+  Read the advice about <A HREF="LanguageDesign.html">language design</A>.
+  Start small.
+  In the long run, as your ambitions increase, 
+  you can consider more 
+  <A HREF="notation/notation.html">radical departures</A>
+  from current practice
+</P>
+
+<H4>Adding a Data Structure</H4>
+<P>
+The most obvious data structure is a vector.
+Following the C tradition one might imagine writing
+<PRE>
+  x := y[i];
+  y[i+1] := 13.1;
+  y := [1.1,2.0,-rand];
+</PRE>
+Any of these three lines should cause y to be entered into
+the symbol table as a <B>real vector</B>.
+</P>
+
+
+<H4>Adding a Phrase Name for a Class of Symbols (e.g. string)</H4>
+<P>
+Suppose you want to implement strings, and need 'xyz' be a token
+in the same way that 123 is a token.  
+You use the symbol string in the CFG in one or more rules.
+If you do nothing else, string will be a reserved word since it does
+not appear on the left.
+There is a place in Cfg.m where the reserved word table is built.
+It has exceptions for id, integer and real.  
+Add string to the exception list.
+</P>
+<P>
+  Note: it is common in grammar input languages to use a special form
+  to indicate reserved classes.  
+  For example, <TT>&lt;ID></TT> or <TT>&lt;STRING></TT>.
+  If you like that convention, you can implement it.
+</P>
+
+<P>
+  In any case, the lexer will have to be changed to classify and collect
+  the information for the new class of symbols.  
+  See the treatment of identifiers for an analogous case.
+</P>
+<H4>Making the CFG tables</H4>
+<P>
+  The CFG tables only need to be made when you change X.cfg.  
+  If you are just experimenting and do not want to clobber the tables
+  being used by xcom, run
+<PRE>
+>> makeCfg X.cfg
+</PRE>
+  and be prepared to wait a minute for the LR tables.
+  If you get an error-free run and you do want to use the tables, run
+<PRE>
+>> makeCfg -saveMat X.cfg
+</PRE>
+  The newly computed tables will be put into a file cfg.mat.
+  <B>xcom</B> uses cfg.mat.  xcom will warn if cfg.mat is out of date
+  with respect to X.cfg.
+</P>
+
+<P>
+  You do not have to use the LR tables if you do not want to
+  (see the discussion on <A HREF="Parsing.html">
+  bottom up vs. top down</A> parsers), 
+  but it a good idea to make a grammar that is LR(1).
+  If you are determined to press ahead without satisfying the LR(1)
+  constraints, run
+<PRE>
+>> makeCfg -noLR -saveMat X.cfg
+</PRE>
+</P>
+
+<H4>Changing the Recursive Parser</H4>
+See details <A HREF="ChangingParser.html"> here</A>.
+
+<H4>LR errors</H4>
+<P>
+  It can be tedious to get a cfg to conform to the LR(1) constraints.
+  At some point I will add better LR(1) failure diagnostics.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

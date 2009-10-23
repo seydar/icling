@@ -1,0 +1,45 @@
+>> xcom -asmDump -asmTrace -matlabStack -noExecute 'x,y:=7/3,13/4'
+AsmA64:    1 pushR RBP     # save a64 frame pointer
+AsmA64:    2 movRR RBP,RSP # new a64 frame
+AsmA64:    5 movRR RSI,RDI # new X frame pointer
+Asmx86:    8 movRC EAX,=13 (0xd) 
+Asmx86:   13 movRC ECX,=4 (0x4) 
+Asmx86:   18 cmpRC ECX,0=0x0 # test for div by zero
+Asmx86:   24 jne32 0 # skip over abort
+AsmA64:   30 movRC RAX,=1 (0x1) # meaning run error)
+AsmA64:   40 leaveq # restore previous A64 stack frame
+AsmA64:   41 retq # restore previous RIP
+Asmx86:   42 # fixup32 code(26)=12 (to 42)
+Asmx86:   42 pushR ESI     # frame pointer
+Asmx86:   43 movRR ESI,ECX # divisor
+Asmx86:   45 movRR EDI,EAX # dividend
+AsmA64:   47 movRC RAX,=1.396826e+14 (0x7f0a61c9ba0e) # addr of div)
+AsmA64:   57 callRi RAX    # call runtime
+Asmx86:   60 popR ESI      # frame pointer
+Asmx86:   61 movRC ECX,=7 (0x7) 
+Asmx86:   66 movRC EDX,=3 (0x3) 
+Asmx86:   71 cmpRC EDX,0=0x0 # test for div by zero
+Asmx86:   77 jne32 0 # skip over abort
+AsmA64:   83 movRC RAX,=2 (0x2) # meaning run error)
+AsmA64:   93 leaveq # restore previous A64 stack frame
+AsmA64:   94 retq # restore previous RIP
+Asmx86:   95 # fixup32 code(79)=12 (to 95)
+Asmx86:   95 pushR ESI     # frame pointer
+Asmx86:   96 movRR ESI,EDX # divisor
+Asmx86:   98 movRR EDI,ECX # dividend
+Asmx86:  100 movMR 12,EAX (tmp1)
+AsmA64:  106 movRC RAX,=1.396826e+14 (0x7f0a61c9ba0e) # addr of div)
+AsmA64:  116 callRi RAX    # call runtime
+Asmx86:  119 popR ESI      # frame pointer
+Asmx86:  120 movRM ECX,12 (tmp1)
+Asmx86:  126 movMR 0,EAX (x)
+Asmx86:  132 movMR 4,ECX (y)
+AsmA64:  138 xorRR RAX,RAX # no run error
+AsmA64:  141 leaveq # restore previous A64 stack frame
+AsmA64:  142 retq # restore previous RIP
+x86 code dump, 142 bytes code=0x619e6c50
+554889e54889feb80d000000b90400000081f9000000000f850c00000048b80100000000000000c9c35689ce89c748b80ebac9610a7f000048ffd05eb907000000ba0300000081fa000000000f850c00000048b80200000000000000c9c35689d689cf89860c00000048b80ebac9610a7f000048ffd05e8b8e0c000000898600000000898e040000004833c0c9c3
+554889e54889feb80d000000b90400000081f9000000000f850c00000048b80100000000000000c9c35689ce89c748b80e6a8c0a9b7f0000  ffd05eb907000000ba0300000081fa000000000f850c00000048b80200000000000000c9c35689d689cf89860c00000048b80e6a8c0a9b7f0000ffd05e8b8e0c000000898600000000898e040000004833c0c9c3
+
+554889e54889feb80d000000b90400000081f9000000000f850c00000048b80100000000000000c9c3 56 89ce89c748b 80ebac9610a7f0000 48ffd05eb907000000ba0300000081fa000000000f850c00000048b80200000000000000c9c35689d689cf89860c00000048b80ebac9610a7f000048ffd05e8b8e0c000000898600000000898e040000004833c0c9c3
+554889e54889feb80d000000b90400000081f9000000000f850c00000048b80100000000000000c9c3 56 89ce89c748b 80ebac9610a7f0000   ffd05eb907000000ba0300000081fa000000000f850c00000048b80200000000000000c9c35689d689cf48b80ebac9610a7f0000ffd05e8b8e0c000000898600000000898e040000004833c0c9c3

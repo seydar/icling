@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab8.html
+     PURPOSE:   GEM
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.13 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 8 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab8.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>gem.m</H3>
+<P>
+  <UL>
+    <LI>
+      (10 min) Look at gem.m
+      <PRE>
+      >> edit gem.c</PRE>
+    </LI>
+    <LI>
+      (20 min) Try examples like
+      <PRE>
+      >> G=gem()
+      >> G.nowhite
+      >> scan=@(txt)G.run(txt, G.nowhite);
+      >> scan('x Y z')
+      >> parse = G.run('x+x+x', scan(G.sum))
+      >> unsum = G.run(scan(G.sum), scan(G.invert))
+      >> G.run(unsum, scan(G.pretty))
+      >> raw = G.run(parse, unsum)
+    </LI>
+  </UL>
+</P>
+<H3>gem2.m</H3>
+<P>
+  <UL>
+    <LI>
+      (10 min) Look at gem2.m
+      <PRE>
+      >> edit gem.c</PRE>
+    </LI>
+    <LI>
+      (20 min) Try examples like
+      <PRE>
+      >> G=gem2()
+      >> G.nowhite
+      >> scan=@(txt)G.run(txt, G.nowhite, 'asciiIOG');
+      >> scan('x Y z')
+      >> scan('"xyz"')    
+      >> G.GEM(G.pretty0, 'pretty')
+    </LI>
+  </UL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

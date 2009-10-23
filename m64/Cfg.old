@@ -1,0 +1,766 @@
+% FILE:     Cfg.m
+% PURPOSE:  build cfg tables, including LR(1) tables
+% USAGE:    >> Cfg cfgtext flags
+% METHOD:   See Aho,Sethi,Ullman, or Knuth Info&Control 1965
+% MODS:     2007.04.01 -- mckeeman@dartmouth.edu -- original
+%           2007.11.19 -- mckeeman@dartmouth.edy -- incorporated LR(1)
+%
+% FLAGS
+%   -noLR           skip the LR(1) checking and table building
+%   -hashDump       dump statistics on hash bucket use
+%   -cfgTrace       trace the internal steps of LR(1)
+%   -cfgDump        dump the cfg
+%   -erasureDump    dump the erasing symbols
+%   -headDump       dump the head symbols
+%   -closureDump    dump the LR(1) closure
+%   -kernelTrace    trace the LR(1) kernel (verbose)
+%   -kernelDump     dump final LR(1)kernel
+%   -shiftDump      dump the shifts
+%   -reduceDump     dump the reductions
+%
+% grammar textual format:
+%  ' ', EOL and EOF are the only textual grammar delimiters. 
+%  Phrase names are identifiers on the LHS of a rule 
+%  Everything else is an input symbol.
+
+% grammar internal format
+%  The grammar is <Vi, Vn, Vg, R>
+%  A symbol is represented by its index in V{}.
+%  A set of symbols is represented by a logical vector indexing V.
+%  In particular, lookahead is always a set.
+%  A rule is represented by a vector r of indices into V.
+%    V(r(1)) is the lhs
+%    V(r(2:end)) is the rhs
+%    R{} is the list of rules r
+%    pn is true if the symbol is a phrase name
+%    Vi is the input symbols
+%    Vn is the phrase name symbols
+%    goal = R{1}(1); it is in Vn
+%    er is true for symbols that erase
+%    hd(n,t) means t is a head of n
+%
+% LR internal format
+%  A marked rule is a struct
+%    mr.nr   is the rule number       index into R{}
+%    mr.lhs  is the lhs of the rule   R{rn}(0)
+%    mr.rhs  is the rhs of the rule   R{rn}(2:end)
+%    mr.mark (in 1:numel(rhs)+1) is the position of the mark
+%  An item is a struct containing a marked rule and lookahead
+%    item.mr is the above
+%    item.la is a set of symbols (logical vector)
+%  The states are represented by a set of items
+%    vector of items w/o repetitions
+%
+% USAGE:
+%  Output is the cfg object, including
+%  shift/reduce matrix lr.
+%  lr(in state,see symbol) =
+%     newstate (shift)
+%     -rule    (reduce)
+%     0        (error)
+%  applying rule -1 after consuming all input means a successful parse.
+%
+% program organization
+%  block of initialized uplevel variables (locals of level 1) 
+%  nested function accessing the uplevel variables 
+% 
+%  LR1
+%    flagger  (records the many debugging flags)
+%    internalize
+%    enterV
+%    erasingSymbols
+%    headSymbols
+%    headClosure
+%    makeItem
+%    enterKernel
+%      kernelHash
+%      isSame
+%    kernelClosure
+%    transition
+%
+%    dumpers
+%   
+% See *.cfg
+
+% The main function:
+%  accepts cfg text and optional flags;
+%  result is tables, including the LR(1) automaton;
+%  initialization establishes uplevel variables;
+%  flag indices for dumper controls.
+  
+function cfgobj = Cfg(grtxt, varargin)
+
+  % flag codes
+  traceF    = 1; cfgF     = 2; 
+  erasureF  = 3; headF    = 4; 
+  closureF  = 5; kernelF  = 6; 
+  shiftF    = 7; reduceF  = 8;
+  hashF     = 9; noLRF    = 10;
+  finalF    =11; maxF     = 11;
+  
+  flag = flagger(varargin);                      % flag settings
+  cfgTrace('enter Cfg');
+  
+  V = {};                                        % no symbols yet
+  NV = 0;
+  Vn = {};                                       % phrase names
+  pn = logical([]);                              % true for phrase names
+  reservedTable = {};
+  opchar = '';
+  Vi = {};                                       % input symbols
+  R = {};                                        % no rules yet
+  NR = 0;  
+  RRCONFLICT = -999;                             % code for r/r conflict
+  SRCONFLICT =  999;                             % code for s/r conflict
+  makeId = idCtor();                             % for rule names
+  
+  % grammar input and internalization
+  str2cfg(grtxt);                                % make internal form
+  if flag(cfgF); dumpGrammar(); end              % perhaps print grammar
+
+  er = false(1,numel(V));                        % no erasing symbols yet
+  erasingSymbols();                              % s erasable if er(s)
+  if flag(erasureF); dumpErasure(); end          % perhaps print erasure
+
+  hd = [];                                       % no head symbols yet
+  headSymbols();                                 % heads of s are V(hd(s,:))
+  if flag(headF); dumpHeads(); end               % perhaps print heads
+
+  % The LR(1) construction
+  closure = {};                                  % no kernel extensions yet
+  shift =zeros(1, NV, 'int16');                  % shift table
+  reduce=zeros(1, NV, 'int16');                  % reduce table
+
+  % fast lookup for new states
+  root = -ones(1, 256, 'int16');
+  link = int16(0);
+  histo = zeros(1, 256, 'uint16');               % for state hash stats
+  lr    = uint16([]);
+  
+  if flag(noLRF)     
+    % skip LR(1) computation to save time and/or complaints
+  else % it takes awhile to make tables for X.cfg
+    if numel(grtxt)>200
+      fprintf('Cfg: making LR tables, %s (be patient)\n', datestr(now)); 
+    end
+    
+    % Start with leftmost rule marked in leftmost position
+    kernel = {};
+    enterKernel(makeItem(1, 1, false(1,NV)));
+    kernelNxt = 0;
+
+    % process each kernel exactly once
+    %  1. temporarily add left-marked rule for each pending phrase name
+    %  2. add new kernels for each transition from this kernel
+    %  3. but only if they are unique
+    while kernelNxt < numel(kernel)              % kernel queue
+      kernelNxt = kernelNxt+1;                   % pick next candidate
+      if kernelNxt > intmax('uint16'); cfgErr('too many states'); end
+      cfgTrace(sprintf('start processing state %d', kernelNxt));
+      newcom = kernelClosure(kernel{kernelNxt}); % add rules marked at left
+      
+      % examine each marked rule in closure
+      for ine=1:numel(newcom)                    % each marked rule
+        newc = newcom(ine);                      % a marked rule
+        if newc.mark == numel(newc.rhs)+1        % is it a reduce?
+          if size(reduce,1) < kernelNxt; reduce(kernelNxt,1)=0; end
+          looks = newc.la;                       % lookahead for item
+          if ~any(looks)                         % only state 1
+            reduce(kernelNxt,true(1,NV)) = -newc.rn;  % parse-quit state
+          else                                   % check conflicts
+            rrow = reduce(kernelNxt, :);         % reduce entries 
+            conflicts = rrow(looks);             % select la values
+            reduce(kernelNxt,looks) = -newc.rn;  % record rule number
+            if any(conflicts)
+              reduce(kernelNxt, looks) = RRCONFLICT; 
+            end
+          end
+        end
+      end
+      
+      if flag(kernelF); dumpKernel(kernelNxt); end % perhaps trace kernel
+      ts = transition(newcom);
+      closure{kernelNxt} = newcom;               %#ok
+      for its=1:numel(ts); 
+        newk = ts{its};
+        ks = enterKernel(newk);                  % a new state
+        % record shift entries on this symbol
+        shift(kernelNxt, newk(1).rhs(newk(1).mark-1)) = ks;
+      end
+    end
+    if flag(finalF), dumpKernel(kernelNxt); end
+
+    if numel(shift)<numel(reduce)                % match shift and reduce
+      shift(size(reduce,1),1) = 0;
+    end
+
+    srconflicts = shift(:)~=0 & reduce(:)~=0;    % entries in common
+    srcount = sum(srconflicts);
+    rrcount = sum(reduce(:)==RRCONFLICT);
+    fprintf('Cfg: made LR(1) tables  %s\n', datestr(now));
+    
+    shift(srconflicts) = SRCONFLICT;
+    if flag(shiftF)  || srcount ~= 0, dumpShift(srcount); end 
+    if flag(reduceF) || rrcount ~= 0; dumpReduce(rrcount); end 
+    if srcount+rrcount ~= 0, dumpCell(kernel); end
+    lr = shift+reduce;                           % merge matrices
+    if flag(hashF); dumpHash(); end;             % hash buckets
+  end
+  
+  cfgobj = public();
+  
+  cfgTrace('leave Cfg');
+  return;                                        % end LR1 executable
+
+  % --------------------- nested functions --------------------
+  % flag processing, mostly to control dumpers
+  function res = flagger(flags)
+    res = false(1,maxF);
+    for f=1:numel(flags)
+      switch flags{f}
+        case '-noLR',         res(noLRF)     = true;
+        case '-cfgTrace',     res(traceF)    = true;
+        case '-hashDump',     res(hashF)     = true;
+        case '-cfgDump',      res(cfgF)      = true;
+        case '-erasureDump',  res(erasureF)  = true;
+        case '-headDump',     res(headF)     = true;
+        case '-closureDump',  res(closureF)  = true;
+        case '-kernelTrace',  res(kernelF)   = true;
+        case '-kernelDump',   res(finalF)    = true;
+        case '-shiftDump',    res(shiftF)    = true;
+        case '-reduceDump',   res(reduceF)   = true;
+        otherwise, disp(['bad flag: ' varargin{f}]);
+      end
+    end
+  end                                           % end flagger
+
+  % --------------------- input -------------------------------
+
+  % Grammar internalization.
+  %   input is a string.
+  %   # in column 1 is a comment
+  %   blank in column1 starts rhs
+  %   otherwise, line is lhs
+  %   analyze and record rules.  
+  %   accumulate V.  
+  %   separate V and Vn. 
+  % Results in R V, Vn. 
+  % a -> bbb represented by [a b b b] in G
+  function str2cfg(text)                         % whole grammar
+    cfgTrace('enter str2cfg');
+    EOL = 10;                                    % eol char code
+    eols = find(text==EOL);                      % all eols
+    strt = [0, eols(1:end-1)]+1;                 % starts of lines      
+    ends = strt + diff([0, eols])-1;             % ends of lines
+    for ie = 1:numel(strt)                       % each line
+      ln = text(strt(ie):ends(ie));              % grab line
+      if numel(R)==0 && all(ln == ' ')           % initial blank line
+        continue                                 % ignore
+      end
+      if ln == EOL; ln = [' ' ln]; end;          % empty rhs, force leading blank
+      if ln(1) == '#'; continue; end;            % cfg comment line
+      if ln(1) ~= ' '                            % new lhs
+        lhs = strtok(ln);                        % discard trailing blanks
+        r0 = enterV(lhs);                        % it is a symbol
+      else                                       % new rhs
+        ru = [];                                 % empty rhs
+        while true                               % look at rhs
+          [rs, ln] = strtok(ln);                 % next deblanked sym
+          if isempty(rs); break; end             % done w/this rule
+          ru(end+1) = enterV(rs);                % it is a symbol
+        end
+        R{end+1} = [r0, ru];                     % add rule to grammar
+      end
+    end
+    NR = numel(R);                               % number of rules
+    
+    % separate terminals from nonterminals
+    pn = false(1,NV);                            % assume all terminal
+    for g=1:NR                                   % get nonterminals
+      r = R{g};                                  % g^th rule
+      pn(r(1)) = true;                           % on lhs
+    end
+    Vi = sort(V(~pn));                           % V = [Vi, Vn]
+    Vn = sort(V(pn));
+
+    % standardize symbol numbering
+    %   terminals first
+    %   nonterminals last
+    %   both groups sorted
+    % First prepend a non-ascii character to each member of V
+    % so that the terminals sort earlier than the nonterminals.
+    % Then used the permutation vector to remap all the data in the
+    % rules that was entered before V was sorted.
+    % From this point on the LR generation uses the canonical (sorted)
+    % numbering.  This is the same ordering used in the lexer.
+
+    for ix = 1:NV
+      V{ix} = [uint16(pn(ix)), V{ix}];           % prepend sort flag
+    end
+    [V, idx] = sort(V);                          % in desired order
+    for ix = 1:NV
+      V{ix} = V{ix}(2:end);                      % remove sort flag
+    end
+    tx(idx) = 1:NV;                              % old to new
+    for g=1:NR
+      R{g} = tx(R{g});                           % rules updated
+    end
+
+    % separate terminals from nonterminals again
+    pn = false(1,NV);                            % assume all terminal
+    for g=1:NR                                   % get nonterminals
+      r = R{g};                                  % g^th rule
+      pn(r(1)) = true;                           % on lhs
+    end
+
+        % rename id, integer, real and eof (they are not reserved)
+    for i=1:numel(Vi)
+      switch Vi{i}
+        case {'id', 'integer', 'real', 'eof'};
+          resname = [' ' Vi{i}];
+        otherwise
+          resname = Vi{i};
+      end
+      reservedTable{end+1} = resname;            % record reserved
+    end
+
+    % Tabulate all characters that are to be allowed in operator
+    % identifiers.  
+    opchar = unique([reservedTable{:}]);         % all chrs in grammar
+    % disallow letters, digits, and white space
+    opchar = opchar(~(isstrprop(opchar, 'alphanum')...
+                     |isstrprop(opchar, 'wspace')));
+    opchar(opchar == '(') = [];                  % disallow in op ids 
+    opchar(opchar == ')') = [];
+    opchar(opchar == '[') = [];
+    opchar(opchar == ']') = [];
+    opchar(opchar == '{') = [];
+    opchar(opchar == '}') = [];
+    opchar(opchar == ',') = [];
+    opchar(opchar == ';') = [];
+    opchar(opchar == '.') = [];
+    
+    cfgTrace('leave str2cfg')
+  end                                            % of str2cfg
+
+  % ------------------ grammar tables ----------------------------
+  % Lookup symbol.  Record new symbol.  Return index.
+  function idx = enterV(str)                     % lookup/enter symbol in V
+    for idx=1:NV
+      if strcmp(V{idx}, str)
+        return;                                  % found it
+      end
+    end
+    V{end+1} = str;                              % enter new symbol
+    NV = numel(V);
+    idx = NV;
+  end                                            % of enterV
+
+  function rn = ruleNames()
+    rn = cell(numel(R),1);
+    for i=1:numel(R)
+      rule = R{i};
+      rn{i} = makeId.str2id([V{rule(1)} '_' V{rule(2:end)}]);
+    end
+  end  % of ruleNames
+
+  function rl = ruleLengths()
+    rl = zeros(numel(R),1);
+    for i=1:numel(R) 
+      rl(i) = numel(R{i})-1;
+    end
+  end  % of ruleLengths
+
+  function res = reserved()
+    res = reservedTable;
+  end
+
+  % The set of eraseable symbols
+  % def  er(lambda) == true
+  %      A->alpha & er(alpha) => er(A)
+  %      er(A) & er(alpha) => er(A alpha)
+  % Results in er()
+
+  function erasingSymbols()
+    % iterate to propagate erasure
+    change = true;                               % do at least once
+    while change
+      change = false;                            % none yet this pass
+      for ei=1:NR
+        ri = R{ei};                              % the ei-th rule
+        lhs = ri(1);                             % the defined symbol
+        if ~er(lhs)                              % not yet known
+          guess = true;                          % suppose it erases
+          for j=2:numel(ri)
+            guess = guess & er(ri(j));           % attempt to falsify
+          end
+          if guess                               % it is another eraser
+            er(lhs) = true;                      % record it
+            change = true;                       % keep trying
+          end
+        end
+      end
+    end
+  end                                            % of erasingSymbols
+
+  % Establish grammatical head symbols for each symbol in V
+  % Results in hd()
+  function headSymbols()
+    hd = logical(eye(NV));                       % A ->* A 
+    for g=1:NR                                   % A ->  B beta
+      r = R{g};
+      if numel(r) > 1
+        hd(r(1), r(2)) = true;                   % r(2) head of r(1)
+      end
+    end
+    headClosure();                               % closure
+  end                                            % of headSymbols
+  
+  % Transitive closure of A -> B beta
+  % Results in hd(*,*)
+  function headClosure()
+    change = true;                               % do at least once
+    while change
+      change = false;                            % optimistic
+      for i=1:NV;
+        for j=1:NV
+          for k=1:NV
+            if hd(i,j) && hd(j,k)                % transitive
+              if ~hd(i,k)
+                hd(i,k) = true;
+                change = true;
+              end
+            end
+          end
+        end
+      end
+    end
+  end                                            % of headClosure
+
+  % --------------------- LR constructors ----------------------
+  % Marked rule -- the element of the LR construction
+  function ms = makeItem(rn, pt, la)             % marked rule
+    r = R{rn};
+    ms.rn   = rn;
+    ms.lhs  = r(1);
+    ms.rhs  = r(2:end);
+    ms.mark = pt;
+    ms.la   = la;                                % set of syms
+  end                                            % of makeItem
+
+  function ik = enterKernel(state) 
+    h = kernelHash(state);
+    if root(h) == -1                             % first in hash class
+      ik = numel(kernel)+1;                      % need new entry
+      kernel{ik} = state;                        % enter state
+      root(h) = ik;
+      link(ik) = -1;                             % end of hash chain
+    else
+      ik = root(h);
+      while true
+        if isSame(state, kernel{ik})             % already there
+          return;
+        else
+          kk = link(ik);
+          if kk ~= -1
+            ik = kk;                             % next hash item
+          else
+            kk = numel(kernel)+1;                % need new entry
+            link(ik) = kk;                       % hash link
+            ik = kk;
+            kernel{ik} = state;                  % enter state
+            link(ik) = -1;                       % new end of links
+          end
+        end
+      end
+    end
+    return;                                      % end executable
+    
+    % nested inside enterKernel
+    function h = kernelHash(st)
+      tmp = st(1);
+      if tmp.mark<2; h = 0;
+      else h=tmp.rhs(tmp.mark-1);                % transition-in symbol
+      end
+      h = bitand(h, 255)+1;
+      histo(h) = histo(h)+1;
+    end                                          % of kernelHash
+
+    % false 70376  true 259
+    function res = isSame(state1, state2)
+      res = false;                               % pessimistic
+      if numel(state1) ~= numel(state2);   return; end
+      for si=1:numel(state1)                      % states are ordered
+        if ~eqItem(state1(si), state2(si));return; end
+      end
+      res = true;                                % all same
+    end                                          % of isSame
+    
+  end                                            % of enterKernel
+
+  % -------------------- close a state --------------
+  % Given some kernel set,
+  % add rules for nonterminals to the right of the mark
+  % carrying along and merging the lookahead
+  % lhs  r0
+  % rhs     r1 r2 r3 ... rn
+  % mark k is to the left of rk (thus in range 1:n+1)
+  function cmp = kernelClosure(state)
+    cfgTrace(['enter kernelClosure size(state)=' num2str(size(state,2))]);
+    startSize = numel(state); 
+    for m=1:startSize                            % run through marked rules
+      mr = state(m);                             % pick a marked rule
+      mk = mr.mark;                              % the mark
+      rh = mr.rhs;                               % rule rhs (vector)
+      if mk>numel(rh); continue; end;            % reduce, not shift
+      if ~pn(rh(mk));  continue; end             % input, therefore shift
+      hot = rh(mk);                              % phrase name beyond mark
+
+      % found phrase name, need lookahead beyond rh(mk)
+      la   = false(1,NV);                        % no lookahead yet
+      done = false;                              % assume some rhs
+      % gather lookahead until some phrase name is non eraseable
+      for q=mk+1:numel(rh)                       % remaining rhs
+        la = la | hd(rh(q),:);                   % head symbols
+        if ~er(rh(q))                            % not eraseable
+          done = true;                           % so stop moving right
+          break;
+        end
+      end
+      % if all phrases were erasable, then pick up rule lookahead also
+      if ~done; la = la | mr.la; end;            % whole-rule lookahead
+      
+      % add rules defining the phrase name to the right of the mark
+      for g=1:NR                                 % add new marked rules
+        r = R{g};                                % match next sym with lhs
+        if r(1) == hot                           % lhs == marked phrase
+          % each phrase name right of the mark gets an entry
+          item = makeItem(g,1,la);               % construct item
+          found = false;                         % not found yet
+          for s = 1:numel(state)                 % search this state
+            if eqItem(state(s), item)            % already in set
+              state(s).la = state(s).la | la;    % merge lookaheads
+              found = true;
+              break;                             % stop looking
+            end
+          end
+          if ~found                              % never found it
+            state(end+1) = item;                 % enter new marked rule
+          end
+        end                                      % finished this rule
+      end                                        % finished looking at rules
+      
+    end                                          % finished marked rules
+        
+    % repeat until finished: process newly introduced rules
+    if startSize ~= numel(state)                 % something was added
+      cmp = kernelClosure(state);                % recur
+    else                                         % nothing new, quit
+      cmp = state;
+    end
+    cfgTrace(['leave kernelClosure size(state)=' num2str(size(state,2))]);
+    return;
+  end                                            % of kernelClosure
+      
+  function res = eqItem(item1, item2)            % same marked rule?
+    res = item1.rn == item2.rn ...
+       && item1.mark == item2.mark ...
+       && all(item1.rhs == item2.rhs);
+  end
+
+  % ------ compute state transitions --------------------------
+  function ts = transition(state)
+    ts = {};                                     % for new kernels
+    for s = 1:NV                                 % each symbol
+      news = state;                              % right shape
+      news(:) = [];                              % empty struct array
+      for ss = 1:numel(state)                    % each marked rule
+        mr = state(ss);
+        rh = mr.rhs;
+        mk = mr.mark;                            % collect tx over V
+        if mk <= numel(rh) && s == rh(mk)
+          ns = mr;
+          ns.mark = ns.mark+1;                   % move mark right
+          insertMarked(ns);
+        end
+      end
+      if ~isempty(news); ts{end+1} = news; end
+    end
+    return;                                      % of executable transition
+    
+    function insertMarked(nx)                    % ordered insert
+      for im = 1:size(news)
+        tm = news(im);
+        switch compareMarked(nx, tm)
+          case -1, continue;                     % keep looking
+          case 0,  return;                       % already there
+          case 1,                                % enter here
+            news = [news(1:im-1), nx, news(im:end)];
+            return;
+        end
+      end
+      news(end+1) = nx;                          % enter at end
+    end                                          % of insertMarked
+    
+    function res = compareMarked(m1, m2)
+      if m1.rn < m2.rn;     res = -1; return; end
+      if m1.rn > m2.rn;     res = 1;  return; end;
+      if m1.mark < m2.mark; res = -1; return; end
+      if m1.mark > m2.mark; res = 1;  return; end
+                            res = 0; 
+    end                                          % of compareMarked
+      
+  end                                            % of transition
+  % ------------------- dumpers -----------------------
+  
+  function cfgErr(msg)
+    fprintf('Cfg: %s\n', msg);
+  end
+
+  function cfgTrace(msg)                          % trace major functions
+    if ~flag(traceF); return; end
+    disp(msg);
+  end                                            % of cfgTrace
+
+  function dumpGrammar()                         % perhaps print V, Vn & Vi
+    disp '---grammar vocabulary---'
+    fprintf('%d symbols\n', NV);
+    fprintf('%s ', V{:}); fprintf('\n');
+    disp '---terminal vocabulary---'
+    fprintf('%s ', Vi{:}); fprintf('\n');
+    disp '---nonterminal vocabulary---'
+    fprintf('%s ', Vn{:}); fprintf('\n');
+    fprintf('%d grammar rules\n', NR);
+    for rn=1:NR
+      fprintf('%4d: ', rn);
+      fprintf('%s ', V{R{rn}}); 
+      fprintf('\n');
+    end
+  end                                            % of dumpGrammar
+
+  function dumpErasure()
+    disp '---erasing symbols---'
+    t = V(er);
+    fprintf('%s ', t{:}); fprintf('\n');
+  end                                            % of sure
+
+  function dumpHeads()
+    disp '---head symbols---'
+    for i=1:numel(V)
+      fprintf('%s:\t', V{i});
+      fprintf('%s ', V{hd(i,:)}); 
+      fprintf('\n');
+    end
+  end                                            % of dumpHeads
+
+  function dumpKernel(n)
+    fprintf('start accumulated kernel at step %d ---\n', n);
+    dumpCell(kernel)
+    fprintf('end   accumulated kernel at step %d ---\n', n);
+  end                                            % of dumpKernel
+
+  function dumpHash()
+    hist = find(histo);
+    disp 'start hash dump'
+    fprintf('%d of 256 buckets used---\n', numel(hist));
+    hist
+    disp 'end   hash dump---'
+  end                                            % of dumpHash
+
+  function dumpShift(srcount)
+    if srcount > 0
+      fprintf('Cfg: error %d LR(1) SR conflicts: code=999\n', srcount);
+    end
+    fprintf('start %dx%d LR(1) shift matrix---\n', size(shift));
+    fprintf('V: ');
+    fprintf('%s ', V{:});
+    fprintf('\n');
+    fprintf('states  ');
+    for i=1:numel(V)
+      pn = [V{i} '   '];
+      fprintf('%4s', pn(1:3));
+    end
+    fprintf('\n');
+    for i=1:size(shift,1)
+      fprintf('%3d:  ', i);
+      fprintf('%4d', shift(i,:));
+    fprintf('\n');
+    end
+    disp 'end   shift matrix---'
+  end                                            % of dumpShift
+
+  function dumpReduce(rrcount)
+    if rrcount > 0
+      fprintf('Cfg: error %d LR(1) RR conflicts: code=-999\n', rrcount);
+    end
+    fprintf('start %dx%d LR(1) reduce matrix---\n', size(reduce));
+    fprintf('V: ');
+    fprintf('%s ', V{:});
+    fprintf('\n');
+    fprintf('states  ');
+    for i=1:numel(V)
+        pn = [V{i} '   '];
+        fprintf('%4s', pn(1:3));
+    end
+    fprintf('\n');
+    for i=1:size(reduce,1)
+      fprintf('%3d:  ', i);
+      fprintf('%4d', reduce(i,:));
+      fprintf('\n');
+    end
+    disp 'end   reduce matrix---'
+  end                                            % of dumpReduce
+
+  function dumpCell(ca)                          % general cell dumper
+    fprintf('--- %d states ---\n', numel(ca));
+    for c=1:numel(ca)
+      fprintf('--- state %d ---\n', c)
+      st = ca{c};
+      for d=1:numel(st)
+        ln = 0;
+        tmp = st(d);
+        txt = sprintf('%s <- ', V{tmp.lhs});
+        ln = ln + numel(txt);
+        fprintf(txt);
+        txt = sprintf('%s ', V{tmp.rhs(1:tmp.mark-1)});
+        ln = ln + numel(txt);
+        fprintf(txt);
+        fprintf('. ');
+        ln = ln + 2;
+        txt = sprintf('%s ', V{tmp.rhs(tmp.mark:end)});
+        ln = ln + numel(txt);
+        fprintf(txt); 
+        pad = max(1, 65-ln);
+        txt = char(uint16(' ')*ones(1,pad,'uint16'));
+        fprintf(txt)
+        fprintf('%s ', V{tmp.la});
+        fprintf('\n');
+      end
+    end
+  end                                            % of dumpCell
+
+  function dump()
+    disp '--begin dump--'
+    dumpGrammar();
+    dumpErasure();
+    disp '--end dump--'
+  end
+
+  function o = public()
+    o    = struct;                               % the results
+    o.Vn = Vn;
+    o.Vi = Vi;
+    o.V  = V;
+    o.R  = R;
+    o.lr = lr;
+    o.ruleNames   = ruleNames();
+    o.ruleNumbers = enum(o.ruleNames);
+    o.ruleLengths = ruleLengths();
+    o.reserved    = reserved();
+    o.opchar      = opchar;
+    o.ishead      = hd;
+    o.dump        = @dump;
+  end
+
+end                                              % of Cfg
+

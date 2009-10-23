@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingGenerator.html
+     PURPOSE:   How to change the xcom generator object
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Generator Object
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+
+<SMALL>
+<EM>File</EM> ChangingGenerator.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the Generator Object</H3>
+</CENTER>
+
+<H4>Preliminary</H4>
+
+<P>First read about the <A HREF="Generator.html">generator</A>.</P>
+
+<P>
+In MATLAB in the mxcom directory, try
+<BIG>
+    <PRE>
+        >> help Generator.m
+    </PRE>
+</BIG>
+and
+<BIG>
+    <PRE>
+        >> xcom -emitTrace -genTrace x:=1
+    </PRE>
+</BIG>
+</P>
+
+<H4>Making a Small Change</H4>
+<P>
+The Generator object contains tree walking methods.
+There are a few kinds of walkers, 
+each accounting for some of the rules in X.cfg.
+In general, each walker switches on the rule name,
+and within the switch, calls another walker appropriate to each
+of the subnodes that actually have to be processed.
+</P>
+<P>
+If a Cfg rule is changed, the corresponding change must be made
+to the walker.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

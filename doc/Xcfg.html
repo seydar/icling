@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:    Xcfg.html
+     PURPOSE: X.cfg in a form that does not confuse the browser
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.10.01 - original
+                Who -- When -- What
+-->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- CFG for X
+</TITLE>
+</HEAD>
+
+<BODY>
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Xcfg.html&nbsp;&nbsp;&nbsp;
+<EM>Authors</EM> McKeeman&amp;Fromberger&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007
+</SMALL>
+</P>
+
+<PRE>
+program
+  stmts eof
+stmts
+  stmt
+  stmts ; stmt
+stmt
+
+  selection
+  iteration
+  assignment
+selection
+  if alts fi
+iteration
+  do alts od
+alts
+  alt
+  alts :: alt
+alt
+  guard ? stmts
+guard
+  expr
+assignment
+  vars := exprs
+  vars := subprogram := exprs
+       := subprogram := exprs
+  vars := subprogram :=
+       := subprogram :=
+vars
+  id
+  vars , id
+exprs
+  expr
+  exprs , expr
+subprogram
+  id
+expr
+  disjunction
+disjunction
+  conjunction
+  disjunction | conjunction
+conjunction
+  negation
+  conjunction & negation
+negation
+  relation
+  ~ relation
+relation
+  sum
+  sum <  sum
+  sum <= sum
+  sum =  sum
+  sum ~= sum
+  sum >= sum
+  sum >  sum
+sum
+  term
+  - term
+  sum + term
+  sum - term
+term
+  factor
+  term * factor
+  term / factor
+  term // factor
+factor
+  true
+  false
+  integer
+  real
+  id
+  ( expr )
+  b2i factor
+  i2r factor
+  r2i factor
+  rand
+</PRE>
+</BODY>
+</HTML>

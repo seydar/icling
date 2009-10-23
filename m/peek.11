@@ -1,0 +1,62 @@
+/* FILE:     peek.11
+ * PURPOSE:  expose calling sequence (caller and callee)
+ * CASE:     one 64 bit input, one 32 bit output
+ * MODEL:    runX86.c
+ * USAGE:    see below
+ */
+
+static in
+peek(void *p) {
+  void *loc = p;
+  return 0;
+}
+
+static int 
+poke(void) {
+  int x;
+  x = peek(&x);
+}
+
+/* 
+wmm> date
+Wed Mar 11 09:06:37 EDT 2009
+wmm> cp peek.11 peek.c
+wmm> gcc -g -O0 -c peek.c
+wmm> rm peek.c
+wmm> objdump -D peek.o
+
+peek.o:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <peek>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 89 7d e8             mov    %rdi,0xffffffffffffffe8(%rbp)
+   8:   48 8b 45 e8             mov    0xffffffffffffffe8(%rbp),%rax
+   c:   48 89 45 f8             mov    %rax,0xfffffffffffffff8(%rbp)
+  10:   b8 00 00 00 00          mov    $0x0,%eax
+  15:   c9                      leaveq
+  16:   c3                      retq
+
+0000000000000017 <poke>:
+  17:   55                      push   %rbp
+  18:   48 89 e5                mov    %rsp,%rbp
+  1b:   48 83 ec 10             sub    $0x10,%rsp
+  1f:   48 8d 7d fc             lea    0xfffffffffffffffc(%rbp),%rdi
+  23:   e8 d8 ff ff ff          callq  0 <peek>
+  28:   89 45 fc                mov    %eax,0xfffffffffffffffc(%rbp)
+  2b:   c9                      leaveq
+  2c:   c3                      retq
+
+observations
+ Prior to call, rsp is decremented to preserve the local stack.
+ The units of stack size are 0x8 (round up)
+ The integer return value is returned in RAX (or EAX).
+ The single 64-bit parameter is passed in RDI.
+ Stack manipulating functions do not need the 48 prefix.
+ The high order bits of R/M and REG are in the 48 prefix.
+ Stack locals are negative, packed offsets from RBP.
+ It is OK to hijack RSI for the X frame pointer.
+
+*/

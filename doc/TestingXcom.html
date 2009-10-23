@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      TestingXcom.html
+     PURPOSE:   About testng xcom
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.08.13 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Development
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> TestingXcom.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<H4>Testing xcom</H4>
+
+<P>
+The testing harness for code under development is as important at the
+final product.  The tests serve at least as repeatable experiments, 
+as quick checks,
+as a means to break a complex task into simple tasks, 
+as a source of examples of use.
+There are three main categories of tests for xcom: <B>tests</B>, 
+<B>trials</B> and <B>times</B>.
+The testing code is kept in separate directories with the above names.
+Each category has a master routine (testAll(), tryAll() and timeAll())
+that runs all of the corresponding test code.
+The goal is that every feature is unit tested (complete coverage).
+This goal is often too ambitious, but can be approached over a 
+period of time.
+<UL>
+<LI>
+<P>
+<B>Unit tests</B>. Each unit test is isolated to a single feature.
+Sometimes, as a matter of convenience, a unit test may use other
+features.
+In this case, one is well advised to insure that the tests of the other 
+features are already checked.  The unit tests are intended to indicate
+trouble but not diagnose it.  
+In MATLAB it is relatively easy to add output to the test just before the
+point failure and rerun the test to understand the cause of failure.
+Or use the MATLAB debugger.
+Unit testing is fragile in the sense that if one test reveals a fault, 
+the whole process stops (and later tests do not get run).  
+</P>
+</LI>
+<LI>
+<P>
+<B>Unit trials</B> A unit trial is relatively verbose.  The intention
+is to expose the inner details of the tested algorithm.  
+Often, during development, the trial is developed alongside the working
+code. 
+When both seem to be working correctly, the trial is used as a design
+template to make a test.  When change is made, the trial is extended
+and the test again finally augmented.
+</P>
+</LI>
+<LI>
+<P><B>Performance Timing</B> xcom compile and execute time can
+be <A HREF="TimingXcom.html">measured</A>.  There are also
+time unit tests.
+</UL>
+</P>
+
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

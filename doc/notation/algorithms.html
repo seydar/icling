@@ -1,0 +1,132 @@
+<!-- FILE:    notation/algorithms.html
+  -- PURPOSE: The Concept of Notation
+  -- MODS:    McKeeman -- 2002.04.16 -- original
+  -->
+
+<html>
+<head>
+<title>Notation for Algorithms</title>
+</head>
+
+<body bgcolor="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<table>
+<tr><p></tr>
+<tr><td width=80></td><td width=500>
+
+<h2>Notating Sort-Merge</h2>
+
+<p>It is easy to "speak" the sort-merge algorithm.  <em>Given a
+sequence, break it into two parts, sort each of them, and merge the
+results.</em> Here, as best as can be rendered in HTML, is a
+subscript-style merge algorithm from a popular algorithms book.</p>
+<p>
+MERGE(<em>A, p, q, r</em>)
+<ol>
+<li><em>n<sub>1</sub> = q - p + 1</em></li>
+<li><em>n<sub>2</sub> = r - q</em></li>
+<li>create arrays <em>L[1..n<sub>1</sub>+1]</em> and <em>R[1..n<sub>2</sub>+1]</em></li>
+<li>for <em>i = 1</em> to <em>n<sub>1</sub></em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;do <em>L[i] = A[p+i-1]</em></li>
+<li>for <em>j = 1</em> to <em>n<sub>2</sub></em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;do <em>R[j] = A[q+j]</em></li>
+<li><em>L[n<sub>1</sub>+1] = infinity</em></li>
+<li><em>R[n<sub>2</sub>+1] = infinity</em></li>
+<li><em>i = 1</em></li>
+<li><em>j = 1</em></li>
+<li>for <em>k = p</em> to <em>r</em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;do if <em>L[i] <= R[j]</em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;then <em>A[k] = L[i]</em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<em>i = i + 1</em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else <em>A[k] = R[j]</em></li>
+<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<em>j = j + 1</em></li>
+</ol>
+</p>
+
+<p> Here is a list-style sort-merge as "spoken" above in an
+<em>ad hoc</em> notation:
+
+<p>
+sort(a) = <br>
+&nbsp;&nbsp;<b>if</b> length(a) <= 1<br>
+&nbsp;&nbsp;<b>then</b> a<br>
+&nbsp;&nbsp;<b>else</b> merge(sort(left(a)), sort(right(a)))
+</p>
+<p>
+merge(b, c) = <br>
+&nbsp;&nbsp;<b>if</b> length(b+c) <= 1<br>
+&nbsp;&nbsp;<b>then</b> b+c<br>
+&nbsp;&nbsp;<b>elseif</b> head(b+infinity) <= head(c+infinity)<br>
+&nbsp;&nbsp;<b>then</b> head(b)+merge(tail(b), c)<br>
+&nbsp;&nbsp;<b>else</b> merge(c, b)
+</p>
+<p>All of the second presentation depends on you "understanding" some
+notation.  First off, you need to know that "+" means list concatenate
+and that the right has to know what the left did.</p>
+<p>
+left(a)+right(a) = a
+</p>
+<p>Secondly you must think about the partially defined
+nondeterministic choice functions left and right.  One does not want
+either to produce the empty string (why?).  In fact, the
+subscript-style merge algorithm insisted on them having the same
+length (within one).  What if they don't?
+</p>
+
+<p>So, the question is left to you.  <b>Which notation is better?</b>
+You might consider that the first is more precise and leads directly
+to a C implementation.  But then do you understand the algorithm better
+from the "speaking" of it, the "blizzard" of subscripts, or the freewheeling
+list-oriented presentation?  Or, do you want all three?
+</p>
+
+<p>One thing we often value in a notation is what it prevents us from
+writing.  Notationally, the subscript-style merge can place any value
+anywhere.  The list-style merge only examines the head of the list.
+Thus there are lots of bad things that cannot happen, and therefore do
+not need to be understood.
+</p>
+
+<p>Would you prefer an iterative merge instead of the recursive one?
+It takes a little more notational machinery.</p>
+
+<p>
+merge(b, c) = <br>
+&nbsp;&nbsp;d=empty;<br>
+&nbsp;&nbsp;<b>while</b> length(b+c) >= 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>if</b> head(b+infinity) <= head(c+infinity)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>then</b> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d = d+head(b);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b = tail(b);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>else</b> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d = d+head(c);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c = tail(c);<br>
+&nbsp;&nbsp;return d;
+</p>
+
+<h2>Conclusion</h2> 
+
+<p>There may be a scientifically valid answer to the questions I raise
+here.  I do not know of one.  I find myself expressing preferences
+that are clearly related to my education and interests.  Winning
+notations somehow generalize the personal -- they manage to occupy a
+Darwinian niche in the clashes of individuals and nationalities and
+disciplines.  They are forever insecure, replacable by something
+luckier or perhaps better adapted to a new environment (such as HTML
+or UNICODE or PDF).  Such is life.</p>
+
+<hr>
+Created: <i>Tuesday, April 16, 2002</i><br>
+Last modified: <i>
+May 22, 2002
+</i><br>
+email: McKeeman{at}Mathworks{dot}COM<br>
+<!-- the following table end provides margins and textbook like appearance -->
+</td><td width=50></td></tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+% FILE:		    ReferenceX.tex
+% PURPOSE:  	Reference Manual for X
+% COPYRIGHT:  W.M.McKeeman 2007
+% 		latex description of X
+
+\input xhead
+
+\begin{document}
+
+\begin{center}
+  \begin{small}
+    \noindent --contents of Reference Manual for X--
+    \begin{quote} \raggedright
+      Whitespace\\
+      Comments\\
+      Names\\
+      Types, Constants and Expressions\\
+      Assignment, Input and Output\\
+      Statements\\
+      Programs\\
+      Variables, Implicit Name Introduction\\
+      Control: Selection and Iteration\\
+      Guards: Logical Operators\\
+      Subprograms\\
+      Assertions\\
+      Errors\\
+    \end{quote}
+  \end{small}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+ {\large \bf Informal Reference Manual for X} 
+\end{center}
+\vspace{1em}
+
+People, even programmers, can use language with very little 
+{\em a priori\/} knowledge.  We all generalize from examples, 
+guess intentions, and succeed in communicating long before the 
+schools and textbooks round out our native tongue.  
+
+The language used here is named X;  
+it is inspired by the language used by Edsger Dijkstra in his book
+{\em A Discipline of Programming}.
+Do not look for declarations, data structures or explicit input/output.
+Otherwise your expectations from other programming languages will be close 
+enough.  
+
+Reaching for the elegance of scientific notation, 
+Dijkstra typeset his programs, using a variety of mnemonic glyphs.
+As a practical matter, compiler input must be readily prepared and modified.  
+An \tname{ascii} compromise has been chosen for \tname{x} source input.  
+The compiler \tname{xcom} can, upon request, typeset its input program.  
+If you extend \tname{xcom}, you should also extend the typesetting.
+
+The input format (not the typeset format) is used for the examples.
+
+\subsubsection{Whitespace}
+
+Except to separate other symbols in X, whitespace symbols are ignored.
+
+\subsubsection{Comments}
+
+Text starting with \bq\ to the end of line is a comment.  A comment is 
+equivalent to whitespace.  If pretty printing is used, the comment
+body is interpreted as LaTeX and therefore {\em must conform}
+to the LaTeX rules for the interpretation of characters.
+
+\subsubsection{Names}
+
+The concept of a {\em name} -- a sequence of letters and digits -- is 
+universal in programming languages.  In X some names are reserved and 
+the rest may be used for program constructs.
+
+An {\em operator name\/} is similar -- a sequence of operator 
+symbols.\footnote{Frank DeRemer (of LALR fame) suggested this idea.}  
+Thus {\tt +}, {\tt :=} and {\tt <=} are operator names in \tname{x}.  
+The operator name concept provides a handy form for extensions to \tname{x}.
+The operator symbols used in operator names in X are
+
+\begin{verbatim}
+    & * + - / : < = > ? | ~
+\end{verbatim}
+
+\noindent If other symbols are actually used, the list above is 
+automatically extended.  Extra whitespace is sometimes required.  
+For example
+\begin{verbatim}
+  x:=-3;
+\end{verbatim}
+\noindent will cause a compile error because {\tt :=-} is not an operator.  
+
+The rest of the symbols in X stand for themselves.
+
+\subsubsection{Types, Constants and Expressions}
+
+\tname{x} has three data types: logical, integer, and 
+real.\footnote{These three data types are needed to express decisions, 
+counting and measurement, thus they are available in almost every 
+programming language.}  
+Each type has manifest constants (e.g. {\tt true}, {\tt 1}, {\tt 1.0}).  
+Integer constants cannot be used where real values are required.
+
+The operators and builtin functions of \tname{x} are given below.  
+The signature {\em c(dd)} means the operator accepts two arguments of type 
+{\em d} and returns type {\em c}.  
+Most numeric operators have two signatures each (polymorphic).  
+The letters {\em bir\/} stand for the three X types respectively.
+
+\begin{tt}
+\begin{tabbing}
+xxxxxx\=xxxxxxxxxxxxxxx\=xxxxxxxxxx\=xxxxxxx\=\kill
+\>\em signatures        \>\tt op\>{\em meaning}                       \\
+\>\em i(i)  r(r)        \>-x     \>   {\rm minus} x                   \\
+\>\em i(ii) r(rr)       \>x+y    \>x  {\rm plus} y                    \\
+\>\em i(ii) r(rr)       \>x-y    \>x  {\rm minus} y                   \\
+\>\em i(ii) r(rr)       \>x*y    \>x  {\rm times} y                   \\
+\>\em i(ii) r(rr)       \>x/y    \>x  {\rm divided by} y              \\ 
+\>\em i(ii)             \>x//y   \>   {\rm remainder of} x {\rm divided by} y \\
+\>\em b(ii) b(rr)       \>x<y    \>x  {\rm less than} y               \\
+\>\em b(ii) b(rr)       \>x<=y   \>x  {\rm less than or equal} y      \\
+\>\em b(ii)             \>x=y    \>x  {\rm equal} y                   \\
+\>\em b(ii)             \>x\tw=y \>x  {\rm not equal} y               \\
+\>\em b(ii) b(rr)       \>x>=y   \>x  {\rm greater than or equal} y   \\
+\>\em b(ii) b(rr)       \>x>y    \>x  {\rm greater than} y            \\
+\>\em b(b)              \>\tw x  \>   {\rm not} x                     \\
+\>\em b(bb)             \>x\&y   \>x  {\rm and} y                     \\
+\>\em b(bb)             \>x|y    \>x  {\rm or} y                      \\
+\>\em (bb) (ii) (rr)    \>x:=y   \>x  {\rm assigned the value of} y   \\
+\>\em i(b)              \>b2i(x) \>   {\rm integer form of logical} x \\
+\>\em r(i)              \>i2r(x) \>   {\rm real form of integer} x    \\
+\>\em i(r)              \>r2i(x) \>   {\rm integer form of real} x    \\
+\>\em r()               \>rand   \>   {\rm random real}
+\end{tabbing}
+\end{tt}
+
+\noindent 
+The type constraints of builtin signatures are used to infer and/or 
+check types of operands.  
+It is possible to write an \tname{x} program where the type of some 
+variables are ill-defined.  
+For example, x and y are inferred to have the same type below, 
+but that type itself is not yet determined.
+\begin{verbatim}
+  x := y
+\end{verbatim}
+This particular type ambiguity can be remedied by inserting 
+non-effect arithmetic such as addition of zero.
+\begin{verbatim}
+  x := y+0
+\end{verbatim}
+forcing the type to integer.
+
+Type inference provides the capability normally given to declarations in 
+other programming languages.
+
+There is one more type reserved for function names.  
+Function names can only be assigned, 
+passed as parameters or return values, or called.
+
+Arithmetic is native to the hardware: IEEE floating point for
+real, 2's complement for integer, and true/false for logical.  
+Comparisons for equality between real values are not allowed because 
+such a comparison does not make numerical sense.
+
+\subsubsection{Assignment, Input and Output}
+
+If one writes a program consisting of a single assignment:
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>h := 1;\>\bq\ this is a comment
+\end{tabbing}
+\end{tt}
+
+\noindent
+one infers that {\tt h} is an integer-valued variable which will be 
+assigned the value {\tt 1}.  
+This assignment to {\tt h} is apparently wasted, since the value is not 
+subsequently used.  
+When this program is run, it will present the output
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>h := 1
+\end{tabbing}
+\end{tt}
+
+\noindent
+That is, output is achieved in \tname{x} by reporting wasted assignments.  
+One can now intuit that undefined variables in the program:
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>\verb@b := c | d < 3.1;@  \>\bq input required 
+\end{tabbing} 
+\end{tt}
+
+\noindent
+will require input values for \vname{c} and \vname{d}.  
+Indeed, when this program is run, the user will be asked, in turn:
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>\tt logical input c := ? \\
+\>\tt real input d := ?
+\end{tabbing}
+\end{tt}
+
+\noindent
+Upon receiving a logical value for \vname{c} and a real value for \vname{d}, 
+the program will run and report the final value of \vname{b} upon 
+completion.
+
+The form of an assignment is a list of variables followed by an equally 
+long list of expressions separated by an assignment operator.
+The effect is as if all the right-hand side expressions were evaluated, 
+and then each simultaneously assigned to its corresponding left-hand side.  
+In particular, the assignment
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>x,y := y,x
+\end{tabbing}
+\end{tt}
+
+\noindent
+exchanges the values of \vname{x} and \vname{y}.  
+
+The result of assignment where the left-hand side contains a single name 
+more than once is not defined.\index{undefined}
+
+\subsubsection{Statements}
+
+There are, in addition to assignments, three other kinds of statements 
+in \tname{x}.  Here are some examples of statements:
+
+\vspace{1ex}
+
+\noindent {\em assignment} 
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>r, i, b := 1.0, i+2, true
+\end{tabbing}
+\end{tt}
+
+\noindent {\em selection}
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>if x < y  ? x := y-1  \\
+\>::\ x = y ?           \\
+\>::\ x > y ? x := y+1  \\
+\>fi
+\end{tabbing}
+\end{tt}
+
+\noindent {\em iteration} 
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>do x < y ? x := x+7.111  \\
+\>od                       \\
+\end{tabbing}
+\end{tt}
+
+\noindent {\em calling a subprogram}
+
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>r, y := myfun := 3.14, 37, false
+\end{tabbing}
+\end{tt}
+
+\subsubsection{Programs}
+
+Where one statement can appear, a list of statements separated by 
+semicolons can appear.  
+Statements are executed in the order of the list containing them.  
+A statement list can be empty; a trailing semicolon never causes trouble.
+
+A program is a list of statements.  The meaning of a program is its 
+input/output mapping; the effect of running a program is to display an 
+instance of that input/output mapping.  
+All input is collected before program execution and no output is 
+reported until the completion of execution.
+
+The input requests and output reports appear in the order in which the 
+variables appear in the program.  The runtime system must supply sufficient 
+information to make the input/output actions unambiguous
+--- associating the name of the variable and its value is sufficient.
+(The wise programmer will pick mnemonic names.)
+
+The instantaneous state of a program is a set of variable-value pairs.
+The values of variables change during execution.  
+The dynamic sequence of changes is, by intention, invisible to the user.  
+The initial state is provided by input; the final state is reflected as 
+output; what happens in between is the compiler writer's private business.
+
+\subsubsection{Variables, Implicit Name Introduction}
+
+A name appearing in an X program has only one meaning.  It must be reserved, 
+or name a subprogram, or name a variable.  The attributes of each name
+are derived from the context surrounding its uses.
+Any program variable appearing only in an expression is an 
+{\em input variable}; 
+one appearing only on the left of an assignment is an {\em output variable}. 
+If a variable is used before it is assigned, 
+the value is undefined.\index{undefined}
+
+\subsubsection{Control: Selection and Iteration}
+
+There are two control constructs in \tname{x}, selection (\mbox{\tt
+if-fi}) and iteration (\mbox{\tt do-od}).  
+Within \mbox{\tt if-fi} brackets there is a set of alternatives.  
+Each alternative consists of a guarding logical expression followed by a 
+statement list.
+
+The meaning of a selection is the meaning of the statement list behind 
+the first true guard\index{guard} and, if there are no true guards, 
+the meaning is {\em abort}. 
+The order of tests means that the final guard can be {\tt true}
+which then behaves as {\tt else} in other languages.
+
+Except for the delimiters, an iteration has the same form as a selection, 
+and also executes the statement list behind the first true guard.  
+If there is no true guard, the iteration terminates, otherwise it repeats.
+
+Dijkstra chose nondeterministic, as contrasted to first true value, 
+for selection and iteration.  
+That choice makes more sense for program generation than it does for
+programming.
+
+\subsubsection{Guards: Logical Operators}
+
+The guards are logical expressions, combining relations over numeric 
+expressions and the constants {\tt true} and {\tt false} with logical 
+operators.  
+It is in the nature of \tname{x} that guards cannot change the state of 
+the program since there are no side effects (except for builtin {\tt rand}).
+
+\subsubsection{Subprograms}
+
+Any program also defines a subprogram.  In the calling syntax, 
+the {\em actual input\/} expressions are on the right; 
+the {\em actual output\/} variables are on the left.  
+A subprogram named {\tt xyz} is defined in file {\tt xyz.x}.  
+For example, if {\tt xyz.x} has two outputs and three inputs,
+the following line of \tname{x} code will call it.
+\begin{tt}
+\begin{tabbing}
+xxxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+\>\verb@a,b := xyz := a+1.0, true, 13;@  \>\bq call xyz 
+\end{tabbing} 
+\end{tt}
+\noindent 
+The call must supply the expected number and type of inputs; 
+the number and type of outputs must correspond to the left-side of the 
+call syntax.
+
+The function identifier can be a function type variable.  
+Such a variable must have been assigned a literal function name,
+either directly or indirectly.
+
+Any subprogram can be run standalone; 
+it will request values for its inputs and report its outputs.  
+All files that mutually reference each other must be compiled and run 
+together.  Recursion is allowed.
+
+\subsubsection{Assertions}
+
+In \tname{c} one can write {\tt assert(expr)} to insure that the {\tt expr} 
+evaluates to {\tt true} every time the assertion is executed.
+Programmers use this construct to document and automatically check the 
+conditions under which this code should work long after the original 
+author has turned attention elsewhere.  In \tname{x} one writes
+
+{\tt if expr ? fi;\quad\quad     \bq\ reason for check} 
+
+\noindent to achieve the same effect.  
+If the {\tt expr} evaluates to {\tt false}, the selection fails and
+the \tname{x} program aborts.
+
+\subsection{Errors}
+
+Debugging an \tname{x} program can be difficult. 
+If the \tname{x} program is in an infinite loop, 
+only killing MATLAB will stop it.
+One can then run under emulation to see where the problem is.
+Inserting assignments in the \tname{x} program 
+and waiting for output after execution is a way to see
+what intermediate values were.
+
+\end{document}
+

@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Intelx86.html
+     PURPOSE:   Describe Intel x86
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.11.08 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Intel x86
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Intelx86.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Intel x86</H3>
+</CENTER>
+
+<H4>Memory</H4>
+<P>
+Memory is addressed to the byte; it is 
+<A HREF="http://en.wikipedia.org/wiki/Endianness">little-endian</A>.
+To avoid over-complicated explanations, suppose that there are
+three different instructions to load a value from memory into a 32-bit
+register
+</P>
+<BIG>
+    <PRE>
+        LOAD8  addr
+        LOAD16 addr
+        LOAD32 addr
+    </PRE>
+</BIG>
+<P>
+... and suppose the bytes of memory at addr contain 
+</P>
+<BIG>
+    <PRE>
+        123456789...
+    </PRE>
+</BIG>
+... then the loaded register will contain
+<BIG>
+    <PRE>
+        0001
+        0021
+        4321
+    </PRE>
+</BIG>
+<P>
+The consequence is that looking at a memory dump gives a different
+byte order than looking at a register.  
+It takes some getting used to and requires little-endian emitters
+to put word-values into memory in the right order.
+</P>
+
+<H4>Registers</H4>
+
+<TABLE ALIGN="center" BORDER="1">
+<TR>
+  <TD ALIGN="right"><EM>number</EM></TD>
+  <TD><EM>name</EM></TD>
+  <TD ALIGN="center"><EM>use</EM></TD>
+</TR>
+<TR><TD></TD><TD>EIP</TD><TD>program counter</TD><TR>
+<TR></TR>
+<TR><TD>0</TD><TD>EAX</TD><TD>int32 accumulator</TD><TR>
+<TR><TD>1</TD><TD>ECX</TD><TD>int32 accumulator</TD><TR>
+<TR><TD>2</TD><TD>EDX</TD><TD>int32 accumulator</TD><TR>
+<TR><TD>3</TD><TD>EBX</TD><TD>int32 accumulator</TD><TR>
+<TR><TD>4</TD><TD>ESP</TD><TD>int32 stack top</TD><TR>
+<TR><TD>5</TD><TD>EBP</TD><TD>int32 frame base</TD><TR>
+<TR><TD>6</TD><TD>ESI</TD><TD>pointer</TD><TR>
+<TR><TD>7</TD><TD>EDI</TD><TD>pointer</TD><TR>
+<TR></TR>
+<TR><TD></TD><TD>EFLAGS</TD><TD>status bits</TD><TR>
+</TABLE>
+
+<P>
+  The register names drip with history.  
+  This general architecture started as a 4-bit machine,
+  then grew to 8, 16, 32, and 64.  
+  The x86 is the 32-bit stopover.
+  There were previous names such as A, AH, AL, AX for what now
+  is the EAX, or Extended Accumulator eXtended.  
+  The old names are still used for various reasons,
+  one of which is backward compatibility.
+  What happens in the registers is 32-bit 2's complement arithmetic.
+  What the values are used for is <B>integer arithmetic</B> 
+  and <B>memory addressing</B>.
+</P>
+<P>
+One can do a little research project to find out why EAX, EBX...
+are not in alphabetical order.  And one can try to guess without
+looking how the 32-bit names are extended again for the 64-bit CPU.
+</P>
+
+<P>
+EIP is the <B>program counter</B>.  
+It addresses 2<SUP>32</SUP> bytes of memory.
+Instructions are variable length (1 byte to 10 or more).  
+EIP is always pointing at the next thing to do.
+It clicks on all by itself until a branch happens.
+Branch addresses are normally self-relative.  
+It is easy to make a mistake and be off by one.  
+It is usually exciting to branch into the middle of some other instruction.
+</P>
+
+<H4>Accumulators</H4>
+
+<P>
+The registers 0-3 are used by <B>xcom</B> as accumulators.
+EAX sometimes is "special," 
+so the code generator has to dance around a bit while using it.
+The registers 4-7 are even more "special."
+</P>
+
+<H4>Calling Sequence</H4>
+<P> 
+  Registers ESP and EBP (4,5) are used exclusively for 
+  subroutine call and return.
+  They contain the information for maintaining the hardware run stack.
+  As it happens, the run stack 'grows' toward address zero
+  so the 'top' of the stack is at the lowest address.
+  ESP points at the top of the hardware run stack.  
+  EBP points at the base of the current hardware stack frame.
+</P>
+<P>
+  Each subroutine call needs a new frame.
+  Memory beyond ESP is free to use, so (the old) EBP is
+  pushed onto the stack and reset to ESP.  
+  The new frame is then using free stack space.
+  The called routine must then set ESP to point beyond the new stack frame, 
+  again resuming is role in pointing to the next available memory.
+</P>
+
+<P>
+    The state of the CPU has to be preserved across the calling sequence.
+    The buzz-words are <B>caller save</B> and <B>callee save</B>.
+    What they mean is either that the caller saves things it needs
+    so that it can restore them after the call returns,
+    or that the subroutine saves things immediately upon entry, 
+    then restores them just before returning.
+    There are advantages to both in avoiding unneccessary saves.
+    In <B>xcom</B>, callee save/restore is implemented.
+</P>
+<H4>Data Pointers</H4>
+<P>
+Registers ESI and EDI (6,7) are normally used to deal with blocks of memory;
+<B>xcom</B> hijacks ESI as a pointer to the (malloc-d) X frame.
+</P>
+
+<H4>Flags</H4>
+<P>
+The flag bits change every time the status changes, 
+perhaps after every instruction.
+The flag bits get set, for example, by comparison instructions.
+The flag bit values have to be used "right away" to avoid clobbering them.
+</P>
+<P>
+The flags used by <B>xcom</B> are CF, SF, ZF and PF meaning carry flag,
+sign flag, zero flag and parity flag.
+The zero flag ZF is 1, for instance, if the last result was zero.
+</P>
+
+<H4>Floating Point Unit</H4>
+<P>
+IEEE floating point computations are executed in the FPU.
+It used to be a separate piece of hardware which had to communicate
+off-chip with the instruction execution unit.  
+The communication instructions are still used 
+even though it is all on one chip now.
+The FPU has eight 80-bit wide registers organized as a stack 
+and 8 1-bit tags.  Tag value 1 means useful data is in the register.
+The top of the FPS is always numbered R0. The FPS is accessed with 
+<A HREF="http://en.wikipedia.org/wiki/Reverse_Polish_notation">Reverse Polish</A>
+instructions.  Here is a picture with two numbers on the FPS.
+<TABLE ALIGN="center" BORDER="1">
+<TR>
+  <TD ALIGN></TD>
+  <TD ALIGN="center"><EM>value</EM></TD>
+  <TD ALIGN=><EM>tag</EM></TD>
+</TR>
+<TR><TD>R0</TD><TD ALIGN="right">1.11</TD><TD>1</TD><TR>
+<TR><TD>R1</TD><TD ALIGN="right">0.0073</TD><TD>1</TD><TR>
+<TR><TD>R2</TD><TD></TD><TD>0</TD><TR>
+<TR><TD>R3</TD><TD></TD><TD>0</TD><TR>
+<TR><TD>R4</TD><TD></TD><TD>0</TD><TR>
+<TR><TD>R5</TD><TD></TD><TD>0</TD><TR>
+<TR><TD>R6</TD><TD></TD><TD>0</TD><TR>
+<TR><TD>R7</TD><TD></TD><TD>0</TD><TR>
+</TABLE>
+Both the significand and exponent carry more bits in the FPU than in memory.  
+The FPU state can be set to ignore the extra significand bits,
+but not the extra exponent bits.  FPS overflow discards the bottom value.
+Don't cause it to happen.  
+<B>xcom</B> in fact only uses two of the FPS stack entries.
+</P>
+
+<H4>FPU Status Word</H4>
+<P>
+Corresponding to the flags, there are status bits in the FPU.
+They are needed for conditional branches. 
+To get them into the flags, there are instructions that move
+the FPU status bits into EAX, and then into the flags.
+This is one of the places where EAX is "special".
+</P>
+
+<H4>Instructions</H4>
+<P>
+The Intel names for instructions are just a little too abstract
+for direct use in the xcom assembler.  
+It is important to know the addressing mode.
+Thus there is an <B>xcom</B> convention shown in the following examples.
+</P>
+<CENTER>
+<TABLE BORDER="1">
+<TR>
+    <TD><BIG><TT>fldM</TT></BIG></TD>
+  <TD>floating load from memory (ESI relative)</TD>
+</TR>
+<TR>
+  <TD><BIG><TT>fstMp</TT></BIG></TD>
+  <TD>floating store into memory (ESI relative) and pop FPS</TD>
+</TR>
+<TR>  
+  <TD><BIG><TT>faddp</TT></BIG></TD>
+  <TD>floating add and pop FPS</TD>
+</TR>
+<TR>
+  <TD><BIG><TT>fcompp</TT></BIG></TD> 
+  <TD>floating compare and two pops of FPS</TD>
+</TR>
+<TR>
+  <TD><BIG><TT>fldA</TT></BIG></TD>   
+  <TD>floating load absolute (literal x86 address)</TD>
+</TR>
+<TR>
+  <TD><BIG><TT>movRM</TT></BIG></TD>
+  <TD>move from memory (ESI relative) to a general register </TD>
+</TR>
+<TR>
+  <TD><BIG><TT>movRC</TT></BIG></TD>
+  <TD>move a constant into a general register</TD>
+</TR>
+<TR>  
+  <TD><BIG><TT>movMR</TT></BIG></TD>
+  <TD>move a general register into memory (ESI relative)</TD>
+</TR>
+<TR>
+  <TD><BIG><TT>addRR</TT></BIG></TD>
+  <TD>add register to register</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>
+The official documents from Intel:
+<UL>
+<LI>
+<A HREF="http://developer.intel.com/design/pentium/manuals/24319101.pdf">
+Architecture Software Developer's Manual Vol 2</A>
+Instruction Set Reference (566 pp)
+</LI>
+<LI>
+Intel 64and IA-32 Architectures Software Developer's Manual
+<UL>
+<LI>
+<A HREF="http://www.pentium.dk/design/processor/manuals/253666.pdf">Vol 2A</A>
+Instruction Set Reference A-M (758 pp)
+</LI>
+
+<LI>
+<A HREF="http://www.pentium.dk/design/processor/manuals/253667.pdf">Vol 2B</A>
+Instruction Set Reference N-Z (618 pp)
+</LI>
+</UL>
+</UL>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

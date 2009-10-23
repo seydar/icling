@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab3.html
+     PURPOSE:   exercises with the lexer
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 3 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab3.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>Examine, Test  and Extend the Lexer</H3>
+<P>
+  <UL>
+    <LI>
+      (10 min) Lex many different source strings as in
+      <PRE>
+        >> xcom -lexDump -noExecute x:=1
+        >> xcom -lexDump -noExecute 'if x<0? y:=1 :: x>0? y:=2fi'
+        >> xcom -lexDump -noExecute 'x:=x+(0+11-222*3333/44444)'
+        >> xcom -lexDump -noExecute 'x123 2r2i r2i2 1if if1'
+        >> xcom -srcDump -lexDump -noExecute x/sqrt.x
+        >> % your turn to choose the source text
+      </PRE>
+    </LI>
+    <LI>(30 min) Add a unit test to testLexer.m
+      (<A HREF="ans3-1.html">hints</A>)
+      <PRE>
+        >> cd mxcom/m
+        >> addpath tests
+        >> edit testLexer</PRE>
+    </LI>
+    <LI>
+      (20 min) Add builtin <A HREF="../Warmup.html">abs</A> 
+      to X (in X.cfg)
+      <PRE>
+        >> cd mxcom/m
+        >> edit X.cfg</PRE>
+      There are several builtin functions already in xcom.
+      The closest analogy to <TT>abs</TT> is <TT>r2i</TT>, 
+      which should be hint enough.
+      Test your new grammar with
+      <PRE>
+        >> c = Cfg(xread('X.cfg'), {'-noLR'}) </PRE>
+      To actually test the lexer with the newly added builtin,
+      you must save the new grammar tables, add a test to testLexer.m
+      then try the unit test.
+      <PRE>
+        >> makeCfg X.cfg -noLR -saveMat;
+        >> testLexer()</PRE>
+      Note: saving the CFG MAT file clobbers 
+      the original MATLAB CFG MAT file.  
+      This probably won't cause you any trouble unless you try a
+      program using identifier 'abs'.  
+      You can restore the original MAT file by first taking abs
+      out of X.cfg then rerunning
+      <PRE>
+        >> makeCfg X.cfg -saveMat</PRE>
+    </LI> 
+  </UL>
+  <EM>If you get your xcom irretrievaly messed up, you can always download 
+  a fresh xcom and start over again.</EM>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

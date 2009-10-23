@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Pedagogy.html
+     PURPOSE:   What and how of presenting the material
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Pedagogy
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Pedagogy.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Pedagogy</H3>
+</CENTER>
+
+<SMALL>
+<P ALIGN="right">
+You are lying, the student said.<BR>
+You are learning, the teacher replied.
+</P>
+</SMALL>
+
+<H4>Motivation</H4>
+<P>
+  <A HREF="Vision2004.pdf">My vision</A><BR>
+</P>
+
+<H4>Teaching Approach</H4>
+<P>
+  The material
+  is suitable for advanced undergraduate or beginning graduate study.
+</P>
+<P>
+  The approach is to <EM>learn through doing</EM>. 
+  A course <A HREF="Projects.html">project</A>, 
+  enchancing a <B>small compiler</B>,
+  is the centerpiece of the course in an academic setting.
+  Completing a project will take the student into each phase of
+  the small compiler, 
+  and therefore into such theory as is necessary to understand
+  how the parts and the whole work.
+</P>
+
+<P>
+  Because I learn better from examples, and then generalizing,
+  that is the way this material is presented.
+  If you prefer to learn the general case first, you might choose
+  to access the pages in a different order.
+</P>
+
+<P>
+  The treatment is complete, from source text to making and executing
+  machine language. 
+</P>
+
+<H4>Presentation</H4>
+<P>
+  Several file types are used in the presentation.  
+  Where mathematical typesetting is required, 
+  the material is in PDF generated from LaTeX.
+  Some of the material was produced in MicroSoft PowerPoint, 
+  then saved in PDF format.  The dot-PPT files are also retained.  
+  This PPT option was used when the graphics was convenient,
+  and also to replace the proverbial talking-head-at-the-whiteboard
+  with a sequence of pages showing dynamic behavior.
+  The rest of the pages are in hand-produced HTML.
+
+</P>
+
+<P>
+  In-program documentation of M files is provided so as to be accessible
+  to the MATLAB HELP function.  
+  Usually a description of the interface shows in the help 
+  and more detailed internal descriptions follow, 
+  separated by a blank line from the help material.
+  The details are examined by looking at the source file itself.
+</P>
+
+<H4>Implementation Language</H4>
+<P>
+  Compilers, like other systems programs, are executed often and must
+  therefore be "as fast as possible," whatever that means to the reader.
+  The xcom compiler, on the other hand, is changed often.  
+  MATLAB usability is more suitable to the xcom goals than C/C++ efficiency.
+  A linux-based <B>C++ implementation</B> of xcom is available 
+  as a starting point for a student who wants to "move up" to a 
+  production compiler still based on language X.  
+  For those really interested in compiler speed, 
+  a linux-based <B>C implementation</B> called <B>hyper</B> 
+  implementing a lot of speed-up tricks is also available.
+</P>
+
+<P>
+  The course does not depend on or explain popular compiler
+  component generators (such as lex, yacc).
+  It also does not use vendor-supplied components such as assemblers,
+  linkers and loaders.  Except, of course, MATLAB itself.
+</P>
+<H4>Mathematics</H4>
+<P>
+  All programmers like formulas -- they write them every day.  
+  But some programmers do not like mathematics.  
+  It seems that these programmers like to <EM>do</EM> things 
+  rather than <EM>prove</EM> things.  
+  In this course mathematical formulas are used to <EM>describe</EM> things, 
+  so the math-adverse might want to avoid jumping to conclusions 
+  at the first appearance of <FONT SIZE="4">&alpha;</FONT>.  
+  The reader is expected to be comfortable with logic, sets and relations, 
+  familiar with computer hardware, and competent in MATLAB.
+</P>
+<P>
+  The mathematical notation not only serves as a concise and
+  intellectually satisfying means of expressing compiler theory,
+  but also serves as a source of ideas for extensions to the compiler.
+  All the <A HREF="Notation.pdf">notation</A> 
+  used in the descriptions is summarized separately.
+</P>
+
+<H4>Thank You</H4>
+<P>
+  These pages contain many ideas.  
+  The presentation is, of course, the responsibility of this author.  
+  The ideas are credited to the original source when I know it.  
+  My personal coaches have included Niklaus Wirth, Dave Dahm, 
+  Jim Horning, Dave Wortman, John Guttag, Roy Levin, Bill Rousseau, 
+  Frank DeRemer, Tom Pennello, Gary Pollice, Bob Morgan, Alan Martin, 
+  Neil Faiman, Chip Nylander, Mike Karr, John Micco, Steve Johnson, 
+  Michael Fromberger, Hongjun Zheng, Luther Johnson, the membership of 
+  the IFIP Working Group on Programming Methodology and more than 1000
+  students who have taken my course.
+  My everyday reference is the 
+  <EM>Dragon Book</EM> by Aho, Sethi and Ullman.  
+  My usual compiler course text is 
+  <EM>Modern Compiler Implementation in C</EM> by Appel.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

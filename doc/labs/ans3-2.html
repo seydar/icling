@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Regular Expression for C Comments</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<META content="MSHTML 6.00.2900.3268" name=GENERATOR></HEAD>
+<BODY bgColor=#fff0d0><!-- the following table head provides margins and textbook like appearance -->
+<TABLE><TBODY><TR><TD width=50></TD><TD width=600>
+   
+<P>
+    This is an answer to one of the regular expression exercises.
+</P>
+
+<P>
+  The C comment, /*...*/ can be described by a regular expression. 
+  Do so. 
+  Prove that your solution describes all, and only, C comments. 
+</P>
+
+<H3>Don't peek unless you are done working on the problem!</H3>
+<PRE>
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+
+|
+V
+
+</PRE>
+<H3>Answer by McKeeman</H3>
+<P>
+  <EM>From the C standard 6.4.9</EM>...Except within a character 
+  constant, a string literal, or a comment, 
+  the characters /* introduce a comment. 
+  The contents of a comment are examined only to identify 
+  multibyte characters and to find the characters */ that terminate it.
+</P>
+<P>
+  One must be a bit of a C lawyer here. 
+  /* introduce a comment. 
+  OK, then I infer the /* are not part of the contents of the comment. 
+  On the other hand, the terminating */ <EM>are</EM>&nbsp; a part 
+  of the contents because they are found when examining the contents. 
+  Because the definition would make no sense otherwise, 
+  I also infer that there are no earlier terminating */ in the contents. 
+  It is this sloppily worded definition which 
+  we are asked to implement and prove. 
+  We take advantage of the ill-definition by merely 
+  requiring our proofs to be convincing.
+</P>
+<P>
+  First, some simplifications. 
+  The <TT>*</TT> in C gets tangled up with 
+  the Kleene star of regular expressions 
+  and except for <TT>/</TT> and <TT>*</TT>, 
+  all the other characters in a C comment are equivalent. 
+  Therefore we introduce a 3-element universe of 
+  <PRE>
+    <B>U:</B> / x .
+  </PRE>
+  where <TT>/</TT> stands for itself, <TT>x</TT> stands for the ASCII
+  <TT>*</TT>, and <TT>.</TT> stands for all the other characters in C. 
+  For example 
+  <PRE>
+    /x...x/
+  </PRE>is a C comment in our artificial universe. 
+  The rest of ASCII can now be used for regular expression meta characters.
+</P>
+<P>
+  Suggestion 1 (by Doug McIlroy) 
+<PRE>
+  /x~(U*x/U*)x/
+</PRE>
+  This can be read as "a C comment is <TT>/x</TT> followed by anything 
+  but a string that contains <TT>x/</TT>, followed by <TT>x/</TT>". This 
+  suggestion not exactly an answer because "not such and such a string" is 
+  not a regular expression. But it is elegant, obviously correct, and leads 
+  to other solutions.
+</P>
+
+<P>
+  Suggestion 2 (DFA)
+</P>
+<P>
+  The spine of the diagram points down. The transitions on the right 
+  point up. State 4 is final. The table of triples gives the same 
+  information; it is actually a CFG for a DFA.
+</P>
+<PRE>
+                                   go in see 
+    0                               1  0 /
+   /|                               2  1 x
+    1                               2  2 /
+   x|                               2  2 .
+    +--+--+--+                      3  2 x
+    2 /| .|  |                      3  3 x
+    +--+--+  |                      2  3 .
+   x|       .|                      4  3 /
+    +--+     |
+    3 x|     |
+    +--+-----+
+   /|
+    4
+</PRE>
+<P>
+  One reads the diagram as "in state 0, if you see <TT>/</TT>, eat it and 
+  transition to state 1..." This suggestion is not exactly an answer either 
+  since a DFA is only equivalent to a regular expression.</P>
+  <P>Suggestion 3 (regular grammar)</P>
+  <P>Using the everyday notation for grammars, we can describe the DFA with 
+  rules that have exactly 2 or zero symbols on the RHS. The rules can only 
+  be applied to a string that already contains a nonterminal (e.g. a state). 
+  So there is a special rule for 0 that is created out of nothing to get 
+  things started. 
+</P>
+<PRE>
+0
+
+1
+  0 /
+2
+  1 x
+  2 /
+  2 .
+  3 . 
+3
+  2 x
+  3 x
+  4
+  3 /
+</PRE>
+<P>
+  [Note to the student] Parse various candidates for comment and 
+  non-comment to check the grammatical interpretation of regular 
+  expressions. For example
+</P>
+<PRE>
+/x/
+/xx/
+/x/x/
+</PRE>
+Here is the simplest parse: 
+<PRE>
+/xx/
+0/xx/
+1xx/
+2x/
+3/
+4
+</PRE>
+<P>Suggestion 4 (back substitute and simplify the regular grammar)</P>
+<P>
+  Two everyday rules of the form 
+<PRE>
+n
+  y
+  n x
+</PRE>
+can be rewritten 
+<PRE>
+n
+  y x*
+</PRE>
+Continuing in this way you get 
+<PRE>
+4
+  /x(/|.|x+.)*x+/
+</PRE>
+<P>
+  which, as it turns out, is the best known regular expression describing 
+  C comments (first shown to me by Steve Johnson).
+</P>
+<P>
+  So, what can be proven?
+</P>
+<P>
+  Lemma: the strings described by regular expression 4 start with 
+  <TT>/x</TT> and end with a different <TT>x/</TT> (eliminating bogus 
+  solution /x/). This follows directly from the meaning of the regular 
+  expression. 
+</P>
+<P>
+  Lemma: the sequence <TT>x/</TT> never occurs in <TT>( / | . | x+ . )* </TT><BR>
+  Proof: <TT>x</TT> is always followed by <TT>x</TT> or <TT>.</TT> 
+</P>
+<P>
+  Lemma: the sequence <TT>x/</TT> occurs exactly once in the contents 
+<PRE>
+  ( / | . | x+ . )*  x+ /
+</PRE>
+  Proof: The end of the contents is <TT>( / | . ) x+ /</TT> and the 
+  only place <TT>x</TT> precedes <TT>/</TT> is at the end.
+</P>
+
+<P>
+  OK, we know that the /x and x/ behave. But are all legal comments 
+  permitted? That is the implication of the McIlroy suggestion.
+</P>
+<P>
+  Try induction. Consider the set of strings /x alpha x/ where alpha is 
+  of length n. We can assume by induction that the set of strings alpha 
+  contains every string of length n not containing the pair
+</P>
+<P>x/ 
+</P>
+<P>
+  Extend each alpha by 
+<P>. <BR>
+</P>
+<P>
+  There are two cases: alpha ends in x or it does not. Assume not. 
+  The extended string is recognized by the regular expression since one can 
+  add dots one at a time until the final string of x-s. Assume so. Then 
+  appending the dot creates a new x+. which moves inside the Kleene star. 
+</P>
+<P>
+  So much for adding a dot. Now consider / and x. 
+</P>
+<P>
+  Wasn't that fun?
+</P>
+<!-- the following table-end provides margins and textbook-like appearance -->
+</TD><TD width=50></TD></TR></TBODY></TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,37 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    quadratic.x
+}\\
+{\tt\char18}{\em{} PURPOSE: solve ax\^2+bx+c=0
+}\\
+{\tt\char18}{\em{} METHOD:  standard formula
+}\\
+{\tt\char18}{\em{} USAGE:   >> xcom x/sqrt.x x/quadratic.x
+}\\
+{\tt\char18}{\em{} AUTHOR:  Ashwin Ramaswamy
+}\\
+{\tt\char18}{\em{} MODS:    mckeeman
+}\\
+{\bf if}\>\ $\neg$(a\ $\leq$\ 0.0\ $\wedge$\ a\ $\geq$\ 0.0)\ $\Rightarrow$
+\\
+\>{\tt\char18}{\em{} ax^2 + bx + c = 0
+}\\
+\>root\ $\leftarrow$\ sqrt\ $\leftarrow$\ b$\times$b$-$4.0$\times$a$\times$c;\\
+\>res1\ $\leftarrow$\ $-$(b$+$root)$/$2.0;\\
+\>res2\ $\leftarrow$\ $-$(b$-$root)$/$2.0;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>\ $\neg$(b\ $\leq$\ 0.0\ $\wedge$\ b\ $\geq$\ 0.0)\ $\Rightarrow$
+\\
+\>{\tt\char18}{\em{} bx + c = 0
+}\\
+\>res1\ $\leftarrow$\ $-$c$/$b;\\
+\>res2\ $\leftarrow$\ $-$c$/$b;\\
+{\bf {f}{i}};
+\\
+\end{tabbing}
+\end{document}

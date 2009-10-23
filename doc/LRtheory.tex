@@ -1,0 +1,200 @@
+% FILE:		    LRtheory.tex
+% PURPOSE:  	How does LR1 work?
+% COPYRIGHT:    W.M.McKeeman 2008
+
+
+\input bookhead
+
+\begin{document}
+
+
+\noindent {\large \bf Building LR Tables} 
+\vspace{1em}
+
+Recall the definition of a context-free grammar
+
+\begin{center}
+\begin{equation}
+{\cal G} \eqldef \langle V_I, V_N, V_G, \Pi\rangle
+\end{equation}
+\end{center}
+
+\noindent where
+
+\begin{eqnarray*}
+     V                &\eqldef& V_I \cup V_N         \\
+     V_I \cap V_N     &\eqldef& \{\}				 \\
+     V_G	      &\subseteqdef& V_N			     \\
+     \Pi	      &\subseteqdef& V_N\times V^*
+\end{eqnarray*}
+
+A rewriting
+
+\begin{center}
+$\alpha{\rm B}\gamma\leftarrow\alpha\beta\gamma$
+\end{center}
+
+\noindent is allowed if
+
+\begin{center}
+${\rm B} \leftarrow \beta \in \Pi$
+\end{center}
+
+\noindent and is written to show the explicit \cfg\ rule application as
+
+\begin{center}
+$\alpha{\rm B}\gamma\stackrel{{\rm B} \leftarrow \beta}{\leftarrow}\alpha\beta\gamma$
+\end{center}
+
+The {\em language} defined by a \cfg\ $\cal G$ is the 
+set of strings of input symbols that can be reduced to a goal.
+\begin{displaymath}
+{\cal L(G)}  \eqldef
+	\{\alpha\ |\ G\la^*\alpha) \wedge G \in V_G\} \cap V_I^*
+\end{displaymath}
+
+
+Text $\tau \in {\cal L}({\cal G})$ (is syntactically correct) if
+
+\begin{center}
+${\rm G}\stackrel{\rho}{\leftarrow}\tau$
+\end{center}
+
+\noindent where
+
+\begin{center}
+$\rho \in \Pi^*$
+\end{center}
+
+The following operational definition of parsing forces 
+a left-to-right order on the rule applications 
+
+\begin{eqnarray*}
+  G \in V_G &\Rightarrow& {\sform}(G, \lambda)                \\
+  B\la\beta \in \Pi \wedge {\sform}(\sigma B, \tau) 
+      &\Rightarrow& {\sform}(\sigma\beta, \tau)               \\
+  a \in V_I \wedge {\sform}(\sigma {\rm a}, \tau)
+      &\Rightarrow& {\sform}(\sigma, {\rm a}\tau)             \\
+  {\sform}(\lambda, \tau) &\Rightarrow& \tau \in \cal L(G)
+\end{eqnarray*}
+
+
+Suppose we have a sequence of $n+1$ left-to-right rewritings
+(the application of the second rule in the definition above)
+
+\begin{center}
+${\rm G}\stackrel{r_n}{\leftarrow}\sigma_n{\rm A}_n\tau_n\ldots
+\stackrel{r_2}{\leftarrow}\sigma_2{\rm A}_2\tau_2
+\stackrel{r_1}{\leftarrow}\sigma_1{\rm A}_1\tau_1
+\stackrel{r_0}{\leftarrow}\tau_0$
+\end{center}
+
+\noindent where
+
+\begin{eqnarray*}
+     \tau_i       &\in& V_I^*           \\
+     {\rm A}_i    &\in& V_N             \\
+     \sigma_i     &\in& V^*             \\
+     r_i	      &\in& \Pi	            \\
+\end{eqnarray*}
+
+\noindent then $\rho=r_n\ldots r_2 r_1 r_0$ is 
+a left-to-right parse of $\tau_0$,
+and the set of values $\sigma_i{\rm A}_i$ are the values of the parse stack
+just after a substituion has been applied.
+
+Consider, for a fixed $\cal G$, the set of all such parse stacks.  
+The set is a language.  
+It can be described by a new \cfg\ $\cal G'$ in which the phrase names
+are designated by the notation [text].
+
+\begin{eqnarray*}
+V_I' &\eqldef& V                                                             \\
+V_N' &\eqldef& 
+    \{[{\rm A}\leftarrow\alpha]\;|\;{\rm A}\leftarrow\alpha\beta\in\Pi\}     \\
+V_G' &\eqldef& \Pi                                                            \\
+\Pi' &\eqldef& 
+   \{[{\rm A}\leftarrow\alpha{\rm B}]\leftarrow [{\rm A}\leftarrow\alpha]{\rm B} 
+    \;|\; 
+   {\rm B}\in V \wedge {\rm A}\leftarrow\alpha{\rm B}\gamma\in\Pi\}     \\
+   &\cup& 
+    \{[{\rm A}\leftarrow\alpha{\rm B}]\leftarrow[{\rm B}\leftarrow\lambda]
+    \;|\; 
+      {\rm B}\in V_N \wedge {\rm A}\leftarrow\alpha{\rm B}\gamma \in \Pi\} \\
+   &\cup& 
+      \{[{\rm A}\leftarrow\alpha]\leftarrow\lambda 
+    \;|\; 
+      {\rm A}\leftarrow\alpha \in \Pi\}                               \\
+{\cal G}' &\eqldef& \langle V_I', V_N', {\rm G}', \Pi'\rangle
+\end{eqnarray*}
+
+$\cal G'$ is a finite automaton.  
+The start state is $[{\rm G}\leftarrow\lambda]$.
+If one applies the NFA to DFA transformation, the
+resulting DFA can walk the catenaton of the parse stack and input text,
+reaching a final state when a rule can be applied.
+
+This is the basis of the LR technology.  
+The LR automaton walks the parse stack, 
+pulling new text off the as yet unprocessed input as necessary.
+In a final state the automaton is temporarily abandoned,
+the newly identified reduction is applied to the top of the parse stack,
+and the process starts over at the bottom of the parse stack.
+
+LR provides an implementation of the operational definition of
+parsing given above.  
+The tricky part is that more than one final state can sometimes be
+reached by the DFA.  
+Resolving the ambiguous situations with k-symbol lookahead is what
+LR(k) signifies.
+
+There is an LR(0) DFA for any \cfg.
+There are no languages of interest that can be deterministically parsed
+using an LR(0) machine; at least LR(1) is necessary.
+It turns out that the LR(1) DFA is large enough raise
+concerns for memory occupancy of the LR(1) tables.
+Much research has gone into reducing the table size.
+
+As a practical matter, LR(1) is also enough.  
+Computer language designers restrict their languages to comply.
+Both the C and Java designers had some difficulty.
+A meta-rule has been applied: the reduction that reaches
+furthest into the input text is chosen (greedy shift).
+
+Knuth's algorithm combines the construction of the DFA and 
+the transformation to NFA.  
+The LR NFA is represented by a set of sets of marked rules with lookahead.
+The marked rules correspond to the partial rules in the NFA above.
+The lookahead is a set of symbols carried along with the marked rules.
+The idea is that a final state can be ignored if there is no correct
+continuation after the application of the rule; 
+that is, if the restarted parse after the rule is applied
+will inevitably run into an error.
+
+The algorithm to build the LR(1) machine alternates two computations:
+closure and shifts.  
+After closure a set corresponds to a state of the LR(1) DFA.
+Each shift corresponds to a shift of the LR(1) DFA.
+The starting position is 
+
+\begin{center}
+$\{{\rm G}\leftarrow.\alpha\}:\{\}$
+\end{center}
+
+\noindent that is the leftmost rule marked in the leftmost place with no lookahead.
+Marked rules must be added for each phrase name immediately 
+the right of the mark. 
+The lookahead is the heads of the text immediately
+to the right of the phrase name (in the rule in which it was found).
+For LR(1), the lookahead strings have length 1.
+The process of closure is continued recursively until no additional 
+marked rules are found.
+
+For each symbol immediately to the right of the mark,
+a new set is created containing the marked rules with the 
+mark moved past the symbol.  
+Then each of the new sets must be closed.
+
+When there are no new sets. the LR machine is complete.
+
+\end{document}

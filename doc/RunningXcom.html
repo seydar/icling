@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      RunningXcom.html
+     PURPOSE:   Show how to run xcom from the MATLAB Command Line
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.11.14 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Running Xcom
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> RunningXcom.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Running Xcom</H3>
+</CENTER>
+
+<H4>The MATLAB Command Line</H4>
+<P>
+The MATLAB command line serves both as a command interpreter (like a shell)
+and a place to write programs (complex syntax).  
+The command line interpreter figures out what you are doing each time
+it looks at its line of input.
+If the MATLAB command line interpreter decides you are using it like a shell,
+it will interpret the characters as blank-separated strings;
+if it decides otherwise, it will interpret the characters according
+to the MATLAB language syntax.  
+These two modes are called <B>command syntax</B>
+and <B>function syntax</B>, respectively 
+(Actually, command line interpretation is a bit more complicated than that, 
+but the fine details are not important for this presentation.)
+</P>
+
+<H4>Running xcom</H4>
+
+<P>
+The normal way to run xcom is using the command syntax.
+<PRE>
+>> xcom x:=y+1
+</PRE>
+The above command syntax calls the function xcom.m and gives it a single 
+argument, the string <TT>'x:=y+1'</TT>.  
+This usage is exactly the same as function syntax
+<PRE>
+>> xcom('x:=y+1')
+</PRE>
+The command syntax is convenient but has some hidden features that
+can lead to confusing results.  
+The xcom call is so simple that you will rarely get into trouble using 
+command syntax.
+Of course, you cannot put white space in the program text above.
+<PRE>
+>> xcom x := y+1
+</PRE>
+will start to work on 'x' as a whole program, 
+and immediately discover that there is no <BIG><TT>:=</TT></BIG> 
+(which is syntactically required).
+You get a parse error. It is OK, however, to write
+<PRE>
+>> xcom 'x := y+1'
+</PRE>
+since one of the MATLAB command line features is to obey quotation marks.
+</P>
+
+<P>
+<B>xcom</B> also has two ways to interpret its input strings.
+The examples above were all interpreted as X language.
+The effect is to compile&amp;go.
+If the input argument had happened to end exactly in the characters 
+<TT>'.x'</TT>,
+the whole argument would be taken as a file name.  Thus
+<PRE>
+>> xcom x/pi.x
+</PRE>
+runs the file pi.x in the x directory.
+</P>
+
+<P>
+xcom has no memory.  Each run starts from a <B>clean slate</B>.
+There is no global frame or any other holdover from run to run.
+</P>
+
+<H4>Multiple X Programs in One Run</H4>
+<P>
+Since X programs can call each other, 
+they need a way to find each other.
+In fact, all of them have to be listed on the command line.
+<PRE>
+>> xcom x/pi.x x/callpi.x
+</PRE>
+compiles two programs, and calls the last one on the list.
+Every other program on the command line is available to 
+the main program and each other.
+</P>
+
+<H4>xcom Flags</H4>
+<P>
+xcom has <B>a lot</B> of flags controlling its behavior.
+Most of them trigger off informative diagnostics
+designed to ease the task of learning how to change the compiler.
+All of the flags start with '-', which can never start a valid
+X program.  The whole list of flags can be displayed by running
+<PRE>
+>> help xcom
+</PRE>
+which uses the standard MATLAB help facility to display the
+first comment in the file xcom.m.
+</P>
+<P>
+Some of the flags are specific to the following command line argument;
+some are global to the whole compile.  For example, using a 
+<B>global flag</B>,
+<PRE>
+>> xcom -noExecute x:=y+1
+</PRE>
+compiles the program but does not execute it. Try adding a 
+<B>local flag</B>
+<PRE>
+>> xcom -noExecute -asmDump x:=y+1
+</PRE>
+to see the dump final compiled form of 'x:=y+1' 
+without the user having to respond to the interactive input and output.
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+
+
+

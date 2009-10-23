@@ -1,0 +1,78 @@
+% FILE:		    gem.tex
+% PURPOSE:  	gem in X
+% COPYRIGHT:	1988 W.M. McKeeman
+\input bookhead
+
+\begin{document}
+
+\begin{tabbing}
+xxx\=xxx\=xxx\=xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxx\=xxx\=xxx\=\kill
+\bq The Grammar Executing Machine \\
+\\
+$es\leftarrow newstack();\ mode\leftarrow\tname{search};$\>\>\>\>\>\>
+						\bq Initialization	\\
+$ps\leftarrow newstack();\ p0\leftarrow ps;\ *ps\leftarrow\qt=G\sq E\sq;\qt;$			\\
+$+*ps;\ p\leftarrow grammar;\ +p;\ **ps\leftarrow*p;\ p\leftarrow*ps;\ +\!+p;\ *p\leftarrow{\rm EoS};$\\
+$p\leftarrow grammar;\ i\leftarrow input;\ o\leftarrow\qt\qt;$
+	\>\>\>\>\>\>\bq `;' must begin $grammar$			\\
+  do $mode=\tname{parse}\Rightarrow$ \>\>\>\>\>\>
+						\bq Executing a Rule.	\\
+\>	if $*p\in{\rm Letter}\Rightarrow$\>\>\>\>\>
+						\bq recursive call	\\
+\>\>	    $mode\leftarrow\tname{search};$					\\
+\>\>	    $+ps;\ *ps\leftarrow p;\ p\leftarrow grammar$\>\>\>\>	\bq {\em descent}	\\
+\>	\orbox\ $*p=\sq\sq\sq \Rightarrow$ \>\>\>\>
+					\>	\bq input		\\
+\>\>	    $+p$;			\>\>\>\>\>\bq skip `\sq'	\\
+\>\>	    if $*p=*i\ \Rightarrow\ +i;\ +\!+p$
+					\>\>\>\>\>\bq {\em shift}	\\
+\>\>	    \orbox\ $true \Rightarrow mode\leftarrow\tname{back};\ -\!-p$	
+					\>\>\>\>\>\bq no match		\\
+\>\>	    f{}i							\\
+\>	\orbox\ $*p=\sq\qt\sq \Rightarrow$ \>\>\>\>	\>
+						\bq output		\\
+\>\>	    $+p;\ +o;\ *o\leftarrow*p;\ +\!+p$					\\
+\>	\orbox\ $*p=\sq;\sq \Rightarrow$\>\>\>\>\>
+						\bq return		\\
+\>\>	    $-p;\ +es;\ *es\leftarrow p;$	\>\>\>\>\>\bq record parse	\\
+\>\>	    if $ps<p0\ \Rightarrow mode\leftarrow\tname{quit};$\>\>\>\>\>\bq stack empty: done	\\
+\>\>	    \orbox\ $true \Rightarrow$\ $p\leftarrow*ps;\ -ps;\ +p$\>\>\>\>\>\bq {\em ascent}	\\
+\>\>	    f{}i							\\
+\>	f{}i								\\
+  \orbox\ $mode=\tname{back}\ \Rightarrow$ \>\>\>\>\>\>
+						\bq Backtracking.	\\
+\>	if $*p\in{\rm Letter}\Rightarrow\ +ps;\ *ps\leftarrow p;\ p\leftarrow*es;\ -es$	\\
+\>	\orbox\ $*p=\sq\sq\sq \Rightarrow\ -i;\ ---p$
+					\>\>\>\>\>\>\bq unshift input terminal\\
+\>	\orbox\ $*p=\sq\qt\sq \Rightarrow\ -o;\ ---p$
+					\>\>\>\>\>\>\bq unshift output terminal\\
+\>	\orbox\ $*p=\sq\!=\!\sq \Rightarrow\ mode\leftarrow\tname{search};\ +p$	\\
+\>	f{}i								\\
+  \orbox\ $mode=\tname{search}\ \Rightarrow$ \>\>\>\>\>\>
+						\bq Searching for a Rule.\\
+\>	if $*p\in {\rm Letter} \Rightarrow +p$ \>\>\>\>	
+						\>\bq skip nonterminal\\
+\>	\orbox\ $*p=\sq\sq\sq \Rightarrow +\!+\!+p$ \>\>\>\>
+						\>\bq skip input terminal\\
+\>	\orbox\ $*p=\sq\qt\sq \Rightarrow +\!+\!+p$ \>\>\>\>
+						\>\bq skip output terminal\\
+\>	\orbox\ $*p=\sq;\sq \Rightarrow$ \>\>\>\>	\>\bq end of rule\\
+\>\>	    $+p;$			   \>\>\>	\>\>\bq skip `;'\\
+\>\>	    if $*p=*\!*ps\ \Rightarrow\ mode\leftarrow\tname{parse}$
+					\>\>\>		
+					\>\>\bq match, {\em descent}	\\
+\>\>	    \orbox\ $true \Rightarrow$\ $+\!+p$	\>\>\>		\>\>\bq no match\\
+\>\>	    f{}i							\\
+\>	\orbox\ $*p={\rm EoS} \Rightarrow$ 
+					\>\>\>\>	\>\bq search failed \\
+\>\>	    if $ps\not=p0\ \Rightarrow$ \>\>\>\> \>\bq continue or abort\\
+\>\>	    f{}i;							\\
+\>\>	    $p\leftarrow*ps;\ -ps;\ mode\leftarrow\tname{back};\ -p$
+					\>\>\>\>\>\bq backtrack		\\
+\>	f{}i								\\
+od								\\
+\end{tabbing}
+
+\end{document}
+
+

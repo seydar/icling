@@ -1,0 +1,72 @@
+/* FILE:     peek.10
+ * PURPOSE:  expose calling sequence (caller and callee)
+ * CASE:     no inputs, one 32 bit double output
+ * MODEL:    rand
+ * USAGE:    see below
+ */
+
+static float
+peek(void) {
+  double x;
+  x = 10.1;
+  return x;
+}
+
+static float
+poke(void) {
+  float z;
+  z = peek();
+  return z;   // avoid dead code elimination
+}
+
+/* 
+wmm> date
+Wed Mar 11 09:52:47 EDT 2009
+wmm> cp peek.10 peek.c
+wmm> gcc -g -O0 -c peek.c
+wmm> rm peek.c
+wmm> objdump -D peek.o
+
+peek.o:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <peek>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 b8 33 33 33 33 33    mov    $0x4024333333333333,%rax
+   b:   33 24 40
+   e:   48 89 45 f8             mov    %rax,0xfffffffffffffff8(%rbp)
+  12:   f2 0f 5a 45 f8          cvtsd2ss 0xfffffffffffffff8(%rbp),%xmm0
+  17:   f3 0f 11 45 ec          movss  %xmm0,0xffffffffffffffec(%rbp)
+  1c:   8b 45 ec                mov    0xffffffffffffffec(%rbp),%eax
+  1f:   89 45 ec                mov    %eax,0xffffffffffffffec(%rbp)
+  22:   f3 0f 10 45 ec          movss  0xffffffffffffffec(%rbp),%xmm0
+  27:   c9                      leaveq
+  28:   c3                      retq
+
+0000000000000029 <poke>:
+  29:   55                      push   %rbp
+  2a:   48 89 e5                mov    %rsp,%rbp
+  2d:   48 83 ec 18             sub    $0x18,%rsp
+  31:   e8 ca ff ff ff          callq  0 <peek>
+  36:   f3 0f 11 45 ec          movss  %xmm0,0xffffffffffffffec(%rbp)
+  3b:   8b 45 ec                mov    0xffffffffffffffec(%rbp),%eax
+  3e:   89 45 fc                mov    %eax,0xfffffffffffffffc(%rbp)
+  41:   8b 45 fc                mov    0xfffffffffffffffc(%rbp),%eax
+  44:   89 45 ec                mov    %eax,0xffffffffffffffec(%rbp)
+  47:   f3 0f 10 45 ec          movss  0xffffffffffffffec(%rbp),%xmm0
+  4c:   c9                      leaveq
+  4d:   c3                      retq
+
+observations
+ Prior to call, rsp is decremented to preserve the local stack.
+ The units of stack size are 0x8 (round up)
+ The two 32-bit parameters are passed in ESI and EDI.
+ The 32-bit return value is returned in EAX.
+ Stack manipulating functions do not need the 48 prefix.
+ The high order bits of R/M and REG are in the prefix.
+ Stack locals are negative, packed offsets from RBP.
+ It is OK to hijack RSI for the X frame pointer.
+
+*/

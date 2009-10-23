@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingEmulator.html
+     PURPOSE:   How to change the Intel X86 emulator.
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- How to Change the Intel Emulator
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingEmulator.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the Emulator</H3>
+</CENTER>
+
+<H4>Preliminary</H4>
+
+<P>
+Read about the Intel x86 <A HREF="Emulator.html">emulator</A>.
+</P>
+
+<P>
+In MATLAB in the mxcom directory, try
+<BIG>
+<PRE>
+  >> help Emulatex86.m
+</PRE>
+</BIG>
+and
+<BIG>
+<PRE>
+  >> xcom -interactive x:=1
+</PRE>
+</BIG>
+and
+<BIG>
+<PRE>
+  >> xcom -exeTrace x:=1
+</PRE>
+</BIG>
+</P>
+
+<H4>Small Changes to the x86 Emulator</H4>
+<P>
+  What normally initiates a change to the emulator is a bad run.
+  The emulator should error if it is asked to carry out an instruction
+  that has not yet been implemented.  
+  The partial run together with 
+<BIG>
+<PRE>
+>> xcom -asmTrace  xxx.m
+</PRE>
+</BIG>
+  usually makes it clear what is missing.
+  The emulator is a switch of switches; a missing case needs to be filled in.
+  The 
+<A HREF="http://developer.intel.com/design/pentium/manuals/24319101.pdf">
+    Intel 486 book 
+</A>
+  is the final reference although usually one can
+  figure out what needs to be done by reasoning and analogy.
+</P>
+
+<P>
+  Adding a builtin function to X is a special case.  
+  The emulator must also independently implement the builtin since the 
+  calling sequence into C would  take the emulator in unknown territory.
+</P>
+
+<H4>An Emulator for New Hardware</H4>
+<P>
+  Supporting new hardware requires a brand new emulator.  
+  That will be a lot of work.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

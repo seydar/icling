@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Cfg.html
+     PURPOSE:   Describe implementation of CFGs
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.11.11 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Cfg
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Cfg.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Implementation of Cfg Data Structures</H3>
+</CENTER>
+
+<P>
+Cfg.m is an object.  It holds the information about the input 
+<A HREF="Grammar.html">grammar</A>.
+The object is passed through the various phases of <B>xcom</B>
+where the information is used as needed. 
+</P>
+
+<H4>Experiments with Cfg</H4>
+<P><B>xcom</B> actually has two parsers, one top-down and one bottom-up.
+The preparation of the bottom-up tables take a little bit of time.
+It can be convenient to skip making these tables if they are not
+immediately needed. Try
+<PRE>
+>> c = Cfg(xread('X.cfg'), '-noLR');
+>> c
+</PRE>
+to see the Cfg tables (excluding the LR(1) entries).
+The contents of any particular table can then be examined, for example
+<PRE>
+>> c.Vn
+</PRE>
+gives you the phrases names.
+</P>
+
+<P>
+There are dumper and control flags which can be seen by the call
+<PRE>
+>> help Cfg
+</PRE>
+There are a number of simple grammars to try out.  Type
+<PRE>
+>> dir *.cfg
+</PRE>
+For the smaller grammars there is no reason to avoid the LR table building.
+</P>
+
+<H4>Making Cfg Tables for xcom</H4>
+When you are ready with a new file X.cfg, 
+you can make tables for <B>xcom</B>.
+<PRE>
+>> makeCfg -saveMat X.cfg
+</PRE>
+
+<H4>Everyday Grammar into MATLAB Arrays</H4>
+<P>
+The everyday format for grammars is chosen to make it easy to read
+the grammar and put it into useful data structures.
+The immediate task is to capture <EM>R</EM>, <EM>V<SUB>I</SUB></EM>
+and <EM>V<SUB>N</SUB></EM>.
+Unique symbols need unique integer representatives, 
+so the strings are collected in cell arrays of strings; 
+the cell index is the representative.
+</P>
+
+<P>
+It is helpful to renumber the symbols so that all <EM>V<SUB>I</SUB></EM>
+are less than all <EM>V<SUB>N</SUB></EM>.
+</P>
+
+<H4>Rule Names</H4>
+<P>
+When using yacc, the interpretation of the rules is stuck right
+into the input grammar (<EM>V<SUB>O</SUB></EM>).  
+In <B>xcom</B>, the connection is made by giving a unique name to
+the rule to be used later when the rule needs to be interpreted.
+The names need to be such that later changes to the CFG do not
+require systematic changes to all the rule names.
+Consider the everyday CFG for 
+<A HREF="ContextFreeGrammar.pdf">proposition</A>.
+The rules are simply numbered.  
+Inserting a rule would make all the subsequent numbers off by one.
+The convention used in <B>xcom</B> is to make a long name
+which is essentially the rule itself with blanks supressed and
+special characters replaced by mnemonic letter sequences.
+For example, X rule:
+<PRE>
+disjunction
+  disjunction | conjunction
+</PRE>
+turns into rule name
+<PRE>
+ 'disjunction_disjunctionORconjunction'
+</PRE>
+The cell array of rule names is turned into an enum for efficient access.
+</P>
+
+<H4>Operator Names</H4>
+<P>
+As the CFG is processed, every symbol is either a phrase name or reserved.
+Among symbols, 
+some are separators (like '(') and 
+some are operators (like '+').
+The <B>xcom</B> convention is to consider separators as single-character
+tokens, and the rest as operator identifiers. The choice is hand-coded
+in Cfg.m and must be changed it new separators are desired.
+</P>
+
+<H4>Names for Classes of Symbols</H4>
+<P>
+There are four technically reserved words in 
+<A HREF="Xcfg.html">X.cfg</A> that are not really reserved.
+The symbol 'id' stands for all identifiers. 
+The symbol 'integer' stands for all integer literals.
+The symbol 'real' stands for all real literals.
+The symbol 'eof' stands for an unprintable symbol (usually 0x0).
+Each of them is made invisible to the table lookup for identifiers
+(by prepending a blank so that then cannot be found).
+The reason is that a user might want to write
+<PRE>
+  id = 3;
+</PRE>
+and wonder why 'id' was not allowed as an identifier.
+</P>
+
+<H4>Head Symbols</H4>
+<P>
+Sometimes the parser needs to make a decision based on the next input
+symbol where any of a large set of possibilities is acceptable.
+In particular, when deciding whether the next input symbol could start
+an expression, anything that can start an expression leads to "yes".
+Grammatically speaking, these symbols are <B>head</B>s of expr.
+The CFG object provides a function
+<PRE>
+   head(phraseName, symbol)
+</PRE>
+to fill this need.
+</P>
+<P>
+The computation of this information requires the closure over a relation.
+The relation starts with immediate head: 
+s is an immediate head of N if s is the first symbol in a rule defining N.
+If that first symbol is an erasing symbol, 
+then the second symbol is also an immediate head, and so on.
+Given the relation of immediate heads, 
+the transitive closure computation gives all heads.
+</P>
+
+<H4>The Tables</H4>
+<P>
+The available information in the Cfg tables that will be used by <B>xcom</B>
+can be seen by
+<PRE>
+>> load cfg cfg
+>> cfg
+>> cfg.V  % for instance
+</PRE>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,51 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    smoke.x
+}\\
+{\tt\char18}{\em{} PURPOSE: minimal test for xcom, one of everything
+}\\
+{\tt\char18}{\em{}          This is the first X program that ran
+}\\
+{\tt\char18}{\em{}          The term `smoke test' comes from electronics: did not catch fire
+}\\
+pass\ $\leftarrow$\ 0;\>\>\>{\tt\char18}{\em{} none yet
+}\\
+a\ $\leftarrow$\ true;\\
+b\ $\leftarrow$\ false;\\
+c\ $\leftarrow$\ a\ $\wedge$\ b;\\
+{\bf if}\>\ $\neg$c\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\>\>\>{\tt\char18}{\em{} did not fail
+}\\
+i\ $\leftarrow$\ 1;\\
+j\ $\leftarrow$\ 2$+$3;\\
+k\ $\leftarrow$\ i$+$j;\\
+{\bf if}\>k\ $=$\ 6\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\>\>\>{\tt\char18}{\em{} did not fail
+}\\
+x\ $\leftarrow$\ 1.0;\\
+y\ $\leftarrow$\ 2.0$+$3.0;\\
+z\ $\leftarrow$\ x$+$y;\\
+{\bf if}\>z\ $\leq$\ 6.0\ $\wedge$\ 6.0\ $\leq$\ z\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\>\>\>{\tt\char18}{\em{} did not fail
+}\\
+r\ $\leftarrow$\ 1\ $<$\ 2;\\
+{\bf if}\>r\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+passedsmoke\ $\leftarrow$\ pass;\\
+{\tt\char18}{\em{} final comment
+}\\
+\end{tabbing}
+\end{document}

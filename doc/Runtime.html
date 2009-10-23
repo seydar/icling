@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Runtime.html
+     PURPOSE:   providing runtime support for an executable
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Run Time
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Runtime.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>The xcom Runtime</H3>
+</CENTER>
+
+<H4>The 32-bit x86 Hardware</H4>
+
+<P>
+The 32-bit <A HREF="IntelX86.html">Intel x86</A> hardware is designed 
+around an expected programming model.  
+Only a little of that model is used in xcom.
+</P>
+
+<H4>The 32-bit x86 Calling Sequence</H4>
+
+<P>
+ESP points to the top of the hardware stack 
+(actually, the bottom since the stack grows toward address 0x0).
+There are push and pop instructions to manipulate ESP.
+EBP points to the hardware stack frame.
+The subroutine call instruction pushes EIP onto the stack 
+(decrementing ESP by 4) and resets EIP to the called subroutine.
+The first thing a subroutine does is push EBP onto the stack 
+and reset it to ESP.
+So, EBP points to its old value.
+Parameters get pushed before the call,
+so they are accessed via a positive offset from EBP.
+Locals are pushed by the subroutine itself, 
+so they are accessed via negative offset from EBP.
+There are a couple of instructions to unwind all of this and
+get back to the calling point.
+</P>
+
+<P>
+The <B>xcom</B> subprogram call does not put X parameters or locals
+on the hardware stack.  
+Instead it allocates a frame from the heap and puts variables there.
+There are only three values in the hardware stack frame:
+EIP,EBP and a pointer to the allocated frame.
+The X frame memory is returned to the heap after exit 
+from the called subroutine.
+The malloc/free pair is pretty expensive.
+A self-respecting C compiler would use the stack as intended
+by the great gods of Intel.
+</P>
+
+<P>
+The compiled code has to be able to reach the local variables in 
+the frame.
+The ESI register, 
+normally a part of special instructions to access blocks of memory, 
+is used by <B>xcom</B> to point at the allocated frame.
+ESI is set by the xcom subprogram immediately after it pushes EBP.
+Most X data accessing instructions are ESI relative.
+</P>
+
+<H4>The X Runtime Frame</H4>
+
+<P>
+The xcom compiler, running in MATLAB, launches from the x86 run stack.
+The frame for the X function is allocated by MATLAB and initialized to the
+input values before the call.
+MATLAB calls MEX file runX86.c with the address of the executable bits
+and the address of the X frame.
+In runX86.c the address of the executable is cast to a pointer-to-function.
+That (fake) function is called with a single parameter, the address of
+the X frame.  At this point your code leaves the civilized world of
+code compiled by the C compiler, passing into code emitted by you (xcom).
+</P>
+
+<P>
+The <B>prolog</B> of the executable bits first pushes EBP 
+and resets ESP (required).
+The address of the X frame is put into ESI.
+Finally <EM>all</EM> the registers are pushed into the hardware stack
+(callee save).
+After doing its assigned subprogram task, the executable bits terminate
+with the <B>epilog</B> which reverses the prolog and returns control
+to the caller.
+</P>
+
+<P>
+After return from the X subprogram, 
+the output values are found in the malloc-d X frame, 
+which is accessible to the caller (which malloc-d it in the first place). 
+The output values are moved to their final resting place.
+</P>
+
+<P>
+The situation for X calling X is different only in that the outputs
+are moved back into the malloc-d frame of the caller.
+In this case the work is treated like a builtin call in getCfun.c.
+</P>
+
+<P>
+Here is a picture of the run stack.  MATLAB is executing.
+When MEX runX86 is called, a new x86 run stack frame is pushed
+onto the stack (the stack grows toward address 0).
+The MEX code extracts the needed information from the mxArrays
+passing in the executable bits and the malloc-ed X frame pointer.
+Then it calls the executable bits, passing the pointer.
+The prolog code in the X function pushes another stack frame
+onto the x86 stack and puts the frame pointer in register ESI.
+</P>
+
+<PRE>
+                                ________________
+                         ,-->  |________________|  main user vars
+                   M    |         ______________________
+                   A    |  ,-->  |______________________| locals
+                   T    | |         _____________
+                   L    | |  ,-->  |_____________|   locals
+                   A    | | |     
+                |  B  | | | |
+                |_____| | | |
+    run86x      |_____| | | |          malloc-d user frames
+   main user fn |_____|-' | |
+    link        |_____|   | |
+ called user fn |_____|---' |
+    link        |_____|     |
+ called user fn |_____|-----'
+                   |
+                   v
+                x86 stack grows
+                toward zero
+</PRE>
+
+<P>
+  Here is a magnified picture of just one call and frame.
+  
+  <PRE>
+    |         |           +----------+
+    +---------+           |3rd local |
+    |&amp;frame   |           +----------+
+    +---------+           |2nd local |
+    |old EIP  |           +----------+
+    +---------+           |1rst local|
+    |old EBP  |           +----------+    <--ESI (&amp;frame)
+    EBP-->     +---------+             malloc-ed
+    |         |             frame
+    +---------+            *(ESI+n) is nth local
+    |
+    v
+    x86 stack grows
+    toward zero
+    
+  </PRE>
+</P>
+<A NAME="IntoHardware">
+<H4>The Executable Code</H4>
+
+<P>
+  The executable bits must be in the form of a conventional subroutine.
+</P>
+
+<P>The assembler methods 
+  <PRE>
+    prolog
+    epilog
+  </PRE>
+</P>
+
+<P>
+  provide the calling sequence from the compiled code side.
+  The calling sequence from the calling side is provided by 
+  <A HREF="Glossary.html#pun">pun</A>ning
+  the data address of the compiled code into a C pointer-to-function
+  and then letting C call it.  Here is the C code
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P>
+  <PRE>
+  t = (unsigned int (*)(void*))code;   // turn data ptr into function ptr
+  res = t(frame);                      // launch into hyperspace
+  </PRE>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<H4>The Frame Contents</H4>
+<P>
+The frame is a preallocated array of 32-bit entries, 
+one entry for each local variable in the called X program
+<EM>and</EM> one entry for each temporary variable.
+The M type of the frame is a vector of int32.
+From M code, the vector can be accessed via subscripts.
+The data format of an entry may be either 32-bit IEEE float 
+or 32-bit C int.
+The <B>32-bit int</B> values can be handled as normal MATLAB data.
+The xcom use of the frame entries for <B>32-bit real</B>
+depends on two C MEX files 
+<BIG><TT>f2i</TT></BIG> and <BIG><TT>i2f</TT></BIG>
+which <A HREF="Glossary.html#pun">pun</A> the entries to and from IEEE format.
+</P>
+
+<H4>Calling X Subprograms</H4>
+<P>
+When the main X program calls an X subprogram 
+(necessarily named in the original command line starting xcom),
+the call proceeds via static C function <B>XCOMlink</B>.
+<OL>
+<LI>A new frame is allocated.</LI>
+<LI>The frame is prefilled with the subprogram input arguments.</LI>
+<LI>The subprogram is called.</LI>
+<LI>Upon return, the subprogram output results are extracted from the frame.</LI>
+<LI>The frame is freed.</LI>
+</OL>
+</P>
+
+<P>
+An example of the call/return mechanism is given in the comments
+preceding static C function XCOMlink in getCfun.c.
+</P>
+
+<H4>The Runtime Library</H4>
+<P>
+Some functions desirable in X are most conveniently implemented 
+as builtins in C.
+The interface to builtins (including rand) is provided by C function 
+    <BIG>
+        <PRE>    getCfun.c</PRE>
+    </BIG>
+</P>
+<P>
+Each desired builtin is implemented as a static function within this file.
+The required name of the static function for builtin xxx is XCOMxxx.
+The purpose of getCfun is to translate the name (e.g. 'rand')
+into the machine address of the corresponding static function 
+(e.g. &amp;XCOMrand).
+The address is then later used to call the builtin as required.
+XCOMlink is analogous to a conventional link/loader.
+</P>
+
+<H4>The 64-bit x86 Hardware</H4>
+
+<P>In some ways the 64 bit hardware can be ignored;  
+  the 32-bit instructions are still there.
+  On the other hand, MATLAB compiled on a 64-bit platform uses
+  the 64-bit calling sequence, 
+  which is not compatible with the 32-bit version.  
+  The solution is to start the compiled code with a 64-bit compatible
+  prolog, and then, when everything is under control, switch back to 32.
+</P>
+
+<P>One could, of course, reimplement Emitx86.m and Assembler.m to 
+  emit native 64-bit code.  This is a good idea and a lot of work.
+  It has the disadvantage of not running on older hardware at all.
+  So, here the choice is to stay in the 32-bit subset and 
+  insure the transition from 64-to-32 is smooth.
+</P>
+
+<P>The 64-bit Application Binary Interface is documented 
+  <A HREF="abi_64.pdf">here</A>.
+</P>
+
+<P>A code dump for a simple C file peek.c 
+  from gcc for both 32-bit and 64-bit linux is
+  included <A HREF="peek.html">here</A>.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

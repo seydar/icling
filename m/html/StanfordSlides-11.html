@@ -1,0 +1,83 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-11.html</p>
+
+         <h2>2.2.1 Define function <tt>scan</tt> and redefine <tt>GEM</tt><a name="26"></a></h2>
+         <p>Define a MATLAB function to run <tt>nowhite</tt> and at the same time we can redefine GEM to automatically scan its second parameter (the grammar).
+         </p><pre class="codeinput">scan = @(txt)G.run(txt, G.nowhite);  <span class="comment">% (Read the @ as lambda.)</span>
+GEM  = @(txt,c)G.run(txt, scan(c));
+</pre><p>Test scan:</p><pre class="codeinput">scan(<span class="string">'x Y z'</span>)
+</pre><pre class="codeoutput">ans =
+xYz
+</pre><table border=1><tr><td><a href="StanfordSlides-10.html">PREV</a></td><td><a href="StanfordSlides-12.html">NEXT</a></td></tr></table>
+</body></html>

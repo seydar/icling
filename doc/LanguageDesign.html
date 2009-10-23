@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      LanguageDesign.html
+     PURPOSE:   About programming language design
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Programming Language Design
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> LanguageDesign.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Language Design</H3>
+</CENTER>
+
+<H4>General Advice</H4>
+<P>
+The <A HREF="ReferenceX.pdf">X language</A> is an example of design.  
+The credit for the good ideas goes to 
+<A HREF="http://en.wikipedia.org/wiki/Edsger_Dijkstra">Edsger Dijkstra</A>.
+It is in the nature of the material presented here, 
+and the ambitions of those mastering it, 
+that soon enough more language design is going to take place, 
+in the form of extending X to a specific problem domain.  
+</P>
+
+<P>
+There is an extensive body of knowledge and set of examples on how to make
+bad designs.  The point of this page is to help the reader avoid the
+known pitfalls.
+</P>
+
+<P>
+C. Anthony R. Hoare wrote a technical note
+<A HREF="http://www.cs.berkeley.edu/~necula/cs263/handouts/hoarehints.pdf">
+Hints on Programming Language Design</A> in 1973.  The copy here is from a 
+scanned technical report published at Stanford. 
+The copy is not pretty, but that does not detract from its wisdom.  
+A quote: "A necessary condition for the achievement of any of these 
+objectives is the utmost simplicity in the design of the language."
+</P>
+
+<P>Here are my personal vision statements in 
+<A HREF="Vision1966.pdf">1966</A> and
+<A HREF="Vision2004.pdf">2004</A>.
+</P>
+
+<P>
+    Here are my thoughts on <A HREF="notation/notation.html">notation</A>
+    as a programming language.
+</P>
+
+<H4>Avoiding Trouble</H4>
+<P>If you have trouble figuring out the meaning of some program text,
+it is likely that the compiler will also have trouble.
+Since everything in language procesing proceeds from left-to-right,
+you must insure that looking at the next thing makes it easy to decide
+what to do.
+It is a bad idea to use a particular symbol in two different places
+in the grammar unless you are quite sure you will never be in a
+situation where either one or the other might be the next thing.
+If you get in such a spot, you will have to look ahead for further clues.
+Once is awhile this is OK, but it can turn a fast compiler into a 
+<B>performance dog</B>
+if it is wasting time peeking when a good language designer could have
+given an unambiguous form.
+</P>
+<P>
+At worst, you can design a grammar that can treat source text two 
+different ways.
+This in fact happened in early languages like <B>Algol 60</B>.  
+The authors did not realize the implications of their meta formulas.
+One of the very useful tricks we now have is giving our tentative grammar
+to an <A HREF="Bottomup.html">LR</A> parser generator.  
+An ambiguous grammar will surely elicit a diagnostic.  
+Having used the LR generator to test your grammar does not
+mean you have to use its tables for automatic parsing.  
+But you can.
+</P>
+
+<H4>Arithmetic Precedence</H4>
+<P>The order of application of operators is usually defined in the CFG.
+For example, multiplication 
+<A HREF="Glossary.html#bind">bind</A>s more tightly than addition.
+In <A HREF=Xcfg.html>X</A> for instance, * binds more tightly than +
+because it is more deeply nested in the phrase definitions.
+The simplest way to understand this use of grammar is to look at the
+syntax tree for <A HREF="ContextFreeGrammar.pdf">Proposition</A> to see
+how it expresses the fact that &amp; (meaning logical "and") 
+binds more tightly than | (meaning logical "or").  
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

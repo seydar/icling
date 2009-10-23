@@ -1,0 +1,200 @@
+% FILE:		  bookhead.tex
+% PURPOSE:	header for 2007 book
+% MODS:		  McKeeman 91.01.31 -- original
+%           McKeeman 04.04.01 -- gave up, starting over
+%           McKeeman 05.04.01 -- gave up, starting over again
+%           McKeeman 07.07.07 -- starting web-based version
+
+\documentclass {book}
+\batchmode
+ 
+% COUNTERS TO KEEP CHAPTERS, SECTIONS AND PAGES STRAIGHT 
+
+\newcounter{PrefacePage} \setcounter{PrefacePage}{1}
+ 
+\newcounter{AnalysisChapter}
+\setcounter{AnalysisChapter}{1}
+\newcounter{AnalysisPage}
+\setcounter{AnalysisPage}{1}
+\newcounter{SynthesisChapter}
+\setcounter{SynthesisChapter}{2}
+\newcounter{SynthesisPage}
+\setcounter{SynthesisPage}{\value{AnalysisPage}}
+\addtocounter{SynthesisPage}{24}
+
+\newcounter{ExtensionChapter}
+\setcounter{ExtensionChapter}{3}
+\newcounter{ExtensionPage}
+\setcounter{ExtensionPage}{\value{SynthesisPage}}
+\addtocounter{ExtensionPage}{34}
+
+\newcounter{RunningExercise}          % exercise numbers increase in chapter
+ 
+% APPENDICES
+\newcommand{\Notation}{A}
+\newcounter{Notation}
+\setcounter{Notation}{1}
+\newcounter{NotationPage}
+\setcounter{NotationPage}{200}
+
+\newcommand{\XAppendix}{B}
+\newcounter{XAppendix}
+\setcounter{XAppendix}{4}
+\newcounter{XPage}
+\setcounter{XPage}{220}
+
+\newcommand{\IntelAppendix}{C}
+\newcounter{IntelAppendix}
+\setcounter{IntelAppendix}{2}
+\newcounter{IntelPage}
+\setcounter{IntelPage}{230}
+ 
+\newcommand{\AnswerAppendix}{Z}
+\newcounter{AnswerAppendix}
+\setcounter{AnswerAppendix}{1}
+\newcounter{AnswerPage}
+\setcounter{AnswerPage}{240}
+ 
+% PAGE LAYOUT INFORMATION
+\oddsidemargin  1in
+\evensidemargin 1in
+\topmargin      0in
+\textheight     7.5in
+\textwidth      4.8in
+ 
+\setcounter{secnumdepth}{1}         		% only sections get numbered
+\setcounter{tocdepth}{2}            		% and get put into the toc
+ 
+\newenvironment{indentedlist}
+{\begin{list}{$\bullet$}{\setlength{\leftmargin}{0.7in}
+\setlength{\topsep}{3pt}
+\setlength{\itemsep}{1pt}}}{\end{list}}		% end of indented list
+ 
+% DEFINITIONS
+\newcommand{\HiTeX}{H\kern-.12em \raise.5ex\hbox{I}\kern-.125em \TeX}
+ 
+\newcommand{\cons}{\mbox{$\,\scriptstyle\circ\,$}}
+\newcommand{\fstrut}{\rule{0in}{2ex}}
+\newcommand{\Fstrut}{\rule{0in}{2.2ex}}
+\newcommand{\caret}{\mbox{\tt\char94}}
+\newcommand{\sq}{\mbox{\tt\char13}}
+\newcommand{\qt}{\mbox{\tt"}}
+\newcommand{\tw}{\mbox{\tt\char126}}
+\newcommand{\bq}{\mbox{\tt\char18}}
+\newcommand{\bs}{\mbox{\tt\char108}}
+
+\newcommand{\orbox}{
+  {\,\raisebox{.75ex}[1ex][0ex]{\framebox[1mm]{\rule[0mm]{0mm}{.5mm}}}\,}}
+\newcommand{\scriptorbox}{
+  {\,\raisebox{.75ex}[1ex][0ex]{\framebox[1mm]{\rule[0mm]{0mm}{.5mm}}}\,}}
+ 
+\newcommand{\vname}[1]{\mbox{\tt {#1}}}		% variable name
+\newcommand{\uname}[1]{\mbox{\bf {#1}}}		% Unix name
+\newcommand{\tname}[1]{\mbox{\sc {#1}}}		% trade or language name
+\newcommand{\rw}[1]{\mbox{\textbf{#1}}}		% X reserved word
+\newcommand{\be}[1]{\mbox{\rw{be} \varname{#1.}}}% X begin block 
+
+\newcommand{\backquote}{`}
+\newcommand{\superplus}{^{\scriptscriptstyle +}} 
+\newcommand{\Rstrict}{{\triangleright}}
+\newcommand{\Dstrict}{{\triangleleft}}
+\newcommand{\eqldef}{\stackrel{\rm def}{=}} 
+\newcommand{\subseteqdef}{\stackrel{\rm def}{\subseteq}} 
+\newcommand{\subsetdef}{\stackrel{\rm def}{\subset}} 
+\newcommand{\Leftrightarrowdef}{\stackrel{\rm def}{\Leftrightarrow}} 
+\newcommand{\defdef}{\stackrel{\rm def}{}} 
+\newcommand{\universe}{\mbox{$\overline{\scriptstyle\{\}}$}}
+\newcommand{\pps}{\stackrel{.}{<}}
+\newcommand{\ppn}{\stackrel{.}{=}}
+\newcommand{\ppe}{\stackrel{.}{>}}
+\newcommand{\xturbo}{\tname{xturbo}}
+\newcommand{\hyper}{\tname{ERROR}}
+\newcommand{\xhyper}{\tname{xhyper}}
+\newcommand{\xcom}{\tname{xcom}}
+\newcommand{\kernel}{kernel \tname{x}}
+\newcommand{\environment}{\hyper\ environment} 
+\newcommand{\system}{\hyper\ system} 
+\newcommand{\unix}{\tname{unix}} 
+\newcommand{\emacs}{\tname{emacs}}
+\newcommand{\ascii}{\tname{ascii}}
+\newcommand{\ansi}{\tname{ansi}}
+\newcommand{\bnf}{\tname{bnf}}
+\newcommand{\cfg}{\tname{cfg}}
+\newcommand{\reg}{\tname{reg}}
+\newcommand{\iog}{\tname{iog}}
+\newcommand{\elseif}{\raisebox{2pt}{\ \framebox[2pt]{\rule{0pt}{1pt}}}} 
+\newcommand{\then}{$\rightarrow$} 
+\newcommand{\fa}{\tname{fa}} 
+\newcommand{\dfa}{\tname{dfa}} 
+\newcommand{\nfa}{\tname{nfa}} 
+\newcommand{\lr}{\tname{lr}} 
+\newcommand{\slr}{\tname{slr}} 
+\newcommand{\lalr}{\tname{lalr}} 
+\newcommand{\pfn}{\tname{pfn}} 
+\newcommand{\gem}{\tname{gem}} 
+\newcommand{\wff}{\tname{wff}} 
+\newcommand{\true}{\mbox{\rm\bf true}} 
+\newcommand{\false}{\mbox{\rm\bf false}} 
+\newcommand{\choice}{\mbox{\rm choice}} 
+\newcommand{\bool}{\mbox{\sc bool}} 
+\newcommand{\real}{\mbox{\sc real}} 
+\newcommand{\boolop}{\mbox{\sc boolop}} 
+\newcommand{\relop}{\mbox{\sc relop}} 
+%\renewcommand{\intop}{\mbox{\sc intop}} 
+\newcommand{\prefixop}{\mbox{\sc prefixop}} 
+\newcommand{\infixop}{\mbox{\sc infixop}} 
+\newcommand{\unop}{\mbox{\sc unop}} 
+\newcommand{\binop}{\mbox{\sc binop}} 
+\newcommand{\op}{\mbox{\sc op}} 
+\newcommand{\la}{\mbox{$\leftarrow$}}
+\newcommand{\sform}{\mbox{$\cal C$}}
+\newcommand{\nla}{\mbox{$\not\leftarrow$}}
+\newcommand{\ladef}{\stackrel{\rm def}{\leftarrow}} 
+\newcommand{\Var}{\mbox{$V\!ar$}} 
+\newcommand{\Val}{\mbox{$V\!al$}} 
+\newcommand{\Reg}{\mbox{$Reg$}} 
+\newcommand{\Avail}{\mbox{$Avail$}}
+\newcommand{\Hid}{\mbox{$Hid$}}
+ 
+\newcommand{\gRule}[1]{
+	\begin{center}
+	\vname{{#1}}
+	\end{center}
+}
+ 
+\newcommand{\handtable}[1]{				% simulate \table
+	\stepcounter{table}
+	\newcounter{#1}[chapter]
+	\setcounter{#1}{\value{table}}
+}
+
+\newcommand{\handtitle}[2]{
+	\begin{center}
+	Table~\thechapter.#1: #2
+	\end{center}
+}
+ 
+\newcommand{\vmnote}[1]{\marginpar{\begin{small}\vname{{#1}}\end{small}}}
+\newcommand{\umnote}[1]{\marginpar{\begin{small}\uname{{#1}}\end{small}}}
+ 
+% COMMANDS FOR USE WITH THE CODE
+\newcounter{ListingCounter}
+\setcounter{ListingCounter}{0}
+\newcounter{ListChapter}
+\newcommand{\newListing}[1]{\stepcounter{ListingCounter}
+	\begin{center}
+		Listing \thechapter.\theListingCounter.  \uname{{#1}}.
+	\end{center}}
+\newcommand{\contListing}[1]{\begin{center}
+		Listing \thechapter.\theListingCounter\ \uname{{#1}}\ 
+		(continued).
+	\end{center}}
+\newcommand{\lastListing}[1]{\begin{center}
+		Listing \thechapter.\theListingCounter\ \uname{{#1}}\ 
+		(end).
+	\end{center}}
+ 
+ 
+%\makeindex
+% END OF HEADER FOR BOOK
+

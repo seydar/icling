@@ -1,0 +1,103 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-03.html</p>
+
+         <h2>1.1  IOG: the Input/Output Grammar<a name="5"></a></h2>
+         <div>
+            <ul>
+               <li><img src="StanfordSlides_eq34032.png" alt="${\cal G} = \langle V_I, V_O, V_N, V_G, \Pi\rangle$"></li>
+            </ul>
+         </div>
+         <p>An IOG satisfies the following constraints:</p>
+         <div>
+            <ul>
+               <li><img src="StanfordSlides_eq68935.png" alt="$V  = V_I \cup V_O \cup V_N$"></li>
+               <li><img src="StanfordSlides_eq49022.png" alt="$V_I \cap V_O = \{\}$"></li>
+               <li><img src="StanfordSlides_eq95318.png" alt="$V_I \cap V_N = \{\}$"></li>
+               <li><img src="StanfordSlides_eq09175.png" alt="$V_O \cap V_N = \{\}$"></li>
+               <li><img src="StanfordSlides_eq22859.png" alt="$V_G \subseteq V_N$"></li>
+               <li><img src="StanfordSlides_eq19891.png" alt="$\Pi \subseteq V_N\times V^*$"></li>
+            </ul>
+         </div>
+         <p>When <img src="StanfordSlides_eq51635.png" alt="$V_O$"> is empty, an IOG is a conventional CFG with terminal symbols <img src="StanfordSlides_eq73857.png" alt="$V_I$">.
+         </p>
+         <p>There are some initial restrictions</p>
+         <div>
+            <ul>
+               <li>Whitespace is not allowed between symbols.</li>
+               <li>The input, output and phrase name symbols are all single-character.</li>
+               <li>The IOG must not be left-recursive.</li>
+            </ul>
+         </div>
+         <table border=1><tr><td><a href="StanfordSlides-02.html">PREV</a></td><td><a href="StanfordSlides-04.html">NEXT</a></td></tr></table>
+</body></html>

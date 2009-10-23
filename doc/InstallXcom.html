@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      InstallXcom.html
+     PURPOSE:   Instructions for Installing xcom
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Installing XCOM
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> InstallXcom.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+
+<TABLE>
+<TR>
+<TD>
+<H3>A Short Course in Compilers</H3>
+</TD>
+</TABLE>
+
+<H4>Installing mxcom from the MathWorks File Exchange</H4>
+<P>
+<OL>
+  <LI>
+    Open the MathWorks 
+    <A HREF="http://www.mathworks.com/matlabcentral/fileexchange/20149">
+    File Exchange.</A>
+  </LI>
+  <LI>Download the zip file to Intel x86 WIN, Linux or Apple.</LI>
+  <LI>Unzip the mxcom directory into a folder writable by you.</LI>
+  <LI>Change directory to your mxcom folder.</LI>
+  <LI>Start MATLAB.</LI>
+</OL>
+</P>
+
+<H4>Quick Tests for xcom</H4>
+<P>
+  <TT>
+    <BIG>
+      <TABLE>
+        <TR><TD>&gt;&gt;</TD>
+            <TD>cd mxcom/m</TD>
+        </TR>
+        <TR><TD>&gt;&gt;</TD>
+            <TD>makeMex</TD>
+            <TD>% insures MEX files match platform</TD>
+        </TR>
+
+        <TR><TD>&gt;&gt;
+            <TD>xcom x:=y+1</TD>
+            <TD>% requires input for y</TD>
+        </TR>
+        <TR><TD></TD><TD></TD>
+            <TD>% reports final value of x</TD>
+        </TR>
+        <TR><TD>&gt;&gt;
+            <TD>xcom x/pi.x</TD>
+            <TD>% executes program to compute pi</TD>
+        </TR>
+      </TABLE>
+    </BIG>
+  </TT>
+</P>
+
+<H4>More Thorough Tests for xcom</H4>
+<P>
+  <TT>
+    <BIG>
+      <TABLE>
+
+        <TR><TD>&gt;&gt;
+            <TD COLSPAN="2">addpath tests trials times</TD>
+        </TR>
+
+        <TR><TD>&gt;&gt;
+            <TD>testAll()</TD>
+            <TD>% run all unit tests</TD>
+        </TR>
+
+        <TR><TD>&gt;&gt;
+            <TD>tryAll()</TD>
+            <TD>% run all unit trials</TD>
+        </TR>
+
+        <TR><TD>&gt;&gt;
+            <TD>timeAll()</TD>
+            <TD>% time runs</TD>
+        </TR>
+      </TABLE>
+    </BIG>
+  </TT>
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

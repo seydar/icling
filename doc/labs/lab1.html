@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      lab1.html
+     PURPOSE:   lab directions for flag exercise
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.12.02 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  Lab Session 1 -- A Short Course in Compilers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table-head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> labs/lab1.html&nbsp;&nbsp;&nbsp;
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2008&nbsp;&nbsp;&nbsp;
+<A HREF="../Index.html" TARGET="index">index</A>
+</SMALL>
+</P>
+
+<H3>xcom flag analysis</H3>
+<P>
+  The idea is to run xcom on some interesting input program first with no
+  flags, and then for each possible flag, run xcom again and describe the
+  difference(s). 
+</P>
+<PRE>
+  >> help xcom  ` to get list of flags
+  >> TimeOfExperiment = datestr(now)
+</PRE>
+<P>
+  Make up an experimental sheet, record the conditions of 
+  the experiment, record your observations.
+</P>
+
+<P>
+  Example
+  <HR>
+    <PRE>
+      timeOfExperiment =
+      03-Dec-2008 11:49:46
+      >> xcom x/sqrt.x
+      >> xcom -srcDump x/sqrt.x
+      
+      The first run requests a value for x then prints the square root.
+      The second run prints the entire source file sqrt.x before execution.
+    </PRE>
+    <HR>
+</P>
+
+<P>
+  Are there flags that should be tried in combination?
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table-end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+
+</HTML>
+

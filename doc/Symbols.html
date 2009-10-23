@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Symbols.html
+     PURPOSE:   Symbol tables and type
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Symbol Tables and Type
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+<!-- ----------------------------------------------------------------- -->
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Symbols.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+
+<CENTER>
+<H3>Symbol Tables and Type</H3>
+</CENTER>
+
+<H4>Frames in xcom</H4>
+<P>
+A symbol table is a block of <B>name/attribute pairs</B>.<BR>
+A runtime frame is a block of memory locations for <B>values</B>.<BR>
+xcom makes one of each block for each X program (and subprogram).
+</P>
+<P>
+The symbol table is built during <A HREF="Analysis.html">analysis</A>.
+The <A HREF="Runtime.html">runtime</A> frame is 
+allocated just before execution begins.
+Just to keep things simple in xcom,
+the entries in the two storage blocks correspond one-to-one.  
+Suppose the variables are named <TT>B</TT>, <TT>I</TT> and <TT>R</TT>.
+</P>
+
+<TABLE ALIGN="CENTER">
+  <TR>
+    <TD>
+      <TABLE BORDER="1" ALIGN="CENTER" CELLPADDING="3">
+      <TR><TD ALIGN="center"><TT>B</TT></TD><TD>logical</TD><TD>left</TD></TR>
+      <TR><TD ALIGN="center"><TT>I</TT></TD><TD>integer</TD><TD>right</TD></TR>
+      <TR><TD ALIGN="center"><TT>R</TT></TD><TD>real</TD><TD>left right</TD></TR>
+      </TABLE>
+    </TD>
+
+    <TD>
+    </TD>
+
+    <TD>
+      <TABLE BORDER="1" ALIGN="CENTER" CELLPADDING="3">
+      <TR><TD ALIGN="RIGHT">true</TD></TR>
+      <TR><TD ALIGN="RIGHT">12</TD></TR>
+      <TR><TD ALIGN="RIGHT">3.17</TD></TR>
+      </TABLE>
+    </TD>
+  </TR>
+  <TR>  
+    <TD ALIGN="CENTER"><EM>A Symbol Table</EM></TD>
+    <TD></TD>
+    <TD ALIGN="CENTER"><EM>Corresponding Runtime Frame</EM></TD>
+  </TR>
+
+</TABLE>
+
+<P>
+Actually, things are slightly more complicated.  
+Temporary variables are allocated during code generation.
+Places for them are tacked on to the end of the runtime frame
+but there is no need to put them in the symbol table.
+</P>
+
+<TABLE ALIGN="CENTER">
+  <TR  VALIGN="BOTTOM">
+    <TD>
+      <TABLE BORDER="1" HALIGN="CENTER" CELLPADDING="3">
+        <TR><TD ALIGN="center"><TT>B</TT></TD><TD>logical</TD><TD>left</TD></TR>
+        <TR><TD ALIGN="center"><TT>I</TT></TD><TD>integer</TD><TD>right</TD></TR>
+        <TR><TD ALIGN="center"><TT>R</TT></TD><TD>real</TD><TD>left right</TD></TR>
+      </TABLE>
+    </TD>
+
+    <TD>
+    </TD>
+
+    <TD>
+      <TABLE BORDER="1" ALIGN="CENTER" CELLPADDING="3">
+        <TR><TD ALIGN="RIGHT">tmp3</TD></TR>
+        <TR><TD ALIGN="RIGHT">tmp2</TD></TR>
+        <TR><TD ALIGN="RIGHT">tmp1</TD></TR>
+        <TR><TD ALIGN="RIGHT">true</TD></TR>
+        <TR><TD ALIGN="RIGHT">12</TD></TR>
+        <TR><TD ALIGN="RIGHT">3.17</TD></TR>
+      </TABLE>
+    </TD>
+  </TR>
+  
+  <TR>  
+    <TD ALIGN="CENTER"><EM>A Symbol Table</EM></TD>
+    <TD></TD>
+    <TD ALIGN="CENTER"><EM>Corresponding Runtime Frame</EM></TD>
+  </TR>
+
+</TABLE>
+
+<H4>The Symbol Table</H4>
+<P>
+The symbol table is built by <B>walking the syntax tree</B>.  
+As each variable is encountered at a leaf node,
+it is looked up in the symbol table, and entered if not there.
+When an operation is encountered, its type signature is used
+to refine the types in the symbol table.
+Here is a <A HREF="TypeInference.pdf">worked example</A>.
+</P>
+<P>
+In a production compiler, 
+symbol table lookup can be a performance bottleneck,
+and is therefore normally uses a <B>hash-table</B> lookup.  
+In xcom a simple linear lookup is used.
+</P>
+
+<H4>Scope</H4>
+<P>
+Many programming languages have a concept of scope.
+A scope has a beginning and an end.
+A variable can be seen in its scope and not otherwise.
+Scopes often can be nested leading to rules resolving the interpretation 
+of a single name occurring in more than one level of nesting.
+</P>
+<P>
+In X there is one scope per subprogram.
+All variables are local.  
+Values are passed in and out via parameters.
+Subprogram names (listed on the <B>xcom</B> command line) are global.
+</P>
+
+<H4>Symbol Attributes</H4>
+<P>
+Type and use information is gathered for each variable.  The information
+comes from the syntax tree.  
+A symbol table is constructed (it is initially empty).
+The information in the tree does not change (read-only) but the
+symbol table gradually acquires more information during type analysis.
+</P>
+<P>
+The X language is <B>strongly typed</B>, 
+meaning that all operations require type-correctness.
+Some operations, such as '+', are <B>overloaded</B>;
+real can be added to real and integer can be added to integer
+but mixed type addition is not allowed.
+<P>
+</P>
+The initial entry for a symbol necessarily records <B>all types</B>
+as possible since nothing is yet known about the variable.
+If the type of a variable has not yet been fully determined,
+and a usage is found that requires a more specific set of types,
+then the other possibilities are removed as attributes
+for that variable in the table.
+</P>
+
+<P>In expression processing, a node (always representing an X operand)
+may have a known type because of its use (for example, the expression
+argument to <TT>r2i</TT> must have type real).  
+This type requirement is carried down the tree as it is walked.
+If there is an intact requirement when a variable is reached (at a leaf),
+that requirement is recorded in the symbol table for that variable.
+Subsequent references to that variable elsewhere in the tree use
+the recorded information.  
+Thus the type information hops from leaf to leaf as well as 
+travelling up and down the branches.
+</P>
+
+<P>Suppose, for example, the subexpression is <B><TT>r2i(x+y)</TT></B>.
+The node for the parameter is forced to type real.  
+When the node for addition is reached, 
+its result is forced to type real,
+which forces both of its operands to type real.
+When the leaves are reached, both are then also forced to type real
+and the type is recorded in the symbol table for each of them.
+The result of 
+<B><TT>r2i(x+y)</TT></B> is forced to type integer and passed back
+up the tree.
+</P>
+                      
+<P>
+If a <B>type conflict</B> is encountered (meaning that there are no
+more remaining possibilities), 
+or the type is still <B>not defined</B> 
+after all information has been gathered,
+a diagnostic is issued and <B>xcom</B> exits.
+</P>
+
+<P>
+The use of the variable is also recorded.  
+If the variable is on the left of assignment, the address is needed.
+If it is used in an expression, the value is needed.
+The names given to these properties are <B>left</B> and <B>right</B>.
+A variable may have either or both such attributes.
+</P>
+
+<H4>Type Inference</H4>
+<P>
+Some type-determining situations do not give complete information.
+In X these are the opportunities and what can be recorded,
+based on the signatures of the <B>xcom</B>
+<A HREF="ReferenceX.pdf">operators</A>.
+The <EM>result</EM> types are passed root-ward; 
+the <EM>operand</EM> types are passed leaf-ward.  
+These are actions represent the inherited and synthesized attributes.
+Knuth has written a nice <A HREF="AttributeGrammarHistory.pdf">history</A>
+of how <A HREF="http://en.wikipedia.org/wiki/Attribute_grammar">
+attribute grammars</A>
+developed and eventually entered into the literature.
+<CENTER>
+<TABLE BORDER=1>
+<TR>
+  <TD ALIGN="center"><EM>situation</EM></TD> 
+  <TD ALIGN="center"><EM>operands</EM></TD>
+  <TD ALIGN="center"><EM>result</EM></TD>
+</TR>
+<TR>
+  <TD>x?</TD> 
+  <TD>type(x)=logical</TD>
+  <TD><EM>none</EM></TD>
+</TR>
+<TR>
+  <TD>x := y</TD> 
+  <TD>type(x)=type(y)</TD>
+  <TD><EM>none</EM></TD>
+</TR>
+<TR>
+  <TD>x|y, x&amp;y</TD> 
+  <TD>type(x)=type(y)=logical</TD>
+  <TD>logical</TD>
+</TR>
+<TR>
+  <TD>~x</TD> 
+  <TD>type(x)=logical</TD>
+  <TD>logical</TD>
+</TR>
+<TR>
+  <TD>x&lt;y, x&lt;=y, x&gt;y, x&gt;=y</TD> 
+  <TD>type(x)=type(y)=real | type(x)=type(y)=integer</TD>
+  <TD>logical</TD>
+</TR>
+<TR>
+  <TD>x=y, x~=y</TD> 
+  <TD>type(x)=type(y)=integer</TD>
+  <TD>logical</TD>
+</TR>
+<TR>
+  <TD>x+y, x-y, x*y, x/y</TD> 
+  <TD>type(x)=type(y)=real | type(x)=type(y)=integer</TD>
+  <TD>type(x)</TD>
+</TR>
+<TR>
+  <TD>-x</TD> 
+  <TD>type(x)=real | type(x)=integer</TD>
+  <TD>type(x)</TD>
+</TR>
+<TR>
+<TR>
+  <TD>x//y</TD> 
+  <TD>type(x)=type(y)=integer</TD>
+  <TD>integer</TD>
+</TR>
+<TR>
+  <TD>i2r(x)</TD> 
+  <TD>type(x)=integer</TD>
+  <TD>real</TD>
+</TR>
+<TR>
+  <TD>r2i(x)</TD> 
+  <TD>type(x)=real</TD>
+  <TD>integer</TD>
+</TR>
+<TR>
+  <TD>b2i(x)</TD> 
+  <TD>type(x)=logical</TD>
+  <TD>integer</TD>
+</TR>
+<TR>
+  <TD>rand</TD> 
+  <TD><EM>none</EM></TD>
+  <TD>real</TD>
+</TR>
+<TR>
+  <TD>true, false</TD> 
+  <TD><EM>none</EM></TD>
+  <TD>logical</TD>
+</TR>
+<TR>
+  <TD>123</TD> 
+  <TD><EM>none</EM></TD>
+  <TD>integer</TD>
+</TR>
+<TR>
+  <TD>1.111</TD> 
+  <TD><EM>none</EM></TD>
+  <TD>real</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+An <B>xcom</B> assignment insures the types of the left and right hand
+sides of the assignment are the same.
+But, if neither left nor right type is known at the moment of examination,
+the correct type cannot be entered into the symbol table.  
+It may be that, after walking the syntax tree once, 
+some variables do not yet have fully defined types.
+A sequence of assignments, 
+each leaving the types equal but undefined, is the worst case.
+</P>
+<P>
+The symbol table information is refined by additional 
+<A HREF="Glossary.html#pass">pass</A>es
+over the syntax tree 
+extending the type-effect of an assignment one step at a time.  
+The symbol table implementation, therefore, 
+repeatedly walks the syntax tree until no further type changes are found.
+Some small modifications of the depth-first tree walk are implemented
+to improve the efficiency of type analysis.  More could be done.
+</P>
+<P>
+Languages, such as C, 
+with declare-before-use do not need multiple passes to 
+build the symbol table because the type information is already
+fully determined.
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

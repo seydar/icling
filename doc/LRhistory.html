@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      LR.html
+     PURPOSE:   Describe Knuth's LR parsing technology
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.10.13 - original
+                Who -- When -- What
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- LR Parsing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> LR.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>LR Parsing</H3>
+</CENTER>
+
+<H4>A Little Bottom-up History</H4>
+
+<P>
+For about 10 years after high level programming languages came into 
+common use,
+various methods for automatic parsing were proposed.
+In 1957, the <A HREF=
+"http://inventors.about.com/od/bstartinventors/a/John_Backus_2.htm">
+Fortran
+</A>
+compiler inserted extra parentheses to implement
+arithmetic precedence.
+In 1963, Floyd expressed Algol 60 as an
+<A HREF="http://portal.acm.org/citation.cfm?id=321179&dl=ACM&coll=portal">
+operator precedence grammar</A>.
+In 1966, Wirth followed with
+<A HREF="http://portal.acm.org/citation.cfm?id=365162">
+simple precedence</A>.
+Knuth's
+<A HREF="knuth65.pdf">LR parsers</A> 
+proved to be the definitive solution.
+Knuth's paper was published in 1965
+but did not actually appear until late 1966 because a journal snafu.
+</P>
+<P>
+After LR appeared, 
+the topical question changed from "how to" to matters of efficiency.
+The computers available to researchers in 1965 had microsecond cycle times
+and 32K words of memory.  
+LR parsers powerful enough for useful languages <B>just did not fit</B>, 
+either in time or space.  
+In 1969, 
+Frank DeRemer's MIT PhD thesis presented an approximation to LR(1), 
+called <A HREF="http://en.wikipedia.org/wiki/LALR_parser">LALR(1)</A>.
+Eventually Steve Johnson's 
+<A HREF="http://en.wikipedia.org/wiki/Yacc">yacc</A>, based on LALR(1), 
+highly tuned for use in small memories,
+and freely available on Unix, 
+became the dominant solution for building LR parsers.
+</P>
+
+<P>Jacques Cohen wrote an interesting personal
+<A HREF="http://www.cs.brandeis.edu/~jc/parsing_and_compiling.html">
+history</A>, including his interest in these techniques.
+<P>
+In the meantime, 
+the computer manufacturers have given us gigabytes of memory 
+and nanosecond cycle times.  
+For many languages, Knuth's original LR(1) algorithm, 
+with no bells and whistles, now works just fine.
+It is simpler to understand and implement than its successors.
+So <B>xcom</B> uses LR(1) and 
+<A HREF="Topdown.html">recursive descent</A> interchangeably. 
+A production compiler would more likely use yacc.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH=50></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

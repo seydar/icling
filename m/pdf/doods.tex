@@ -1,0 +1,51 @@
+\documentclass{report}
+\batchmode
+\textheight 100in
+\begin{document}
+\pagestyle{empty}
+\begin{tabbing}
+xxx\=xxx\=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\=\kill
+{\tt\char18}{\em{} FILE:    doods.x
+}\\
+{\tt\char18}{\em{} PURPOSE: test combinations of do-od
+}\\
+{\tt\char18}{\em{} METHOD:  The X assert  if boolexp ? fi is used to check answers.
+}\\
+pass\ $\leftarrow$\ 0;\\
+{\tt\char18}{\em{} test literal constant, store and fetch
+}\\
+b2,\ b1\ $\leftarrow$\ false,\ true;\\
+{\bf if}\>b1\ $\wedge$\ \ $\neg$b2\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 17;\\
+{\bf do}\>x\ $<$\ 10\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ x$-$1;\\
+{\bf od};
+\\
+{\bf if}\>x\ $=$\ 10\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+x\ $\leftarrow$\ 311;\\
+lim\ $\leftarrow$\ 100;\\
+{\bf do}\>x$/\!\!/$2\ $=$\ 0\ $\wedge$\ lim\ $<$\ 0\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ x$/$2;\\
+\>lim\ $\leftarrow$\ lim$-$1;\\
+\raisebox{2pt}{\ \ \framebox[2pt]{\rule{0pt}{1pt}}}
+\>x$/\!\!/$2\ $=$\ 1\ $\wedge$\ lim\ $<$\ 0\ $\Rightarrow$
+\\
+\>x\ $\leftarrow$\ x$+$1;\\
+\>lim\ $\leftarrow$\ lim$-$1;\\
+{\bf od};
+\\
+{\bf if}\>x\ $=$\ 2\ $\Rightarrow$
+\ {\bf {f}{i}};
+\\
+pass\ $\leftarrow$\ pass$+$1;\\
+passeddoods\ $\leftarrow$\ pass;\\
+\end{tabbing}
+\end{document}

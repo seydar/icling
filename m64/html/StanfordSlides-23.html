@@ -1,0 +1,94 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This chunk of HTML is extracted from a published document.
+It is inserted at the head of every slide made by publish2slides.m
+      -->
+      <title>slides</title>
+      <meta name="generator" content="MATLAB 7.7">
+      <meta name="date" content="2009-01-21">
+      <style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style>
+</head>
+  
+<p align="right">StanfordSlides-23.html</p>
+
+         <h2>4  Making GEM efficient and reliable<a name="61"></a></h2>
+         <p>It is feasible to hack all sorts of enhancements into GEM without changing its nature.</p>
+         <div>
+            <ul>
+               <li>Tail recursion can be flattened.</li>
+               <li>The SEARCH can be precomputed (LL(1)-like capability).</li>
+               <li>Predefined character classes can be implemented inside <tt>iog.c</tt>.
+               </li>
+               <li>Internal consistency checks can be added.</li>
+            </ul>
+         </div>
+         <p>Program <tt>gem2</tt> provides a more efficient and reliable alternative. It has exactly the capabilities of <tt>gem</tt> except the character classes act more like builtin functions and less like macro expansions and it has more internal checks.
+         </p>
+         <p>The call to G.run is as before, except that the names of character class grammars can be added as additional parameters. 
+            For instance
+         </p><pre> G.run(i, g, 'A')</pre><p>makes the new <tt>run</tt> act like <tt>asciiIOG</tt> was appended to <tt>g</tt>.
+         </p>
+         <p>The third parameter can contain any of 'TdluaDLUA' standing for Trace and the appended character classes digitCFG.... asciiIOG.</p>
+         <table border=1><tr><td><a href="StanfordSlides-22.html">PREV</a></td><td><a href="StanfordSlides-24.html">NEXT</a></td></tr></table>
+</body></html>

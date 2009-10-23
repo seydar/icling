@@ -1,0 +1,443 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE:      Answers.html
+     PURPOSE:   Final Exam Answers
+     COPYRIGHT: W.M.McKeeman 2008.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2008.01.30 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Final Exam Answers
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Answers.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<H3>X</H3>
+<P>
+  <OL>
+    <LI>
+      <EM>A Discipline of Programming</EM>, E.W. Dijkstra
+    </LI>
+    <LI>
+      <PRE>
+
+`FILE: avg.x
+z := (x+y)/2.0
+      </PRE>
+    </LI>
+    <LI>
+      <PRE>
+        
+`FILE: testAvg.x
+av := avg := 1.0,2.0; 
+if av<=(1.0+2.0)/2.0 & av>=(1.0+2.0)/2.0? fi
+      </PRE>
+    </LI>
+    <LI>
+      <OL>
+        <LI>real, integer and boolean computation</LI>
+        <LI>assignment</LI>
+        <LI>strong typing</LI>
+        <LI>type inference</LI>
+        <LI>conditional execution</LI>
+        <LI>repetitive execution</LI>
+        <LI>subprograms</LI>
+        <LI>recursion</LI>
+      </OL>
+    </LI>
+    <LI>
+      <OL>
+        <LI>declarations</LI>
+        <LI>data structures</LI>
+        <LI>explicit input/output</LI>
+        <LI>variable scope</LI>
+        <LI>threads</LI>
+      </OL>
+    </LI>
+    <LI>
+      Any program is a subprogram.
+      A special assignment syntax maps the actual arguments
+      onto the formal inputs and outputs of the subprogram.
+    </LI>
+  </OL>
+</P>
+<H3>Grammars</H3>
+<P>
+  <OL>
+    <LI>Define the term <EM>Context-free Grammar</EM>.
+      <A HREF="../../book/ContextFreeGrammar.pdf">See page 4</A>.
+    </LI>
+    <LI>
+      <P ALIGN="left">
+        D <BR>
+          &nbsp;&nbsp; N N <BR>
+          &nbsp;&nbsp; N P P P P P <BR>
+          &nbsp;&nbsp; P P P P P P P P P P <BR>
+        N <BR>
+          &nbsp;&nbsp; 5 <BR>
+        P <BR>
+          &nbsp;&nbsp; 1
+      </P>
+    </LI>
+    <LI>
+      <P ALIGN="left">
+        D='5' '5' | '5' '1' '1' '1' '1' '1' | '1' '1' '1' '1' '1' '1' '1' '1' '1' '1' ;
+      </P>
+    </LI>
+    <LI>
+      <P ALIGN="left">
+      D = '5'<SUP>2</SUP> | '5' '1'<SUP>5</SUP> | '1' <SUP>10</SUP>;
+    </LI>
+    <LI>Define the term <EM>Finite Automaton</EM> in terms of a CFG.
+      <A HREF="../../book/FiniteAutomata.pdf">See page 3.</A>
+    </LI>
+    <LI>
+      <P ALIGN="left">
+        S =<BR>
+        P = S 1<BR>
+        P2 = P 1<BR>
+        P3 = P2 1<BR>
+        P4 = P3 1<BR>
+        P5 = P4 1<BR>
+        P5 = S 5<BR>
+        P6 = P5 1<BR>
+        P7 = P6 1<BR>
+        P8 = P7 1<BR>
+        P9 = P8 1<BR>
+        D = P5 5<BR>
+        D = P9 1
+      </P>
+    </LI>
+    <LI>
+      The CFG determines the syntax tree.  
+      The relation between operand(s) and operator is explicit in the tree.
+    </LI>
+  </OL>
+</P>
+<H3>Lexing</H3>
+<P>
+  <OL>
+    <LI>
+      The sequence of input characters is broken into a stream of
+      lexemes representing the symbols in <EM>V</EM><SUB>I</SUB> 
+      of the CFG.
+    </LI>
+    <LI>
+      The sequence of lexemes is pruned to remove insignificant
+      data, such as whitespace and comments;  The remaining lexemes
+      become tokens by gathering information about what kind of symbol
+      they represent and where they are in the input text.
+    </LI>
+    <LI>
+      The lexing can be done in one pass which is cache-friendly.
+      The conventional lexer steps in and out, leaving its memory image
+      vulnerable to pre-emption.
+    </LI>
+  </OL>
+</P>
+
+<H3>Parsing</H3>
+  <P>
+    <OL>
+    <LI>
+      The CFG describes the semantics of the language.  
+      The IOG is a template for constructing recursive parsers.
+    </LI>
+    <LI>
+      As a consequence of our preference for left-to-right associativity,
+      the CFG is left-recursive in the expression rules.  
+      The rules need to be identified (append rule number to each rule
+      as a member of <EM>V</EM><SUB>O</SUB>).  Turn left recursion into
+      regular expression interation (apply formal rules).
+    </LI>
+    <LI>
+      The LR(1) table builder produces the shift/reduce sequence
+      which is exactly what the recursive parser does with the IOG.
+      In fact, historically, recursive parsers produced any old kind
+      of intermediate representation that suited the writer.  The IOG
+      is a way to bring top-down and bottom-up into the same framework.
+    </LI>
+    <LI>
+      The parser produces a shift/reduce sequence.
+    </LI>
+  </OL>
+</P>
+
+<H3>Trees</H3>
+<P>
+  <OL>
+    <LI>
+      The syntax tree is built by stacking each token and building
+      a node for each rule in the shift/reduce sequence.
+      An AST is built in xcom by ignoring some rules.
+    </LI>
+    <LI>
+      An abstract syntax tree is a subtree of the syntax tree.  
+      The simplest view is that an AST is everything that is needed,
+      and nothing more.
+      The AST has no chains, 
+      and may depend on the operators being implicitly defined.
+      <A HREF="../../book/SyntaxTree.pdf">See page 4.</A>
+    </LI>
+    <LI>
+      <PRE>
+        program
+         /   \
+      stmts  eof
+        |
+       stmt
+        |
+    assignment
+    /   |    \
+  vars  :=   exprs
+   |          |
+  var        expr
+   |          |
+  id      disjunction
+              |
+          conjunction
+              |
+           negation
+              |
+           relation
+              |
+             sum
+              |
+            term
+              |
+           factor
+              |
+           integer
+      </PRE>
+    </LI>
+    <LI>
+      <PRE>
+        program
+         /   \
+      stmts  eof
+        |
+       stmt
+        |
+    assignment
+    /   |     \
+  vars  :=    exprs
+   |             \
+  id              sum
+                /  |  \
+               /   -   \
+              /         \
+             /           \
+            /             \
+        term               term
+       /  |  \            /  |  \
+     id   * integer  integer /   id 
+      </PRE>
+    </LI>
+    <LI>
+      Tree transformations are usually required for optimization.
+      Furthermore, "decorating" trees with information is sometimes
+      simpler than building associated tables for the same purpose.
+    </LI>
+  </OL>
+</P>
+
+<H3>Symbols</H3>
+<P>
+  <OL>
+    <LI>
+      The use of symbols in a program needs to be consistent 
+      (i.e. strong typing) and whatever attributes they have must
+      be available for use by later stages of compilation.
+      In most programming languages, the symbol table is more elaborate
+      than the one in xcom, dealing in a rich set of attributes and
+      name scopes.
+    </LI>
+    <LI>
+      <UL>
+        <LI><B>lookup</B>: given a name, get the symbol table index</LI>
+        <LI><B>enter</B>: put a name into the symbol table</LI>
+        <LI><B>getName</B>: given index, get name</LI>
+        <LI><B>getType</B>: given index, get type</LI>
+        <LI><B>getUse</B>: given index get left/right usage</LI>
+        <LI><B>getSubr</B>: given index, find out if it is a subprogram</LI>
+        <LI><B>getFun</B>: the name of the current function</LI>
+        <LI><B>getLftCt</B>: the output count for current function</LI>
+        <LI><B>getLeft</B>: get the index of the i<SUP>th</SUP> output</LI>
+        <LI><B>getRgtCt</B>: the input count for the current function</LI>
+        <LI><B>getRight</B>: get the index of the i<SUP>th</SUP> input</LI>
+        <LI><B>size</B>: get size of the symbol table (frame)</LI>
+      </UL>
+    </LI>
+    <LI>
+      Both contain an entry for each variable.
+    </LI>
+    <LI>
+      Variable x not fully defined.
+    </LI>
+    <LI>
+      Integer type not allowed by context.
+    </LI>
+  </OL>
+</P>
+
+<H3>Generator</H3>
+<P>
+  <OL>
+    <LI>
+      It puts execution actions in the right order.
+    </LI>
+    <LI>
+      In xcom the generator walks the tree
+      and calls the emitter for each action.  
+      It holds output from one emitter in a local variable
+      to pass to another emitter.
+      These values are opaque to the generator 
+      to keep it target independent.
+    </LI>
+  </OL>
+</P>
+
+<H3>Emitter</H3>
+<P>
+  <OL>
+    <LI>
+      The emitter selects code to turn semantic actions
+      into hadrware instruction sequences.
+    </LI>
+  </OL>
+</P>
+
+<H3>Assembler</H3>
+<P>
+  <OL>
+    <LI>
+      The assembler formats machine instructions into executable bits.
+      It also provides for entering execution since the bits are local 
+      to the asembler.
+    </LI>
+    <LI>
+      Using a C pseudo code (and therefore C arithmetic):
+      <OL>
+        <LI>addRR EAX,ECX<BR>
+          <TT>EAX += ECX;</TT>
+        </LI>
+        <LI>faddp<BR>
+          <TT>FPS(sp+1) += FPS(sp); sp -= 1;</TT>
+        </LI>
+        <LI>movMR x,EAX<BR>
+          <TT>*(ESI+offset(x)) = EAX;</TT>
+        </LI>
+        <LI>movRM EAX,y<BR>
+          <TT>EAX = *(ESI+offset(y));</TT>
+        </LI>
+        <LI>bge n<BR>
+          <TT>if (flags('>=')) EIP += n;</TT>
+        </LI>
+      </OL>
+    </LI>
+  </OL>
+</P>
+
+<H3>Emulator</H3>
+<P>
+  <OL>
+    <LI>
+      The emulator allows instruction-by-instruction examination
+      of the effect of emitted code.
+    </LI>
+    <LI>
+      Each instruction is obeyed as it is encountered.  
+      The i<SUP>th</SUP> execution puts trace output in the
+      i<SUP>th</SUP> element of a cell array.  
+      If a negative step size is given, 
+      the previously recorded trace is played out.  
+      Stepping forward just plays out the cell array until
+      new territory is reached, 
+      in which case the cell array is again extended.
+  </OL>
+</P>
+
+<H3>Optimization</H3>
+<P>
+  <OL>
+    <LI>
+      A more efficient code sequence must behave exactly like the 
+      one it replaced (except for performance).
+    </LI>
+    <LI>
+      <TT>x:=1+2</TT> compiled as <TT>x:=3</TT>
+    </LI>
+    <LI>
+      <TT>x := y + z; w := y + z;</TT><BR>
+        compiled as <BR>
+      <TT>tmp := y+z; x := tmp; w := tmp;</TT><BR>
+    </LI>
+    <LI>
+      <TT>do x<10? x := y + a + b; od</TT><BR>
+      compiled as<BR>
+      <TT>tmp := a+b; do x<10? x := y + tmp; od</TT>
+    </LI>
+    <LI>
+      Because the value of i will still in a register,
+      so it does not need to be loaded again for the +1.
+    </LI>
+  </OL>
+</P>
+
+<H3>Runtime</H3>
+<P>
+  <OL>
+    <LI>
+      The runtime supplies services supporting X program execution.
+      It is written in MEX.
+    </LI>
+    <LI>
+      <OL>
+        <LI>
+          The frame is an int32 MATLAB array.  
+          It holds 1-bit logicals, 32-bit ints and 32-bit singles.
+          xcom keeps track of which is which in the symbol table.
+          frame(i) is the bits for the i-th variable.
+          The puns f2i and i2f are used to make the values work in M.
+        </LI>
+        <LI>
+          The frame is allocated and initialized with input values 
+          (from the command line) before the subprogram is called.
+          After execution, the output values are extracted from the
+          frame and displayed on the command line.  
+          Then the frame is discarded.
+        </LI>
+        <LI>
+          Subprograms use the i/o mechanism (above) to pass parameters
+          and return values. 
+          Both frames must be available during the link.
+        </LI>
+    </LI>
+  </OL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

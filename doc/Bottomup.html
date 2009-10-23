@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      Bottomup.html
+     PURPOSE:   About using LR(1) to parse X
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Table-driven Parsing
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> Bottomup.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Table-driven Parsing</H3>
+</CENTER>
+
+<P>
+Read a short history of <A HREF="LRhistory.html">bottom-up</A> parsing.
+</P>
+
+<H4>The LR(1) Actions</H4>
+
+<P>LR(1) parsing is based on precomputing a data structure that holds 
+  <EM>every possible parsing decision</EM>.  
+The data structure is (conceptually) a rectangular matrix,
+indexed by a current state and the current input token.  
+The entries of the matrix are one of 
+<B>shift</B>, <B>reduce</B> or <B>error</B>.
+The starting state is 1.
+The entries of the matrix are used in a loop which
+repeats until the parse is completed or an error is found and diagnosed.
+A correct parse will have processed all of the input
+and end up in the final state corresponding to the grammar goal symbol
+</P>
+<P>
+Each shift entry causes the parser to <B>report</B> the current token,
+push the new state and move ahead in the token stream.
+These shift entries are the DFA to recognize the parse stack,
+bottom to top, as though it were a sequence.
+</P>
+<P>
+Each reduce entry represents the recognition of a grammar rule.
+The reduce entries are the final states of the DFA.
+When a final state is reached, the parser breaks out of the DFA 
+and executes a non-DFA reduce action.
+The reducing rule is <B>reported</B>.
+The top elements of the stack contain states, each
+corresponding to a symbol the r.h.s. of the reducing rule.
+The reduce action causes the parser to pop the states matching the r.h.s.
+off the stack,
+compute the state-transition for the l.h.s. of the rule, 
+and push this new state on the stack, re-enabling the DFA.
+</P>
+
+<H4>Coding the LR(1) Table</H4>
+<P>
+The LR(1) table contains small integer values.
+Zero represents a syntax error.
+A shift entry contains the new state.
+A reduce entry contains the rule to apply.
+In this implementation, reduce rules are distinguished from shifts
+by encoding the negative of the rule number.
+</P>
+
+<P>
+For example, the simple grammar knuth3.cfg
+<BIG>
+<PRE>
+  rules           numbers
+G
+  S eof              1
+S
+  a A d              2
+  b A B              3
+A 
+  c A                4
+  c                  5
+B
+  d                  6
+</PRE>
+</BIG>
+</P>
+<P>
+gives rise to the LR(1) transition table
+<PRE>
+         a      b      c      d     eof     A      B      G      S
+ 1:      2      3      0      0      0      0      0      0      4
+ 2:      0      0      5      0      0      6      0      0      0
+ 3:      0      0      7      0      0      8      0      0      0
+ 4:      0      0      0      0      9      0      0      0      0
+ 5:      0      0      5     -5      0     10      0      0      0
+ 6:      0      0      0     11      0      0      0      0      0
+ 7:      0      0      7     -5     -5     12     -5      0      0
+ 8:      0      0      0     13     -7      0     14      0      0
+ 9:     -1     -1     -1     -1     -1     -1     -1     -1     -1
+10:      0      0      0     -4      0      0      0      0      0
+11:      0      0      0      0     -2      0      0      0      0
+12:      0      0      0     -4     -4      0     -4      0      0
+13:      0      0      0      0     -6      0      0      0      0
+14:      0      0      0      0     -3      0      0      0      0
+</PRE>
+and the rule lengths
+<BIG>
+<PRE>
+   rule number 1 2 3 4 5 6
+   rule length 2 3 3 2 1 1
+</PRE>
+</BIG>
+<H4>Using the LR(1) Tables</H4>
+
+<P>
+Suppose the input text is "a c d eof".
+Then the following actions take place.  
+The application of a reduction takes two steps; 
+one to apply the rule and one to compute the new state.
+</P>
+<TABLE BORDER="1">
+<TR>
+  <TD ALIGN="center"><EM>in state</EM></TD>
+  <TD ALIGN="center"><EM>see</EM></TD>
+  <TD ALIGN="center"><EM>new state</EM></TD>
+  <TD ALIGN="center"><EM>rule</EM></TD>
+  <TD ALIGN="center"><EM>state stack</EM></TD>
+  <TD ALIGN="center"><EM>accumulated reports</EM></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>1</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>a</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>2</TT></BIG></TD> 
+  <TD>&nbsp;</TD>
+  <TD ALIGN="right"><BIG><TT>1</TT></BIG></TD> 
+  <TD><BIG><TT>a</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>2</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>c</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>5</TT></BIG></TD> 
+  <TD>&nbsp;</TD>
+  <TD ALIGN="right"><BIG><TT>2 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>5</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>d</TT></BIG></TD> 
+  <TD ALIGN="right">&nbsp;</TD> 
+  <TD><BIG><TT>A = c</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>5 2 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>2</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>A</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>6</TT></BIG></TD> 
+  <TD>&nbsp;</TD> 
+  <TD ALIGN="right"><BIG><TT>2 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>6</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>d</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>11</TT></BIG></TD> 
+  <TD>&nbsp;</TD> 
+  <TD ALIGN="right"><BIG><TT>6 2 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5 d</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>11</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>eof</TT></BIG></TD> 
+  <TD ALIGN="right">&nbsp;</TD> 
+  <TD><BIG><TT>S = a A d</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>11 6 2 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5 d 2</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>1</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>S</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>4</TT></BIG></TD> 
+  <TD>&nbsp;</TD> 
+  <TD ALIGN="right"><BIG><TT>1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5 d 2</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>4</TT></BIG></TD> 
+  <TD ALIGN="center"><BIG><TT>eof</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>9</TT></BIG></TD> 
+  <TD>&nbsp;</TD> 
+  <TD ALIGN="right"><BIG><TT>4 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5 d 2 eof</TT></BIG></TD>
+</TR>
+<TR>
+  <TD><BIG><TT>9</TT></BIG></TD> 
+  <TD ALIGN="center">&nbsp;</TD> 
+  <TD ALIGN="right"><EM>quit</EM></TD> 
+  <TD><BIG><TT>G = S eof</TT></BIG></TD> 
+  <TD ALIGN="right"><BIG><TT>9 4 1</TT></BIG></TD> 
+  <TD><BIG><TT>a c 5 d 2 eof 1</TT></BIG></TD>
+</TR>
+</TABLE>
+
+<H4>Building the LR(1) Tables (operational viewpoint).</H4>
+<P>
+  The LR(1) table construction deals with sets of marked rules,
+  each with a lookahead set.
+  The initial LR(1) set, corresponding to the LR(1) machine start state,
+  contains the goal rule marked in the leftmost position.
+  Its lookahead is empty.
+  For the grammar knuth3 above, that would be the set
+  <BIG>
+    <PRE>
+      { G = <SUP>.</SUP>S eof {} }
+    </PRE>
+  </BIG>
+  where the dot is the mark.  
+</P>
+<P>
+  The construction alternates <EM>closing</EM> a state, 
+  then <EM>shifting</EM>, which creates new states.
+  These new states must be closed. and new shifts computed.
+  As the computation proceeds, the result is a growing set of sets of
+  states of marked rules.
+  The computation continues until there are no more new states.
+</P>
+<P>
+  A state is closed by (recursively) adding marked rules for all
+  definitions of each phrase name immediately to the right of the mark.
+  The newly added rules are always marked at the leftmost position.
+  The lookahead for each new rule is all things that could follow it, 
+  which in turn is computed from the heads of its right context.
+</P>
+<P>
+  Shifts from a closed state are computed by moving 
+  the mark one place to the right.  
+  The shift is on the symbol over which the mark moves.
+  This has the effect of separating the marked rules into small groups,
+  each of which is the initial contents of a new state.
+  The shifted rules carry their lookahead along.
+</P>
+<P>
+  The collection of states and shifts is a 
+  <A HREF="FiniteAutomata.pdf">DFA</A>
+  that recognizes all possible parse stacks.
+  If the mark has arrived at the right end of a rule,
+  it signifies a final state of the automaton,
+  and therefore a reduce action.
+</P>
+<P>
+  There can be several shifts and several reduce actions for one state.
+  The requirement is that their lookahead sets be disjoint.
+  If they are not, the LR(1) machine contains a shift/reduce conflict
+  or a reduce/reduce conflict.
+</P>
+
+<P>
+  Read a description of <A HREF='LRtheory.pdf'>table building</A>.<BR>
+  Follow a <A HREF="exprLR.pdf">worked example</A>
+  to build the LR(1) tables for a very simple expression grammar.<BR>
+  Look at a yacc <A HREF="../yacc/X.y">grammar for X</A>.
+</P>
+
+<H4>Building the LR(1) Tables (mathematical viewpoint).</H4>
+
+<P>
+Read Knuth's 1965 <A HREF="knuth65.pdf">paper</A>,
+<EM>On the Translation of Languages from Left to Right</em>
+or McKeeman's <A HREF="LR.pdf">powerpoint presentation</A>,
+<EM>A New Look at LR(1)</EM> or the Dartmouth Undergraduate Compiler Course
+<A HREF="http://www.cs.dartmouth.edu/~mckeeman/cs48/lectures/07_lecture.html">
+class notes</A>.
+</P>
+
+<HR>
+Footnote:
+<P>
+  I first learned bottom-up compiling as a research assistant 
+  to Niklaus Wirth at Stanford.  
+  I attended a presentation of LR(k) by Donald Knuth at Stanford
+  well in advance of the material appearing in print.
+</P>
+
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE:      ChangingSymbols.html
+     PURPOSE:   How to change the xcom symbol table
+     COPYRIGHT: W.M.McKeeman 2007.  You may do anything you like with 
+     this file except remove or modify this copyright.
+     MODS:      McKeeman - 2007.07.06 - original
+  -->
+
+<HTML>
+
+<HEAD>
+<TITLE>
+  A Short Course in Compilers -- Changing the Symbol Table
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFF0D0">
+
+<!-- the following table head provides margins and textbook-like appearance -->
+<TABLE>
+<TR><TD></TD></TR>
+<TR><TD WIDTH="50"></TD><TD WIDTH="600">
+
+<P ALIGN="RIGHT">
+<SMALL>
+<EM>File</EM> ChangingSymbols.html&nbsp;&nbsp;&nbsp;  
+<EM>Author</EM> McKeeman&nbsp;&nbsp;&nbsp;  
+<EM>Copyright</EM> &copy; 2007&nbsp;&nbsp;&nbsp;  
+<A HREF="Index.html">index</A>
+</SMALL>
+</P>
+<!-- ----------------------------------------------------------------- -->
+
+<CENTER>
+<H3>Changing the xcom Symbol Table</H3>
+</CENTER>
+
+<H4>Preliminaries</H4>
+
+<P>Read the general description of the <A HREF="Symbols.html">symbol table</A>.<P>
+
+<P>In MATLAB, in the xcom directory, type
+<PRE>
+  >> help Symbols.m
+</PRE>
+and
+<PRE>
+  >> xcom -symTrace -symDump -noExecute x:=1+r2i(y)
+</PRE>
+</P>
+
+<H4>Responding to Changes in the CFG</H4>
+<P>
+Changing the X CFG means changing the opportunities to infer type
+and use information.  
+A new rule means a new node which in turn requires modification
+of the Symbol.m tree walker.
+</P>
+
+<H4>Adding a Scalar Type to X</H4>
+<P>
+Each scalar type has a position in a bit-vector of types.
+If the bit-vector is all 1's, all types are possible which
+is the same as saying nothing is yet known.
+A new type needs a new bit position in the bit-vector.
+See variables intType and realType for a model.
+</P>
+
+<H4>Adding a Data Structure to X</H4>
+<P>
+There are three scalar types.  Suppose vectors of all three are needed.
+In the strong-type world of X, the appearance of a subscripted variable
+is sufficient to determine that all uses of that variable
+are in fact array references.  
+A single new bit in the symbol table will suffice, say vecType.
+The six type possibilities are then
+<TABLE BORDER="1" ALIGN="CENTER" CELLPADDING="3">
+<TR><TD>logical</TD> <TD>logical vector</TD></TR>
+<TR><TD>integer</TD> <TD>integer vector</TD></TR>
+<TR><TD>real</TD>    <TD>real vector</TD></TR>
+</TABLE>
+</P>
+
+<P>If subscripts are added the language, then one probably also
+wants to add a type inference that the subscript expression is
+of type integer.
+</P>
+
+<!-- ----------------------------------------------------------------- -->
+<!-- the following table end provides margins and textbook-like appearance -->
+</TD><TD WIDTH="50"></TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
